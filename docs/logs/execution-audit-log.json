@@ -1,0 +1,79 @@
+[
+  {
+    "timestamp": "2026-10-10T17:49:35.831Z",
+    "workflow": "Workflow B",
+    "runId": "RUN-B-001",
+    "status": "SUCCESS",
+    "metrics": {
+      "totalLeadsInStore": 3,
+      "actionableDueCount": 2,
+      "overdueCount": 1
+    }
+  },
+  {
+    "timestamp": "2026-10-10T17:49:35.833Z",
+    "workflow": "Workflow B",
+    "runId": "RUN-B-002",
+    "status": "SUCCESS",
+    "metrics": {
+      "totalLeadsInStore": 2,
+      "actionableDueCount": 0,
+      "overdueCount": 0
+    }
+  },
+  {
+    "timestamp": "2026-10-10T17:49:35.834Z",
+    "workflow": "Workflow E",
+    "runId": "RUN-E-001",
+    "status": "SUCCESS",
+    "metrics": {
+      "collectedCash": 50000,
+      "taxReserve": 9000,
+      "netRunway": 14000,
+      "solvencyState": "SOLVENT"
+    }
+  },
+  {
+    "timestamp": "2026-10-10T17:49:35.834Z",
+    "workflow": "Workflow E",
+    "runId": "RUN-E-002",
+    "status": "SUCCESS",
+    "metrics": {
+      "billedTotal": 100000,
+      "collectedCash": 0,
+      "outstandingReceivables": 100000,
+      "netRunway": -11500,
+      "solvencyState": "DEFICIT_WARNING"
+    }
+  },
+  {
+    "timestamp": "2026-10-10T17:49:35.835Z",
+    "workflow": "Workflow A",
+    "runId": "RUN-A-001",
+    "status": "SUCCESS",
+    "metrics": {
+      "status": "ACCEPTED",
+      "service": "Solar EPC"
+    }
+  },
+  {
+    "timestamp": "2026-10-10T17:49:35.835Z",
+    "workflow": "Workflow A",
+    "runId": "RUN-A-002",
+    "status": "REJECTED",
+    "metrics": {
+      "status": "REJECTED_VALIDATION_ERROR",
+      "reason": "Invalid Indian mobile format"
+    }
+  },
+  {
+    "timestamp": "2026-10-10T17:49:35.835Z",
+    "workflow": "Workflow A",
+    "runId": "RUN-A-003",
+    "status": "REJECTED",
+    "metrics": {
+      "status": "REJECTED_SPAM",
+      "reason": "Bot honeypot triggered"
+    }
+  }
+]
