@@ -291,59 +291,133 @@
       </div>
     </section>
 
-    <!-- Solar Rooftop Sizing Calculator Section -->
+    <!-- Solar Rooftop Sizing & PVGIS Feasibility Engine -->
     <section id="sec-solar-calculator" style="padding: 60px 0; border-bottom: 1px solid var(--border-color);">
       <div class="container">
-        <div style="text-align: center; max-width: 720px; margin: 0 auto 36px;">
-          <span class="text-amber" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Interactive Feasibility Engine</span>
-          <h2 style="font-size: 32px; margin-top: 6px;">Guwahati & Assam Solar Rooftop Sizing Calculator</h2>
+        <div style="text-align: center; max-width: 780px; margin: 0 auto 36px;">
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-full); margin-bottom: 12px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--solar-amber); text-transform: uppercase;">PVGIS Satellite Calibrated • APDCL Regulations</span>
+          </div>
+          <h2 style="font-size: 32px; margin-top: 6px;">Guwahati & Northeast India Solar Feasibility Engine</h2>
           <p style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">
-            Estimate your optimal system capacity, generation, electricity bill reduction, and payback timeline based on APDCL benchmark tariffs and regional irradiation.
+            Preliminary solar production models calibrated against European Commission <strong>PVGIS (SARAH-2)</strong> satellite solar databases, roof orientation geometry, shading derates, and Assam APDCL net-metering interconnection rules.
           </p>
         </div>
 
-        <div style="max-width: 900px; margin: 0 auto;">
+        <div style="max-width: 960px; margin: 0 auto;">
           <div class="calc-card">
-            <div class="grid grid-cols-2 gap-4">
+            <h4 style="font-size: 14px; text-transform: uppercase; color: var(--solar-amber); margin-bottom: 14px; letter-spacing: 0.5px;">1. Electrical Connection & Consumption</h4>
+            <div class="grid grid-cols-2 gap-4" style="margin-bottom: 20px;">
               <div class="form-group">
-                <label class="form-label">Sanctioned Connected Load (kW)</label>
+                <label class="form-label">Sanctioned Connected Load (kW) *</label>
                 <input type="number" id="calc-load" class="form-control" value="25" min="1" max="1000" placeholder="e.g. 25">
-                <small class="text-muted">Per APDCL bill (Net metering is capped up to sanctioned load)</small>
+                <small class="text-muted">Per electricity bill (APDCL net-metering cap = 100% of sanctioned load)</small>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Average Monthly Electricity Bill (₹)</label>
+                <label class="form-label">Average Monthly Electricity Bill (₹) *</label>
                 <input type="number" id="calc-bill" class="form-control" value="28000" min="500" step="500" placeholder="e.g. 28000">
                 <small class="text-muted">Average monthly billing amount in INR</small>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Customer Tariff Category</label>
+                <label class="form-label">Consumer Tariff Category</label>
                 <select id="calc-type" class="form-control">
-                  <option value="commercial" selected>Commercial LT (~₹7.85 / unit benchmark)</option>
-                  <option value="domestic">Domestic / Residential (~₹6.20 / unit benchmark)</option>
-                  <option value="industrial">Industrial LT/HT (~₹7.20 / unit benchmark)</option>
+                  <option value="commercial" selected>Commercial LT (~₹7.85 / unit APDCL benchmark)</option>
+                  <option value="domestic">Domestic / Residential (~₹6.20 / unit APDCL benchmark)</option>
+                  <option value="industrial">Industrial LT/HT (~₹7.20 / unit APDCL benchmark)</option>
                 </select>
               </div>
 
               <div class="form-group">
-                <label class="form-label">Available Shadow-Free Roof Area (sq. ft.)</label>
+                <label class="form-label">Available Shadow-Free Rooftop Area (sq. ft.)</label>
                 <input type="number" id="calc-roof" class="form-control" value="2500" min="100" placeholder="e.g. 2500">
-                <small class="text-muted">Requires approx. 95 sq. ft. per kWp</small>
+                <small class="text-muted">Approx. 95 sq. ft. per kWp required for RCC or industrial sheet</small>
               </div>
             </div>
 
-            <div style="text-align: center; margin-top: 10px;">
-              <button class="btn btn-primary" onclick="app.runPublicCalculator()" style="padding: 12px 32px; font-size: 14px;">
-                ⚡ Calculate Sizing & Financial Model
+            <h4 style="font-size: 14px; text-transform: uppercase; color: var(--tech-cyan); margin-bottom: 14px; letter-spacing: 0.5px; border-top: 1px solid var(--border-color); padding-top: 16px;">2. Site Orientation & PVGIS Simulation Parameters</h4>
+            <div class="grid grid-cols-3 gap-3" style="margin-bottom: 20px;">
+              <div class="form-group">
+                <label class="form-label">Northeast District / Location</label>
+                <select id="calc-location" class="form-control">
+                  <option value="guwahati" selected>Guwahati (Kamrup Metro) — 26.14°N, 91.74°E</option>
+                  <option value="dibrugarh">Dibrugarh (Upper Assam) — 27.47°N, 94.91°E</option>
+                  <option value="silchar">Silchar (Barak Valley) — 24.83°N, 92.78°E</option>
+                  <option value="tezpur">Tezpur (Sonitpur) — 26.65°N, 92.79°E</option>
+                  <option value="jorhat">Jorhat (Upper Assam) — 26.75°N, 94.20°E</option>
+                  <option value="shillong">Shillong (Meghalaya) — 25.58°N, 91.89°E</option>
+                  <option value="agartala">Agartala (Tripura) — 23.83°N, 91.29°E</option>
+                </select>
+                <small class="text-muted">Satellite irradiation preset</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Module Tilt Angle (°)</label>
+                <select id="calc-tilt" class="form-control">
+                  <option value="25" selected>25° (Optimal for Assam Latitude)</option>
+                  <option value="15">15° (Low-profile RCC structure)</option>
+                  <option value="10">10° (Industrial shed slope)</option>
+                  <option value="0">0° (Flat horizontal flush mount)</option>
+                </select>
+                <small class="text-muted">Optimal fixed tilt is 24°–26° in Assam</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Roof Orientation (Azimuth)</label>
+                <select id="calc-azimuth" class="form-control">
+                  <option value="0" selected>True South (0° — Optimal 100% yield)</option>
+                  <option value="-45">South-East (-45°)</option>
+                  <option value="45">South-West (+45°)</option>
+                  <option value="-90">East (-90° — Morning sunlight)</option>
+                  <option value="90">West (+90° — Afternoon sunlight)</option>
+                </select>
+                <small class="text-muted">True South yields highest annual energy</small>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3" style="margin-bottom: 24px;">
+              <div class="form-group">
+                <label class="form-label">Near / Far Shading Derate</label>
+                <select id="calc-shading" class="form-control">
+                  <option value="3" selected>Minimal (0%–3% — Clear horizon, standard)</option>
+                  <option value="6">Minor (5%–6% — Low parapet or distant pole)</option>
+                  <option value="12">Moderate (10%–12% — Surrounding trees or lift room)</option>
+                  <option value="18">Significant (15%–20% — Heavy partial shading)</option>
+                </select>
+                <small class="text-muted">Derates generation for local shadow obstacles</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Estimated System Losses</label>
+                <select id="calc-loss" class="form-control">
+                  <option value="14" selected>14% (PVGIS Standard — Cables, Inverter, Soiling)</option>
+                  <option value="12">12% (High-efficiency premium components)</option>
+                  <option value="16">16% (Higher dust / infrequent cleaning)</option>
+                </select>
+                <small class="text-muted">Inverter loss, thermal degradation & dust</small>
+              </div>
+            </div>
+
+            <div style="text-align: center;">
+              <button class="btn btn-primary" onclick="app.runPublicCalculator()" style="padding: 12px 36px; font-size: 14px;">
+                ⚡ Calculate Sizing & PVGIS Simulation
               </button>
             </div>
 
             <!-- Dynamic Results Container -->
-            <div id="calc-results-box" class="hidden" style="margin-top: 28px; border-top: 1px solid var(--border-color); padding-top: 24px;">
-              <div class="flex justify-between items-center" style="margin-bottom: 16px;">
-                <h3 style="font-size: 18px; color: var(--text-primary);">Estimated Advisory Results</h3>
-                <span class="badge badge-proposal">Assam Regional Calibration</span>
+            <div id="calc-results-box" class="hidden" style="margin-top: 32px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+              <div class="flex justify-between items-center" style="margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <h3 style="font-size: 18px; color: var(--text-primary);">Feasibility Results & PVGIS Benchmark</h3>
+                  <div style="font-size: 12px; color: var(--text-muted);" id="calc-res-location-title">Guwahati, Assam</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="badge badge-proposal">PVGIS SARAH-2 Satellite Model</span>
+                  <a id="calc-btn-pvgis" href="#" target="_blank" class="btn btn-secondary btn-sm" title="Open official European Commission PVGIS tool with these exact coordinates and power">
+                    🌐 Open Official PVGIS Tool ↗
+                  </a>
+                </div>
               </div>
 
               <div class="grid grid-cols-4 gap-3" style="margin-bottom: 16px;">
@@ -354,47 +428,75 @@
                 </div>
 
                 <div class="result-kpi-box">
-                  <div class="kpi-label">Monthly Generation</div>
-                  <div class="kpi-value text-cyan" id="calc-res-monthly-gen">—</div>
+                  <div class="kpi-label">Specific Yield (PVGIS)</div>
+                  <div class="kpi-value text-cyan" id="calc-res-specific-yield">—</div>
+                  <div class="kpi-subtext">kWh / kWp / year</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">Monthly / Annual Gen</div>
+                  <div class="kpi-value text-emerald" id="calc-res-monthly-gen">—</div>
                   <div class="kpi-subtext" id="calc-res-annual-gen">—</div>
                 </div>
 
                 <div class="result-kpi-box">
-                  <div class="kpi-label">Annual Bill Reduction</div>
-                  <div class="kpi-value text-emerald" id="calc-res-annual-savings">—</div>
-                  <div class="kpi-subtext">Direct power savings</div>
+                  <div class="kpi-label">Annual Savings</div>
+                  <div class="kpi-value" id="calc-res-annual-savings">—</div>
+                  <div class="kpi-subtext">Bill reduction per year</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-4 gap-3" style="margin-bottom: 20px;">
+                <div class="result-kpi-box">
+                  <div class="kpi-label">Benchmark System Cost</div>
+                  <div style="font-size: 15px; font-weight: 700; margin-top: 4px;" id="calc-res-investment">—</div>
+                  <div class="kpi-subtext">Turnkey EPC estimate</div>
                 </div>
 
                 <div class="result-kpi-box">
                   <div class="kpi-label">Estimated Payback</div>
-                  <div class="kpi-value" id="calc-res-payback">—</div>
+                  <div style="font-size: 15px; font-weight: 700; color: var(--solar-amber); margin-top: 4px;" id="calc-res-payback">—</div>
                   <div class="kpi-subtext">Return on investment</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">25-Yr Cumulative Savings</div>
+                  <div style="font-size: 15px; font-weight: 700; color: var(--accent-emerald); margin-top: 4px;" id="calc-res-lifetime-savings">—</div>
+                  <div class="kpi-subtext">With 0.7% annual degradation</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">25-Yr Carbon Offset</div>
+                  <div style="font-size: 15px; font-weight: 700; color: var(--tech-cyan); margin-top: 4px;" id="calc-res-co2">—</div>
+                  <div class="kpi-subtext">Tonnes CO2 avoided</div>
                 </div>
               </div>
 
-              <div class="grid grid-cols-3 gap-3" style="margin-bottom: 20px;">
-                <div class="result-kpi-box">
-                  <div class="kpi-label">Benchmark System Cost Range</div>
-                  <div style="font-size: 16px; font-weight: 700; margin-top: 4px;" id="calc-res-investment">—</div>
-                  <div class="kpi-subtext">Tier-1 modules & inverter setup</div>
+              <!-- 12-Month Seasonal Generation Breakdown -->
+              <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px;">
+                <div class="flex justify-between items-center" style="margin-bottom: 10px;">
+                  <h4 style="font-size: 13px; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px;">Assam Seasonal Generation Profile (12 Months Units & Bill Savings)</h4>
+                  <small class="text-muted">Reflects pre-monsoon peak & June–August monsoon rain dip</small>
                 </div>
-
-                <div class="result-kpi-box">
-                  <div class="kpi-label">25-Year Cumulative Savings</div>
-                  <div style="font-size: 16px; font-weight: 700; color: var(--accent-emerald); margin-top: 4px;" id="calc-res-lifetime-savings">—</div>
-                  <div class="kpi-subtext">Factoring 0.7% annual degradation</div>
+                <div class="grid grid-cols-6 gap-2" id="calc-monthly-breakdown-container">
+                  <!-- Rendered dynamically -->
                 </div>
+              </div>
 
-                <div class="result-kpi-box">
-                  <div class="kpi-label">25-Year Carbon Offset</div>
-                  <div style="font-size: 16px; font-weight: 700; color: var(--tech-cyan); margin-top: 4px;" id="calc-res-co2">—</div>
-                  <div class="kpi-subtext">Clean energy contribution</div>
+              <!-- Engineering Feasibility & Proposal Verification Checklist -->
+              <div style="background: rgba(19, 28, 46, 0.7); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 16px; margin-bottom: 20px;">
+                <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+                  <h4 style="font-size: 13px; text-transform: uppercase; color: var(--solar-amber); letter-spacing: 0.5px;">📋 Proposal Feasibility Checklist (Before Formal Proposal Issuance)</h4>
+                  <span class="badge badge-new">Engineering Verification</span>
+                </div>
+                <div id="calc-feasibility-checklist-container">
+                  <!-- Rendered dynamically -->
                 </div>
               </div>
 
               <!-- Important Disclaimer Banner -->
               <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--solar-amber); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
-                <strong>Regulatory & Technical Disclaimer:</strong> Sizing estimates are advisory calculations calibrated to Assam solar insolation (~120 units/kWp/month) and APDCL average tariff benchmarks. Final net-metering clearance is subject to physical shadow audit and local APDCL distribution transformer capacity margin under AERC regulations.
+                <strong>Regulatory & Engineering Disclaimer:</strong> PVGIS satellite estimates provide preliminary baseline solar production. Actual proposals require on-site shading survey (sun path verification), local roof structural load testing (wind resistance up to 50 m/s under Assam Wind Zone 5), component datasheets review (ALMM tier-1 modules & inverter MPPT window), and APDCL distribution transformer capacity headroom approval under AERC regulations.
               </div>
 
               <div class="flex justify-center items-center gap-3">
@@ -402,7 +504,7 @@
                   💬 Discuss Results with MaxEco Advisory on WhatsApp
                 </a>
                 <a href="#sec-contact" class="btn btn-secondary" style="padding: 10px 24px;">
-                  Submit Formal Site Survey Request
+                  Schedule Detailed On-Site Shading Survey
                 </a>
               </div>
             </div>

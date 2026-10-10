@@ -88,22 +88,28 @@ If you wish to access the application on your mobile phone or tablet over your h
 
 ---
 
-### Workflow 4: Solar Rooftop Sizing & Client Advisory
-1. Open the **"Solar Calculator"** tab (available both publicly and privately).
-2. Enter the prospect's parameters:
-   - Sanctioned Load with APDCL (kW)
-   - Average Monthly Electricity Bill (₹)
-   - Consumer Category (Commercial LT, Domestic, or Industrial)
-   - Available Shadow-Free Rooftop Area (sq ft)
-3. Click **"Calculate Sizing & Financial Model"**.
+### Workflow 4: Solar Feasibility, PVGIS Simulation & Proposal Advisory
+1. Open the **"Solar Calculator"** tab (accessible publicly and within the Founder OS).
+2. Enter the client's commercial and site parameters:
+   - **Sanctioned Connected Load with APDCL (kW)**: Ensures capacity does not violate the 100% net-metering limit.
+   - **Average Monthly Electricity Bill (₹)** and **Tariff Category** (Commercial LT ~₹7.85, Domestic ~₹6.20, Industrial ~₹7.20).
+   - **Available Rooftop Area (sq ft)**.
+   - **Northeast District / Location**: Select from presets (Guwahati, Dibrugarh, Silchar, Tezpur, Jorhat, Shillong, Agartala) with satellite coordinates.
+   - **Module Tilt Angle (°)**: Default 25° (optimal for Assam latitude) or lower slope for industrial sheds.
+   - **Roof Orientation / Azimuth**: True South (0° optimal), South-East (-45°), South-West (+45°), or East/West (±90°).
+   - **Near/Far Shading Derate**: Minimal (0%–3%), Minor (5%), Moderate (10%), or Significant (15%+).
+   - **System Loss Factor**: Default 14% matching European Commission PVGIS standard.
+3. Click **"Calculate Sizing & PVGIS Simulation"**.
 4. The system calculates:
-   - Recommended capacity (kWp) capped by APDCL sanctioned load and roof area
-   - Estimated monthly & annual generation units in Assam (~120 units/kWp/mo)
-   - Annual power bill reduction (₹)
-   - Benchmark turnkey project investment range
-   - Payback timeline (years)
-   - 25-Year cumulative savings and clean carbon offset
-5. Click **"💬 Discuss Results on WhatsApp"** to share the personalized summary directly with your client.
+   - Recommended capacity (kWp) capped by APDCL sanctioned load and roof area.
+   - Specific Yield ($kWh/kWp/year$) based on the PVGIS SARAH-2 satellite dataset.
+   - Monthly & Annual generation units and bill savings.
+   - Benchmark turnkey project investment range and payback period (years).
+   - 25-Year cumulative savings and carbon offset.
+   - **12-Month Seasonal Generation Profile**: Visualizes spring peaks and the monsoon dip (June–August).
+5. **Verify in Official PVGIS Tool**: Click **"🌐 Open Official PVGIS Tool ↗"** to launch the European Commission PVGIS simulator pre-filled with the exact latitude, longitude, kWp capacity, tilt, and azimuth for third-party satellite verification.
+6. **Proposal Feasibility Checklist**: Review the 5-point engineering checklist (Azimuth/Tilt verification, Shading survey, Wind Zone 5 load design, ALMM/BIS datasheets, and APDCL transformer headroom) before preparing formal quotes.
+7. Click **"💬 Discuss Results on WhatsApp"** to share the personalized summary directly with your client.
 
 ---
 

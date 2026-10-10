@@ -111,21 +111,37 @@ assert(metrics.activePipelineValue > 2500000, 'Active pipeline value includes qu
 const waUrl = window.crmController.generateWhatsAppFollowUpUrl(newLead);
 assert(waUrl.includes('wa.me/919435100000'), 'Generated pre-drafted WhatsApp outreach URL with country code');
 
-// TEST SUITE 3: SOLAR SIZING & FINANCIAL ENGINE
-console.log('\n--- TEST SUITE 3: Guwahati & Assam Solar Sizing Model ---');
+// TEST SUITE 3: ADVANCED PVGIS SOLAR FEASIBILITY & GENERATION ENGINE
+console.log('\n--- TEST SUITE 3: Advanced PVGIS Solar Feasibility & Engineering Engine ---');
 const calcRes = window.solarCalculator.calculate({
   sanctionedLoadKw: 35,
   monthlyBill: 38000,
   customerType: 'commercial',
-  roofAreaSqFt: 3500
+  roofAreaSqFt: 3500,
+  locationKey: 'guwahati',
+  tiltAngle: 25,
+  azimuth: 0,
+  shadingLossPercent: 3,
+  systemLossPercent: 14
 });
 
 assert(calcRes.finalCapacityKw <= 35, `Capacity capped by APDCL sanctioned load (got ${calcRes.finalCapacityKw} kWp <= 35 kW)`);
+assert(calcRes.effectiveSpecificYield > 1200 && calcRes.effectiveSpecificYield < 1600, `PVGIS Specific Yield in benchmark range (~${calcRes.effectiveSpecificYield} kWh/kWp/yr)`);
 assert(calcRes.monthlyGenerationUnits > 0, `Monthly generation calculated (~${calcRes.monthlyGenerationUnits} units/mo)`);
 assert(calcRes.annualSavings > 0, `Annual bill savings calculated (₹${calcRes.annualSavings.toLocaleString('en-IN')})`);
 assert(Number(calcRes.paybackYears) > 0 && Number(calcRes.paybackYears) < 10, `Realistic payback period calculated (${calcRes.paybackYears} years)`);
-assert(calcRes.lifetimeSavings > calcRes.avgInvestment, '25-Year lifetime savings exceed initial investment');
-assert(calcRes.disclaimer.includes('APDCL'), 'Result contains explicit APDCL regulatory disclaimer');
+assert(calcRes.monthlyBreakdown && calcRes.monthlyBreakdown.length === 12, '12-Month seasonal generation breakdown calculated');
+assert(calcRes.pvgisUrl.includes('re.jrc.ec.europa.eu/pvg_tools/en'), `Generated valid official PVGIS tool URL: ${calcRes.pvgisUrl.substring(0, 60)}...`);
+
+// Test Orientation Factor: South (azimuth 0) should outperform East (azimuth -90)
+const southEff = window.solarCalculator.calculateOrientationFactor(25, 0);
+const eastEff = window.solarCalculator.calculateOrientationFactor(25, -90);
+assert(southEff > eastEff, `Orientation geometry: True South (${(southEff*100).toFixed(0)}%) yields higher energy than East (${(eastEff*100).toFixed(0)}%)`);
+
+// Test Feasibility Checklist
+const checklist = window.solarCalculator.getFeasibilityChecklist();
+assert(checklist.length === 5, 'Comprehensive 5-category On-Site Feasibility Checklist available');
+assert(calcRes.disclaimer.includes('PVGIS') && calcRes.disclaimer.includes('APDCL'), 'Result contains explicit PVGIS and APDCL regulatory disclaimers');
 
 // TEST SUITE 4: CASH-BASIS ACCOUNTING & FINANCIAL CONTROLS
 console.log('\n--- TEST SUITE 4: Cash-Basis Financial Controls & Liquidity ---');

@@ -881,12 +881,18 @@ class AppController {
     }
   }
 
-  // --- PUBLIC CALCULATOR INTERACTION ---
+  // --- ADVANCED PVGIS SOLAR CALCULATOR INTERACTION ---
   runPublicCalculator() {
     const sanctionedLoadKw = Number(document.getElementById('calc-load').value);
     const monthlyBill = Number(document.getElementById('calc-bill').value);
     const customerType = document.getElementById('calc-type').value;
     const roofAreaSqFt = Number(document.getElementById('calc-roof').value);
+
+    const locationKey = document.getElementById('calc-location')?.value || 'guwahati';
+    const tiltAngle = Number(document.getElementById('calc-tilt')?.value) || 25;
+    const azimuth = Number(document.getElementById('calc-azimuth')?.value) || 0;
+    const shadingLossPercent = Number(document.getElementById('calc-shading')?.value) || 3;
+    const systemLossPercent = Number(document.getElementById('calc-loss')?.value) || 14;
 
     if (!monthlyBill || monthlyBill < 500) {
       showToast('Please enter an average monthly electricity bill of at least ₹500.', 'warning');
@@ -897,7 +903,12 @@ class AppController {
       sanctionedLoadKw,
       monthlyBill,
       customerType,
-      roofAreaSqFt
+      roofAreaSqFt,
+      locationKey,
+      tiltAngle,
+      azimuth,
+      shadingLossPercent,
+      systemLossPercent
     });
 
     document.getElementById('calc-res-capacity').textContent = `${result.finalCapacityKw} kWp`;
@@ -909,6 +920,44 @@ class AppController {
     document.getElementById('calc-res-lifetime-savings').textContent = `~${formatINR(result.lifetimeSavings)}`;
     document.getElementById('calc-res-co2').textContent = `~${result.co2OffsetTonnes25Yr} Tonnes`;
     document.getElementById('calc-res-area').textContent = `~${result.recommendedRoofArea} sq. ft.`;
+
+    // Advanced PVGIS metrics
+    const yieldElem = document.getElementById('calc-res-specific-yield');
+    if (yieldElem) yieldElem.textContent = `~${result.effectiveSpecificYield} kWh/kWp/yr`;
+
+    const locElem = document.getElementById('calc-res-location-title');
+    if (locElem) locElem.textContent = `${result.location.name} (Tilt: ${result.tiltAngle}°, Azimuth: ${result.azimuth}°)`;
+
+    const pvgisBtn = document.getElementById('calc-btn-pvgis');
+    if (pvgisBtn) {
+      pvgisBtn.href = result.pvgisUrl;
+    }
+
+    // Render 12-Month Seasonal Generation Breakdown
+    const monthlyContainer = document.getElementById('calc-monthly-breakdown-container');
+    if (monthlyContainer && result.monthlyBreakdown) {
+      monthlyContainer.innerHTML = result.monthlyBreakdown.map(m => `
+        <div style="background: var(--bg-surface); padding: 8px; border-radius: var(--radius-sm); text-align: center; border: 1px solid var(--border-color);">
+          <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary);">${m.month}</div>
+          <div style="font-size: 13px; font-weight: 800; color: var(--solar-amber); margin: 2px 0;">${m.generationUnits}</div>
+          <div style="font-size: 10px; color: var(--accent-emerald);">${formatINR(m.savings)}</div>
+        </div>
+      `).join('');
+    }
+
+    // Render Feasibility & DISCOM Checklist
+    const checklistContainer = document.getElementById('calc-feasibility-checklist-container');
+    if (checklistContainer) {
+      const checklist = window.solarCalculator.getFeasibilityChecklist();
+      checklistContainer.innerHTML = checklist.map(group => `
+        <div style="margin-bottom: 12px;">
+          <h5 style="font-size: 12px; font-weight: 700; color: var(--solar-amber); margin-bottom: 4px;">${group.category}</h5>
+          <ul style="font-size: 11px; color: var(--text-secondary); line-height: 1.6; padding-left: 16px;">
+            ${group.items.map(it => `<li>${it}</li>`).join('')}
+          </ul>
+        </div>
+      `).join('');
+    }
 
     const settings = window.storage.getSettings();
     const waUrl = window.solarCalculator.generateWhatsAppEnquiryUrl(result, settings.whatsappNumber || '919876543210');

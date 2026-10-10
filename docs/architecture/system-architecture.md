@@ -216,17 +216,26 @@ erDiagram
 
 ---
 
-## 6. Solar Advisory Engineering Parameters (Assam / APDCL)
+## 6. Advanced Solar Advisory & Feasibility Engineering (PVGIS / APDCL)
 
-- **Regional Solar Generation Factor**: $\approx 120 \text{ kWh / kWp / month}$ ($4.0 \text{ kWh / kWp / day}$ effective peak sun hours).
-- **APDCL Net-Metering Cap**: Sanctioned solar capacity cannot exceed $100\%$ of consumer sanctioned load under AERC regulations, subject to local distribution transformer headroom.
-- **Rooftop Area Footprint**: $\approx 95 \text{ sq. ft.}$ of shadow-free south-facing area per $1 \text{ kWp}$ of Tier-1 crystalline panels.
-- **APDCL Benchmark Tariffs**:
-  - Commercial LT: ₹7.85 / unit
-  - Domestic: ₹6.20 / unit
-  - Industrial LT/HT: ₹7.20 / unit
-- **Investment Benchmark in Northeast India**: ₹48,000 to ₹58,000 per kWp for turnkey on-grid systems.
-- **Mandatory Engineering Disclaimer**: All public calculations display the caveat: *"Preliminary advisory calculations. Final capacity subject to physical shadow analysis and APDCL transformer capacity approval."*
+- **PVGIS Satellite Solar Benchmark Integration**:
+  - Calibrated against the European Commission **PVGIS (SARAH-2 satellite solar database)** for Northeast India coordinates (Guwahati: 26.1445° N, 91.7362° E, Base Specific Yield: $\approx 1,420 \text{ kWh / kWp / year}$).
+  - Real-time link generator creates direct simulation sessions in the official PVGIS web interface (`https://re.jrc.ec.europa.eu/pvg_tools/en/`) pre-filled with site coordinates, kWp capacity, tilt, and azimuth.
+- **Roof Orientation & Geometric Derating**:
+  - **Optimal Fixed Tilt**: $25^\circ$ South orientation yields $100\%$ specific energy in Assam.
+  - **Azimuth Derate Model**: East/West ($\pm 90^\circ$) orientations incur a $12\% - 15\%$ yield penalty; flat horizontal ($0^\circ$) incurs an $\approx 8\%$ penalty.
+- **Shading & System Loss Derates**:
+  - Incorporates selectable near/far shading derates ($0\%$ minimal, $5\%$ minor parapet, $10\%$ trees/lift room, $15\%+$ dense obstruction).
+  - Default $14\%$ system losses matching PVGIS standard (cabling resistance, inverter conversion, soiling during dry periods, thermal losses).
+- **Assam Seasonal Generation Profile (12-Month Distribution)**:
+  - Accounts for Northeast India monsoon seasonality: peak spring generation (Feb–May), monsoon rain/cloud dip (Jun–Aug), autumn recovery (Sep–Oct), and clear winter days (Nov–Jan).
+- **On-Site Feasibility Checklist Before Formal Proposals**:
+  1. *Solar Irradiance & Orientation*: True compass azimuth and optimal tilt verification against PVGIS satellite baseline.
+  2. *Shading Survey*: Horizon and near-shading obstacle inspection across summer/winter sun paths.
+  3. *Structural Integrity*: RCC slab condition or industrial sheet gauge (min 0.5mm), certified for Assam Wind Zone 5 ($50 \text{ m/s}$ / $180 \text{ km/h}$).
+  4. *Component Datasheets*: ALMM/BIS tier-1 modules with Temperature Coefficient of $P_{max} < -0.35\%/^\circ\text{C}$; inverters with dual MPPT and Type-II SPDs.
+  5. *DISCOM / APDCL Rules*: Distribution transformer capacity margin cap ($70\% - 80\%$ under AERC regulations), supply phase matching, CEIG inspection clearance, and dedicated chemical earthing ($< 5\ \Omega$).
+- **Mandatory Engineering Disclaimer**: All public calculations display: *"Preliminary advisory calculations based on PVGIS SARAH-2 satellite models and APDCL benchmark tariffs. Final proposal requires on-site shadow path analysis, roof structural inspection, equipment datasheet validation, and APDCL transformer headroom approval."*
 
 ---
 
