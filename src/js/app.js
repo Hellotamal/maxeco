@@ -55,7 +55,7 @@ class AppController {
 
   handleRoute() {
     const hash = window.location.hash.replace('#', '') || 'home';
-    const privateViews = ['dashboard', 'leads', 'quotes-invoices', 'finance', 'projects', 'settings'];
+    const privateViews = ['dashboard', 'leads', 'quotes-invoices', 'finance', 'projects', 'settings', 'solar-feasibility'];
 
     if (privateViews.includes(hash)) {
       if (!this.isAuthenticated) {
@@ -180,6 +180,13 @@ class AppController {
     else if (view === 'finance') this.renderFinanceTab();
     else if (view === 'projects') this.renderProjectsTab();
     else if (view === 'settings') this.renderSettingsTab();
+    else if (view === 'solar-feasibility') this.renderSolarFeasibilityTab();
+  }
+
+  renderSolarFeasibilityTab() {
+    if (!this.lastSolarCalcResult) {
+      this.runInternalSolarCalculator();
+    }
   }
 
   renderDashboardTab() {
@@ -753,11 +760,49 @@ class AppController {
 
   openAddQuotationModal() {
     document.getElementById('quote-client').value = '';
-    document.getElementById('quote-service').value = 'Solar EPC Coordination (Rooftop System)';
+    const presetSelect = document.getElementById('quote-service-preset');
+    if (presetSelect) presetSelect.value = '';
+    document.getElementById('quote-service').value = '';
     document.getElementById('quote-amount').value = '';
     document.getElementById('quote-cost').value = '';
     document.getElementById('quote-terms').value = '15% advance with order, 45% upon module delivery, 25% upon mounting, 15% upon commissioning.';
     document.getElementById('modal-quotation').classList.remove('hidden');
+  }
+
+  onQuotePresetChange(val) {
+    const presets = {
+      solar_epc: {
+        scope: "Solar EPC Coordination — Complete Turnkey Rooftop Solar PV Installation (Site Audit, Structural Erection, Tier-1 Mono PERC Modules, Grid-Tie Inverter & APDCL Net-Metering Sync)",
+        terms: "15% advance with work order, 45% upon module/inverter site delivery, 25% upon structural erection & wiring, 15% upon APDCL net-meter synchronization & CEIG testing."
+      },
+      solar_advisory: {
+        scope: "Solar Advisory & Feasibility Study — Comprehensive PVGIS Shading Analysis, APDCL Net-Metering Viability, Financial Payback Modeling & Vendor BOQ Verification",
+        terms: "50% advance upon commencement, 50% upon delivery of final feasibility report & vendor BOQ evaluation."
+      },
+      solar_amc: {
+        scope: "Solar O&M and Annual Maintenance Contract (AMC) — Scheduled Module Cleaning, Electrical Inverter Health Checks, String Testing & Generation Monitoring",
+        terms: "Quarterly advance retainer payable at the beginning of each 3-month operational cycle."
+      },
+      smb_website: {
+        scope: "Professional SMB Website Design — 5-Page Responsive Mobile-First Business Website, Fast Hosting Setup, Local SEO & Direct WhatsApp Lead Routing",
+        terms: "50% project advance with work order, 50% upon final website testing, client approval & live handover."
+      },
+      web_retainer: {
+        scope: "Website Maintenance Retainer — Regular Content & Catalog Updates, Uptime Monitoring, Security Patches & Technical Support",
+        terms: "Quarterly advance for 3 months retainer maintenance."
+      },
+      ai_automation: {
+        scope: "WhatsApp & AI Workflow Automation — Direct Customer Inquiry Routing, Digital Catalog Link & Customer Intake Auto-Response",
+        terms: "50% advance with scope signoff, 50% upon live automation testing & client walkthrough."
+      }
+    };
+
+    if (presets[val]) {
+      document.getElementById('quote-service').value = presets[val].scope;
+      if (document.getElementById('quote-terms')) {
+        document.getElementById('quote-terms').value = presets[val].terms;
+      }
+    }
   }
 
   saveQuotationFromModal() {
@@ -966,8 +1011,32 @@ class AppController {
       waBtn.href = waUrl;
     }
 
+    this.lastSolarCalcResult = result;
+
     document.getElementById('calc-results-box').classList.remove('hidden');
     document.getElementById('calc-results-box').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // Alias for founder internal engineering workbench
+  runInternalSolarCalculator() {
+    this.runPublicCalculator();
+  }
+
+  convertSolarCalcToQuote() {
+    if (!this.lastSolarCalcResult) {
+      this.runInternalSolarCalculator();
+    }
+    const res = this.lastSolarCalcResult;
+    if (!res) return;
+
+    this.openAddQuotationModal();
+    const presetSelect = document.getElementById('quote-service-preset');
+    if (presetSelect) presetSelect.value = 'solar_epc';
+    document.getElementById('quote-service').value = `Solar EPC Coordination — Complete Turnkey ${res.finalCapacityKw} kWp Rooftop System (Est. ${res.annualGenerationUnits.toLocaleString('en-IN')} Units/Yr)`;
+    document.getElementById('quote-amount').value = res.avgInvestment;
+    document.getElementById('quote-cost').value = Math.round(res.avgInvestment * 0.8);
+    document.getElementById('quote-terms').value = "15% advance with work order, 45% upon module/inverter site delivery, 25% upon structural erection & wiring, 15% upon APDCL net-meter synchronization & CEIG testing.";
+    showToast(`Quotation pre-populated from ${res.finalCapacityKw} kWp Solar Sizing!`, 'success');
   }
 
   // --- PUBLIC CONTACT FORM ENQUIRY ---
