@@ -43,13 +43,23 @@ class AppController {
 
     // Close modal on escape or background click
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') this.closeAllModals();
+      if (e.key === 'Escape') {
+        this.closeAllModals();
+        this.closeMenuDropdowns();
+      }
     });
 
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) this.closeAllModals();
       });
+    });
+
+    // Close menu dropdowns on click outside
+    window.addEventListener('click', (e) => {
+      if (!e.target.closest('.menu-dropdown') && !e.target.closest('button[onclick*="toggleMenuDropdown"]')) {
+        this.closeMenuDropdowns();
+      }
     });
   }
 
@@ -170,6 +180,22 @@ class AppController {
 
   closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.add('hidden'));
+    this.closeMenuDropdowns();
+  }
+
+  toggleMenuDropdown(menuId, event) {
+    if (event) event.stopPropagation();
+    const target = document.getElementById(menuId);
+    if (!target) return;
+    const isHidden = target.classList.contains('hidden');
+    this.closeMenuDropdowns();
+    if (isHidden) {
+      target.classList.remove('hidden');
+    }
+  }
+
+  closeMenuDropdowns() {
+    document.querySelectorAll('.menu-dropdown').forEach(d => d.classList.add('hidden'));
   }
 
   // --- RENDER PRIVATE VIEWS ---
@@ -323,6 +349,7 @@ class AppController {
           <td>
             <div class="flex gap-2">
               <button class="btn btn-secondary btn-sm" onclick="app.convertQuoteToInvoice('${q.id}')">Convert to Invoice</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditQuotationModal('${q.id}')">✏️ Edit</button>
               <button class="btn btn-danger btn-sm" onclick="app.deleteQuotation('${q.id}')">✕</button>
             </div>
           </td>
@@ -360,6 +387,8 @@ class AppController {
             <td>
               <div class="flex gap-2">
                 ${outstanding > 0 ? `<button class="btn btn-primary btn-sm" onclick="app.openRecordPaymentModal('${inv.id}')">Record Payment</button>` : `<span class="text-emerald text-sm">Settled</span>`}
+                <button class="btn btn-secondary btn-sm" onclick="app.openEditInvoiceModal('${inv.id}')">✏️ Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="app.deleteInvoice('${inv.id}')">✕</button>
               </div>
             </td>
           </tr>
@@ -422,7 +451,12 @@ class AppController {
           <td>${exp.description}<br><small class="text-muted">Paid to: ${exp.paidTo}</small></td>
           <td><strong>${formatINR(exp.amount)}</strong></td>
           <td>${exp.linkedProject || '—'}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="app.deleteExpense('${exp.id}')">✕</button></td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditExpenseModal('${exp.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteExpense('${exp.id}')">✕</button>
+            </div>
+          </td>
         </tr>
       `).join('');
     }
@@ -438,7 +472,12 @@ class AppController {
           <td><strong>${formatINR(d.amount)}</strong></td>
           <td>${d.purpose || 'Living allowance'}</td>
           <td>${d.account || 'Personal Bank'}</td>
-          <td><button class="btn btn-danger btn-sm" onclick="app.deleteDrawing('${d.id}')">✕</button></td>
+          <td>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditDrawingModal('${d.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteDrawing('${d.id}')">✕</button>
+            </div>
+          </td>
         </tr>
       `).join('');
     }
@@ -465,6 +504,10 @@ class AppController {
               <div class="text-right">
                 <span class="text-amber font-mono" style="font-size: 16px; font-weight: 700;">${formatINR(proj.totalContractValue)}</span><br>
                 <small class="text-muted">Progress: ${progress}%</small>
+                <div class="flex gap-2" style="margin-top: 6px; justify-content: flex-end;">
+                  <button class="btn btn-secondary btn-sm" onclick="app.openEditSolarProjectModal('${proj.id}')">✏️ Modify</button>
+                  <button class="btn btn-danger btn-sm" onclick="app.deleteSolarProject('${proj.id}')">✕</button>
+                </div>
               </div>
             </div>
 
@@ -513,6 +556,10 @@ class AppController {
               <div class="text-right">
                 <span class="text-cyan font-mono" style="font-size: 16px; font-weight: 700;">${formatINR(proj.contractValue)}</span><br>
                 <small class="text-muted">Progress: ${progress}%</small>
+                <div class="flex gap-2" style="margin-top: 6px; justify-content: flex-end;">
+                  <button class="btn btn-secondary btn-sm" onclick="app.openEditItProjectModal('${proj.id}')">✏️ Modify</button>
+                  <button class="btn btn-danger btn-sm" onclick="app.deleteItProject('${proj.id}')">✕</button>
+                </div>
               </div>
             </div>
 
@@ -691,7 +738,13 @@ class AppController {
     this.renderQuotesInvoicesTab();
   }
 
+  // --- EXPENSE CONTROLS ---
   openAddExpenseModal() {
+    document.getElementById('exp-edit-id').value = '';
+    const titleEl = document.getElementById('exp-modal-title');
+    if (titleEl) titleEl.textContent = 'Record Business Expense';
+    const btnEl = document.getElementById('exp-modal-btn');
+    if (btnEl) btnEl.textContent = 'Save Expense';
     document.getElementById('exp-category').value = 'Operating Overhead';
     document.getElementById('exp-desc').value = '';
     document.getElementById('exp-amount').value = '';
@@ -701,7 +754,25 @@ class AppController {
     document.getElementById('modal-expense').classList.remove('hidden');
   }
 
+  openEditExpenseModal(expenseId) {
+    const exp = window.storage.getExpenses().find(e => e.id === expenseId);
+    if (!exp) return;
+    document.getElementById('exp-edit-id').value = exp.id;
+    const titleEl = document.getElementById('exp-modal-title');
+    if (titleEl) titleEl.textContent = `Modify Expense (${exp.id})`;
+    const btnEl = document.getElementById('exp-modal-btn');
+    if (btnEl) btnEl.textContent = 'Update Expense';
+    document.getElementById('exp-category').value = exp.category || 'Operating Overhead';
+    document.getElementById('exp-desc').value = exp.description || '';
+    document.getElementById('exp-amount').value = exp.amount || '';
+    document.getElementById('exp-paidto').value = exp.paidTo || '';
+    document.getElementById('exp-date').value = exp.date || new Date().toISOString().slice(0, 10);
+    document.getElementById('exp-project').value = exp.linkedProject || '';
+    document.getElementById('modal-expense').classList.remove('hidden');
+  }
+
   saveExpenseFromModal() {
+    const editId = document.getElementById('exp-edit-id').value.trim();
     const category = document.getElementById('exp-category').value;
     const description = document.getElementById('exp-desc').value.trim();
     const amount = Number(document.getElementById('exp-amount').value);
@@ -714,7 +785,7 @@ class AppController {
       return;
     }
 
-    window.storage.saveExpense({
+    const expData = {
       category,
       description,
       amount,
@@ -722,21 +793,48 @@ class AppController {
       date,
       linkedProject: linkedProject || null,
       paymentMethod: 'UPI'
-    });
+    };
+
+    if (editId) {
+      expData.id = editId;
+    }
+
+    window.storage.saveExpense(expData);
 
     this.closeAllModals();
-    showToast(`Expense recorded: ₹${amount.toLocaleString('en-IN')}`, 'success');
+    showToast(editId ? `Expense ${editId} updated.` : `Expense recorded: ₹${amount.toLocaleString('en-IN')}`, 'success');
     this.renderFinanceTab();
   }
 
+  // --- DRAWING CONTROLS ---
   openAddDrawingModal() {
+    document.getElementById('drw-edit-id').value = '';
+    const titleEl = document.getElementById('drw-modal-title');
+    if (titleEl) titleEl.textContent = 'Log Founder Living Withdrawal';
+    const btnEl = document.getElementById('drw-modal-btn');
+    if (btnEl) btnEl.textContent = 'Log Withdrawal';
     document.getElementById('drw-amount').value = '';
     document.getElementById('drw-purpose').value = 'Founder personal living allowance';
     document.getElementById('drw-date').value = new Date().toISOString().slice(0, 10);
     document.getElementById('modal-drawing').classList.remove('hidden');
   }
 
+  openEditDrawingModal(drawingId) {
+    const drw = window.storage.getDrawings().find(d => d.id === drawingId);
+    if (!drw) return;
+    document.getElementById('drw-edit-id').value = drw.id;
+    const titleEl = document.getElementById('drw-modal-title');
+    if (titleEl) titleEl.textContent = `Modify Withdrawal (${drw.id})`;
+    const btnEl = document.getElementById('drw-modal-btn');
+    if (btnEl) btnEl.textContent = 'Update Withdrawal';
+    document.getElementById('drw-amount').value = drw.amount || '';
+    document.getElementById('drw-purpose').value = drw.purpose || '';
+    document.getElementById('drw-date').value = drw.date || new Date().toISOString().slice(0, 10);
+    document.getElementById('modal-drawing').classList.remove('hidden');
+  }
+
   saveDrawingFromModal() {
+    const editId = document.getElementById('drw-edit-id').value.trim();
     const amount = Number(document.getElementById('drw-amount').value);
     const purpose = document.getElementById('drw-purpose').value.trim();
     const date = document.getElementById('drw-date').value;
@@ -746,19 +844,31 @@ class AppController {
       return;
     }
 
-    window.storage.saveDrawing({
+    const drwData = {
       amount,
       purpose,
       date,
       account: 'Personal Bank Account'
-    });
+    };
+
+    if (editId) {
+      drwData.id = editId;
+    }
+
+    window.storage.saveDrawing(drwData);
 
     this.closeAllModals();
-    showToast(`Personal drawing logged: ₹${amount.toLocaleString('en-IN')}`, 'info');
+    showToast(editId ? `Withdrawal ${editId} updated.` : `Personal drawing logged: ₹${amount.toLocaleString('en-IN')}`, 'info');
     this.renderFinanceTab();
   }
 
+  // --- QUOTATION CONTROLS ---
   openAddQuotationModal() {
+    document.getElementById('quote-edit-id').value = '';
+    const titleEl = document.getElementById('quote-modal-title');
+    if (titleEl) titleEl.textContent = 'Create Formal Quotation';
+    const btnEl = document.getElementById('quote-modal-btn');
+    if (btnEl) btnEl.textContent = 'Save Quotation';
     document.getElementById('quote-client').value = '';
     const presetSelect = document.getElementById('quote-service-preset');
     if (presetSelect) presetSelect.value = '';
@@ -766,6 +876,24 @@ class AppController {
     document.getElementById('quote-amount').value = '';
     document.getElementById('quote-cost').value = '';
     document.getElementById('quote-terms').value = '15% advance with order, 45% upon module delivery, 25% upon mounting, 15% upon commissioning.';
+    document.getElementById('modal-quotation').classList.remove('hidden');
+  }
+
+  openEditQuotationModal(quoteId) {
+    const quote = window.storage.getQuotations().find(q => q.id === quoteId);
+    if (!quote) return;
+    document.getElementById('quote-edit-id').value = quote.id;
+    const titleEl = document.getElementById('quote-modal-title');
+    if (titleEl) titleEl.textContent = `Modify Quotation (${quote.id})`;
+    const btnEl = document.getElementById('quote-modal-btn');
+    if (btnEl) btnEl.textContent = 'Update Quotation';
+    document.getElementById('quote-client').value = quote.clientName || '';
+    const presetSelect = document.getElementById('quote-service-preset');
+    if (presetSelect) presetSelect.value = '';
+    document.getElementById('quote-service').value = quote.service || '';
+    document.getElementById('quote-amount').value = quote.totalAmount || '';
+    document.getElementById('quote-cost').value = quote.directCostEstimate || '';
+    document.getElementById('quote-terms').value = quote.terms || '';
     document.getElementById('modal-quotation').classList.remove('hidden');
   }
 
@@ -806,6 +934,7 @@ class AppController {
   }
 
   saveQuotationFromModal() {
+    const editId = document.getElementById('quote-edit-id').value.trim();
     const clientName = document.getElementById('quote-client').value.trim();
     const service = document.getElementById('quote-service').value.trim();
     const totalAmount = Number(document.getElementById('quote-amount').value) || 0;
@@ -820,19 +949,26 @@ class AppController {
     const projectedMargin = totalAmount - directCostEstimate;
     const marginPercent = totalAmount > 0 ? Math.round((projectedMargin / totalAmount) * 1000) / 10 : 0;
 
-    window.storage.saveQuotation({
+    const quoteData = {
       clientName,
       service,
       totalAmount,
       directCostEstimate,
       projectedMargin,
       marginPercent,
-      terms,
-      status: 'Sent'
-    });
+      terms
+    };
+
+    if (editId) {
+      quoteData.id = editId;
+    } else {
+      quoteData.status = 'Sent';
+    }
+
+    window.storage.saveQuotation(quoteData);
 
     this.closeAllModals();
-    showToast(`Quotation created for ${clientName}`, 'success');
+    showToast(editId ? `Quotation ${editId} updated.` : `Quotation created for ${clientName}`, 'success');
     this.renderQuotesInvoicesTab();
   }
 
@@ -863,11 +999,342 @@ class AppController {
     const lead = window.storage.getLeads().find(l => l.id === leadId);
     if (!lead) return;
 
+    document.getElementById('quote-edit-id').value = '';
+    const titleEl = document.getElementById('quote-modal-title');
+    if (titleEl) titleEl.textContent = 'Create Formal Quotation';
+    const btnEl = document.getElementById('quote-modal-btn');
+    if (btnEl) btnEl.textContent = 'Save Quotation';
     document.getElementById('quote-client').value = lead.name;
     document.getElementById('quote-service').value = lead.service;
     document.getElementById('quote-amount').value = lead.estimatedValue || '';
     document.getElementById('quote-cost').value = Math.round((lead.estimatedValue || 0) * 0.8);
     document.getElementById('modal-quotation').classList.remove('hidden');
+  }
+
+  // --- INVOICE CONTROLS ---
+  openAddInvoiceModal() {
+    document.getElementById('invoice-edit-id').value = '';
+    const titleEl = document.getElementById('invoice-modal-title');
+    if (titleEl) titleEl.textContent = 'Create Direct Invoice';
+    const btnEl = document.getElementById('invoice-modal-btn');
+    if (btnEl) btnEl.textContent = 'Save Invoice';
+    document.getElementById('invoice-client').value = '';
+    document.getElementById('invoice-service').value = '';
+    document.getElementById('invoice-billed').value = '';
+    document.getElementById('invoice-collected').value = '0';
+    const due = new Date();
+    due.setDate(due.getDate() + 14);
+    document.getElementById('invoice-due-date').value = due.toISOString().slice(0, 10);
+    document.getElementById('invoice-status').value = 'Sent';
+    document.getElementById('modal-invoice').classList.remove('hidden');
+  }
+
+  openEditInvoiceModal(invoiceId) {
+    const inv = window.storage.getInvoices().find(i => i.id === invoiceId);
+    if (!inv) return;
+    document.getElementById('invoice-edit-id').value = inv.id;
+    const titleEl = document.getElementById('invoice-modal-title');
+    if (titleEl) titleEl.textContent = `Modify Invoice (${inv.id})`;
+    const btnEl = document.getElementById('invoice-modal-btn');
+    if (btnEl) btnEl.textContent = 'Update Invoice';
+    document.getElementById('invoice-client').value = inv.clientName || '';
+    document.getElementById('invoice-service').value = inv.service || '';
+    document.getElementById('invoice-billed').value = inv.amountBilled || '';
+    document.getElementById('invoice-collected').value = inv.amountCollected || 0;
+    document.getElementById('invoice-due-date').value = inv.dueDate || '';
+    document.getElementById('invoice-status').value = inv.status || 'Sent';
+    document.getElementById('modal-invoice').classList.remove('hidden');
+  }
+
+  saveInvoiceFromModal() {
+    const editId = document.getElementById('invoice-edit-id').value.trim();
+    const clientName = document.getElementById('invoice-client').value.trim();
+    const service = document.getElementById('invoice-service').value.trim();
+    const amountBilled = Number(document.getElementById('invoice-billed').value) || 0;
+    const amountCollected = Number(document.getElementById('invoice-collected').value) || 0;
+    const dueDate = document.getElementById('invoice-due-date').value;
+    const status = document.getElementById('invoice-status').value;
+
+    if (!clientName || !amountBilled) {
+      showToast('Please provide Client Name and Amount Billed.', 'error');
+      return;
+    }
+
+    const invData = {
+      clientName,
+      service,
+      amountBilled,
+      amountCollected,
+      dueDate,
+      status
+    };
+
+    if (editId) {
+      invData.id = editId;
+    }
+
+    window.storage.saveInvoice(invData);
+    this.closeAllModals();
+    showToast(editId ? `Invoice ${editId} updated.` : `Invoice created for ${clientName}`, 'success');
+    this.renderQuotesInvoicesTab();
+    if (this.currentView === 'finance' || this.currentView === 'dashboard') {
+      this.renderPrivateView(this.currentView);
+    }
+  }
+
+  deleteInvoice(id) {
+    if (confirm('Are you sure you want to delete this invoice record?')) {
+      window.storage.deleteInvoice(id);
+      showToast('Invoice deleted.', 'info');
+      this.renderQuotesInvoicesTab();
+    }
+  }
+
+  // --- PROJECT CONTROLS ---
+  openAddProjectModal(defaultType = 'solar') {
+    document.getElementById('project-edit-id').value = '';
+    const titleEl = document.getElementById('project-modal-title');
+    if (titleEl) titleEl.textContent = defaultType === 'solar' ? 'Create Solar EPC Project' : 'Create IT & Web Project';
+    const btnEl = document.getElementById('project-modal-btn');
+    if (btnEl) btnEl.textContent = 'Save Project';
+    document.getElementById('project-type').value = defaultType;
+    this.onProjectTypeChange(defaultType);
+    document.getElementById('project-client').value = '';
+    document.getElementById('project-capacity').value = '';
+    document.getElementById('project-discom').value = 'APDCL';
+    document.getElementById('project-scope').value = '';
+    document.getElementById('project-value').value = '';
+    document.getElementById('project-location').value = 'Guwahati, Assam';
+    document.getElementById('project-notes').value = '';
+    document.getElementById('modal-project').classList.remove('hidden');
+  }
+
+  onProjectTypeChange(type) {
+    const solarFields = document.getElementById('project-solar-fields');
+    const itFields = document.getElementById('project-it-fields');
+    if (type === 'solar') {
+      solarFields?.classList.remove('hidden');
+      itFields?.classList.add('hidden');
+    } else {
+      solarFields?.classList.add('hidden');
+      itFields?.classList.remove('hidden');
+    }
+  }
+
+  openEditSolarProjectModal(projectId) {
+    const proj = window.storage.getSolarProjects().find(p => p.id === projectId);
+    if (!proj) return;
+    document.getElementById('project-edit-id').value = proj.id;
+    document.getElementById('project-type').value = 'solar';
+    this.onProjectTypeChange('solar');
+    const titleEl = document.getElementById('project-modal-title');
+    if (titleEl) titleEl.textContent = `Modify Solar Project (${proj.id})`;
+    const btnEl = document.getElementById('project-modal-btn');
+    if (btnEl) btnEl.textContent = 'Update Project';
+    document.getElementById('project-client').value = proj.clientName || '';
+    document.getElementById('project-capacity').value = proj.systemCapacityKwp || '';
+    document.getElementById('project-discom').value = proj.discom || 'APDCL';
+    document.getElementById('project-value').value = proj.totalContractValue || '';
+    document.getElementById('project-location').value = proj.siteLocation || '';
+    document.getElementById('project-notes').value = proj.assumptions || '';
+    document.getElementById('modal-project').classList.remove('hidden');
+  }
+
+  openEditItProjectModal(projectId) {
+    const proj = window.storage.getItProjects().find(p => p.id === projectId);
+    if (!proj) return;
+    document.getElementById('project-edit-id').value = proj.id;
+    document.getElementById('project-type').value = 'it';
+    this.onProjectTypeChange('it');
+    const titleEl = document.getElementById('project-modal-title');
+    if (titleEl) titleEl.textContent = `Modify IT Project (${proj.id})`;
+    const btnEl = document.getElementById('project-modal-btn');
+    if (btnEl) btnEl.textContent = 'Update Project';
+    document.getElementById('project-client').value = proj.clientName || '';
+    document.getElementById('project-scope').value = proj.serviceScope || '';
+    document.getElementById('project-value').value = proj.contractValue || '';
+    document.getElementById('project-location').value = proj.location || 'Guwahati';
+    document.getElementById('project-notes').value = proj.vaultNotes || '';
+    document.getElementById('modal-project').classList.remove('hidden');
+  }
+
+  saveProjectFromModal() {
+    const editId = document.getElementById('project-edit-id').value.trim();
+    const type = document.getElementById('project-type').value;
+    const clientName = document.getElementById('project-client').value.trim();
+    const totalValue = Number(document.getElementById('project-value').value) || 0;
+    const location = document.getElementById('project-location').value.trim();
+    const notes = document.getElementById('project-notes').value.trim();
+
+    if (!clientName || !totalValue) {
+      showToast('Please enter Client Name and Contract Value.', 'error');
+      return;
+    }
+
+    if (type === 'solar') {
+      const capacity = Number(document.getElementById('project-capacity').value) || 10;
+      const discom = document.getElementById('project-discom').value;
+      const projData = {
+        clientName,
+        systemCapacityKwp: capacity,
+        discom,
+        siteLocation: location || 'Guwahati, Assam',
+        totalContractValue: totalValue,
+        assumptions: notes || 'Standard solar generation model.'
+      };
+      if (editId) {
+        projData.id = editId;
+      } else {
+        projData.milestones = [
+          { name: "Site Survey & Engineering Design", targetDate: "2026-10-25", status: "In Progress" },
+          { name: "APDCL Net-Metering Feasibility", targetDate: "2026-11-05", status: "Pending" },
+          { name: "Procurement & Module Delivery", targetDate: "2026-11-20", status: "Pending" },
+          { name: "Structural Mounting & Wiring", targetDate: "2026-12-05", status: "Pending" },
+          { name: "CEIG & Bi-directional Meter Sync", targetDate: "2026-12-15", status: "Pending" }
+        ];
+      }
+      window.storage.saveSolarProject(projData);
+      showToast(editId ? `Solar project ${editId} updated.` : `Solar project created for ${clientName}`, 'success');
+    } else {
+      const scope = document.getElementById('project-scope').value.trim() || 'SMB Website';
+      const projData = {
+        clientName,
+        serviceScope: scope,
+        contractValue: totalValue,
+        location: location || 'Guwahati',
+        vaultNotes: notes || ''
+      };
+      if (editId) {
+        projData.id = editId;
+      } else {
+        projData.milestones = [
+          { name: "Scope & Design Wireframes", targetDate: "2026-10-20", status: "In Progress" },
+          { name: "Front-end Development", targetDate: "2026-10-30", status: "Pending" },
+          { name: "WhatsApp & Form Integration", targetDate: "2026-11-05", status: "Pending" },
+          { name: "Final Client Review & Live Launch", targetDate: "2026-11-12", status: "Pending" }
+        ];
+      }
+      window.storage.saveItProject(projData);
+      showToast(editId ? `IT project ${editId} updated.` : `IT project created for ${clientName}`, 'success');
+    }
+
+    this.closeAllModals();
+    this.renderProjectsTab();
+  }
+
+  deleteSolarProject(id) {
+    if (confirm('Are you sure you want to delete this solar project record?')) {
+      window.storage.deleteSolarProject(id);
+      showToast('Solar project deleted.', 'info');
+      this.renderProjectsTab();
+    }
+  }
+
+  deleteItProject(id) {
+    if (confirm('Are you sure you want to delete this IT project record?')) {
+      window.storage.deleteItProject(id);
+      showToast('IT project deleted.', 'info');
+      this.renderProjectsTab();
+    }
+  }
+
+  // --- UNIVERSAL MODIFY RECORD SELECTOR CONTROLS ---
+  openModifySelectorModal(defaultType = 'lead') {
+    const typeSelect = document.getElementById('modify-type-select');
+    if (typeSelect) typeSelect.value = defaultType;
+    this.onModifyTypeSelected(defaultType);
+    document.getElementById('modal-modify-selector').classList.remove('hidden');
+  }
+
+  onModifyTypeSelected(type) {
+    const recSelect = document.getElementById('modify-record-select');
+    if (!recSelect) return;
+    recSelect.innerHTML = '';
+
+    let items = [];
+    if (type === 'lead') {
+      items = window.storage.getLeads().map(l => ({ id: l.id, label: `[${l.id}] ${l.name} — ${formatINR(l.estimatedValue)} (${l.stage})` }));
+    } else if (type === 'quotation') {
+      items = window.storage.getQuotations().map(q => ({ id: q.id, label: `[${q.id}] ${q.clientName} — ${formatINR(q.totalAmount)} (${q.status})` }));
+    } else if (type === 'invoice') {
+      items = window.storage.getInvoices().map(i => ({ id: i.id, label: `[${i.id}] ${i.clientName} — ${formatINR(i.amountBilled)} (${i.status})` }));
+    } else if (type === 'expense') {
+      items = window.storage.getExpenses().map(e => ({ id: e.id, label: `[${e.id}] ${e.description} — ${formatINR(e.amount)} (${e.category})` }));
+    } else if (type === 'drawing') {
+      items = window.storage.getDrawings().map(d => ({ id: d.id, label: `[${d.id}] ${d.purpose} — ${formatINR(d.amount)} (${formatDate(d.date)})` }));
+    } else if (type === 'solar') {
+      items = window.storage.getSolarProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} (${p.systemCapacityKwp} kWp) — ${formatINR(p.totalContractValue)}` }));
+    } else if (type === 'it') {
+      items = window.storage.getItProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} — ${formatINR(p.contractValue)}` }));
+    }
+
+    if (items.length === 0) {
+      recSelect.innerHTML = '<option value="">(No records available in this category)</option>';
+      this.updateModifyPreview('');
+    } else {
+      recSelect.innerHTML = items.map(it => `<option value="${it.id}">${it.label}</option>`).join('');
+      this.updateModifyPreview(items[0].id);
+    }
+  }
+
+  updateModifyPreview(id) {
+    const previewEl = document.getElementById('modify-record-preview');
+    if (!previewEl) return;
+    if (!id) {
+      previewEl.innerHTML = '<span class="text-muted">No record selected.</span>';
+      return;
+    }
+    const type = document.getElementById('modify-type-select').value;
+    let details = '';
+    if (type === 'lead') {
+      const l = window.storage.getLeads().find(x => x.id === id);
+      if (l) details = `<strong>${l.name}</strong> • ${l.service} • Stage: <strong>${l.stage}</strong> • Phone: ${l.phone} • Value: <strong>${formatINR(l.estimatedValue)}</strong>`;
+    } else if (type === 'quotation') {
+      const q = window.storage.getQuotations().find(x => x.id === id);
+      if (q) details = `<strong>${q.clientName}</strong> • ${q.service} • Value: <strong>${formatINR(q.totalAmount)}</strong> • Margin: ${formatINR(q.projectedMargin)} • Status: ${q.status}`;
+    } else if (type === 'invoice') {
+      const i = window.storage.getInvoices().find(x => x.id === id);
+      if (i) details = `<strong>${i.clientName}</strong> • Billed: <strong>${formatINR(i.amountBilled)}</strong> • Collected: <strong>${formatINR(i.amountCollected)}</strong> • Due: ${formatDate(i.dueDate)} • Status: ${i.status}`;
+    } else if (type === 'expense') {
+      const e = window.storage.getExpenses().find(x => x.id === id);
+      if (e) details = `<strong>${e.description}</strong> • ${e.category} • Amount: <strong>${formatINR(e.amount)}</strong> • Paid to: ${e.paidTo}`;
+    } else if (type === 'drawing') {
+      const d = window.storage.getDrawings().find(x => x.id === id);
+      if (d) details = `<strong>${d.purpose}</strong> • Amount: <strong>${formatINR(d.amount)}</strong> • Date: ${formatDate(d.date)}`;
+    } else if (type === 'solar') {
+      const s = window.storage.getSolarProjects().find(x => x.id === id);
+      if (s) details = `<strong>${s.clientName}</strong> • Capacity: <strong>${s.systemCapacityKwp} kWp</strong> • Value: <strong>${formatINR(s.totalContractValue)}</strong> • DISCOM: ${s.discom}`;
+    } else if (type === 'it') {
+      const it = window.storage.getItProjects().find(x => x.id === id);
+      if (it) details = `<strong>${it.clientName}</strong> • Scope: ${it.serviceScope} • Contract: <strong>${formatINR(it.contractValue)}</strong>`;
+    }
+    previewEl.innerHTML = details || '<span class="text-muted">Record details loaded. Click below to modify.</span>';
+  }
+
+  openSelectedRecordForEdit() {
+    const id = document.getElementById('modify-record-select').value;
+    if (!id) {
+      showToast('Please select a record to modify.', 'error');
+      return;
+    }
+    const type = document.getElementById('modify-type-select').value;
+    this.closeAllModals();
+
+    if (type === 'lead') {
+      this.openEditLeadModal(id);
+    } else if (type === 'quotation') {
+      this.openEditQuotationModal(id);
+    } else if (type === 'invoice') {
+      this.openEditInvoiceModal(id);
+    } else if (type === 'expense') {
+      this.openEditExpenseModal(id);
+    } else if (type === 'drawing') {
+      this.openEditDrawingModal(id);
+    } else if (type === 'solar') {
+      this.openEditSolarProjectModal(id);
+    } else if (type === 'it') {
+      this.openEditItProjectModal(id);
+    }
   }
 
   updateSolarMilestoneStatus(projId, milestoneIdx, status) {

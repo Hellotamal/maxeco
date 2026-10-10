@@ -472,7 +472,7 @@
           <span style="background: var(--solar-amber); color: #0f172a; font-weight: 800; font-size: 11px; padding: 2px 8px; border-radius: var(--radius-sm); text-transform: uppercase;">Founder OS</span>
           <span style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Business Command Center</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2" style="flex-wrap: wrap;">
           <button class="btn btn-secondary btn-sm" onclick="app.showView('dashboard', true)">📊 Overview</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('leads', true)">👥 Leads & CRM</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('quotes-invoices', true)">📄 Quotes & Invoices</button>
@@ -481,6 +481,43 @@
           <button class="btn btn-secondary btn-sm" onclick="app.showView('projects', true)">🚀 Projects</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('settings', true)">⚙️ Settings</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('home', false)">🌐 View Public Site</button>
+
+          <div style="width: 1px; height: 22px; background: var(--border-color); margin: 0 4px;"></div>
+
+          <!-- Quick Add Dropdown Menu -->
+          <div style="position: relative; display: inline-block;">
+            <button class="btn btn-primary btn-sm" onclick="app.toggleMenuDropdown('menu-dropdown-add', event)" style="font-weight: 700; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);">
+              ➕ Add ▾
+            </button>
+            <div id="menu-dropdown-add" class="menu-dropdown hidden" style="position: absolute; right: 0; top: 100%; margin-top: 6px;">
+              <div class="dropdown-header">Quick Creation Menu</div>
+              <button class="dropdown-item" onclick="app.openAddLeadModal(); app.closeMenuDropdowns();">👥 Add Customer Lead</button>
+              <button class="dropdown-item" onclick="app.openAddQuotationModal(); app.closeMenuDropdowns();">📄 Add Quotation</button>
+              <button class="dropdown-item" onclick="app.openAddInvoiceModal(); app.closeMenuDropdowns();">🧾 Add Direct Invoice</button>
+              <button class="dropdown-item" onclick="app.openAddExpenseModal(); app.closeMenuDropdowns();">💸 Add Business Expense</button>
+              <button class="dropdown-item" onclick="app.openAddDrawingModal(); app.closeMenuDropdowns();">🏦 Log Personal Withdrawal</button>
+              <button class="dropdown-item" onclick="app.openAddProjectModal('solar'); app.closeMenuDropdowns();">☀️ Add Solar Project</button>
+              <button class="dropdown-item" onclick="app.openAddProjectModal('it'); app.closeMenuDropdowns();">💻 Add IT / Web Project</button>
+            </div>
+          </div>
+
+          <!-- Quick Modify Dropdown Menu -->
+          <div style="position: relative; display: inline-block;">
+            <button class="btn btn-secondary btn-sm" onclick="app.toggleMenuDropdown('menu-dropdown-modify', event)" style="font-weight: 700; border-color: var(--solar-amber); color: var(--solar-amber);">
+              ✏️ Modify ▾
+            </button>
+            <div id="menu-dropdown-modify" class="menu-dropdown hidden" style="position: absolute; right: 0; top: 100%; margin-top: 6px;">
+              <div class="dropdown-header">Record Modification Menu</div>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('lead'); app.closeMenuDropdowns();">👥 Modify Customer Lead</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('quotation'); app.closeMenuDropdowns();">📄 Modify Quotation</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('invoice'); app.closeMenuDropdowns();">🧾 Modify Invoice & Status</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('expense'); app.closeMenuDropdowns();">💸 Modify Business Expense</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('drawing'); app.closeMenuDropdowns();">🏦 Modify Withdrawal</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('solar'); app.closeMenuDropdowns();">☀️ Modify Solar Project</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('it'); app.closeMenuDropdowns();">💻 Modify IT / Web Project</button>
+              <button class="dropdown-item" onclick="app.showView('settings', true); app.closeMenuDropdowns();">⚙️ Modify Business Settings</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -657,7 +694,10 @@
                 <h3 class="card-title">Invoices & Collections</h3>
                 <small class="text-muted">Strict cash-basis tracking</small>
               </div>
-              <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('invoices')">📥 Export CSV</button>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('invoices')">📥 Export CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddInvoiceModal()">+ New Invoice</button>
+              </div>
             </div>
             <div class="table-container">
               <table class="data-table">
@@ -1034,7 +1074,10 @@
         <div class="grid grid-cols-2 gap-4">
           <!-- Solar EPC Projects -->
           <div>
-            <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--solar-amber);">☀️ Solar Rooftop & Advisory Projects</h3>
+            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+              <h3 style="font-size: 15px; color: var(--solar-amber);">☀️ Solar Rooftop & Advisory Projects</h3>
+              <button class="btn btn-primary btn-sm" onclick="app.openAddProjectModal('solar')">+ Add Solar Project</button>
+            </div>
             <div id="solar-projects-container">
               <!-- Rendered dynamically -->
             </div>
@@ -1042,7 +1085,10 @@
 
           <!-- IT & Web Projects -->
           <div>
-            <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--tech-cyan);">💻 IT & Web Retainer Engagements</h3>
+            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+              <h3 style="font-size: 15px; color: var(--tech-cyan);">💻 IT & Web Retainer Engagements</h3>
+              <button class="btn btn-primary btn-sm" onclick="app.openAddProjectModal('it')">+ Add IT Project</button>
+            </div>
             <div id="it-projects-container">
               <!-- Rendered dynamically -->
             </div>
@@ -1335,14 +1381,15 @@
     </div>
   </div>
 
-  <!-- Add Expense Modal -->
+  <!-- Add/Edit Expense Modal -->
   <div id="modal-expense" class="modal-overlay hidden">
     <div class="modal-content" style="max-width: 480px;">
       <div class="modal-header">
-        <h3 style="font-size: 15px;">Record Business Expense</h3>
+        <h3 id="exp-modal-title" style="font-size: 15px;">Record Business Expense</h3>
         <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="exp-edit-id">
         <div class="form-group">
           <label class="form-label">Expense Classification *</label>
           <select id="exp-category" class="form-control">
@@ -1381,19 +1428,20 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
-        <button class="btn btn-primary" onclick="app.saveExpenseFromModal()">Save Expense</button>
+        <button class="btn btn-primary" id="exp-modal-btn" onclick="app.saveExpenseFromModal()">Save Expense</button>
       </div>
     </div>
   </div>
 
-  <!-- Add Personal Drawing Modal -->
+  <!-- Add/Edit Personal Drawing Modal -->
   <div id="modal-drawing" class="modal-overlay hidden">
     <div class="modal-content" style="max-width: 420px;">
       <div class="modal-header">
-        <h3 style="font-size: 15px;">Log Founder Living Withdrawal</h3>
+        <h3 id="drw-modal-title" style="font-size: 15px;">Log Founder Living Withdrawal</h3>
         <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="drw-edit-id">
         <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
           Track personal living allowance withdrawals separately from operational company funds to maintain cash solvency.
         </p>
@@ -1415,19 +1463,20 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
-        <button class="btn btn-primary" onclick="app.saveDrawingFromModal()">Log Withdrawal</button>
+        <button class="btn btn-primary" id="drw-modal-btn" onclick="app.saveDrawingFromModal()">Log Withdrawal</button>
       </div>
     </div>
   </div>
 
-  <!-- Create Quotation Modal -->
+  <!-- Create/Edit Quotation Modal -->
   <div id="modal-quotation" class="modal-overlay hidden">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 style="font-size: 15px;">Create Formal Quotation</h3>
+        <h3 id="quote-modal-title" style="font-size: 15px;">Create Formal Quotation</h3>
         <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
       </div>
       <div class="modal-body">
+        <input type="hidden" id="quote-edit-id">
         <div class="form-group">
           <label class="form-label">Client / Entity Name *</label>
           <input type="text" id="quote-client" class="form-control" required placeholder="e.g. Pragjyotish Diagnostic Clinic">
@@ -1470,7 +1519,169 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
-        <button class="btn btn-primary" onclick="app.saveQuotationFromModal()">Save Quotation</button>
+        <button class="btn btn-primary" id="quote-modal-btn" onclick="app.saveQuotationFromModal()">Save Quotation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Direct Invoice Modal -->
+  <div id="modal-invoice" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 id="invoice-modal-title" style="font-size: 15px;">Create Direct Invoice</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="invoice-edit-id">
+        <div class="form-group">
+          <label class="form-label">Client / Entity Name *</label>
+          <input type="text" id="invoice-client" class="form-control" required placeholder="e.g. Apex Diagnostics, Guwahati">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Service Description *</label>
+          <input type="text" id="invoice-service" class="form-control" required placeholder="e.g. Turnkey Rooftop Solar Advisory / SMB Website">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Amount Billed (₹) *</label>
+            <input type="number" id="invoice-billed" class="form-control" required placeholder="e.g. 50000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount Collected (₹)</label>
+            <input type="number" id="invoice-collected" class="form-control" value="0" placeholder="e.g. 25000">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Invoice Due Date</label>
+            <input type="date" id="invoice-due-date" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Payment Status</label>
+            <select id="invoice-status" class="form-control">
+              <option value="Sent">Sent (Unpaid)</option>
+              <option value="Partially Paid">Partially Paid</option>
+              <option value="Paid">Fully Paid & Settled</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" id="invoice-modal-btn" onclick="app.saveInvoiceFromModal()">Save Invoice</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create/Edit Project Modal -->
+  <div id="modal-project" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 id="project-modal-title" style="font-size: 15px;">Create Project Record</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="project-edit-id">
+
+        <div class="form-group">
+          <label class="form-label">Project Type *</label>
+          <select id="project-type" class="form-control" onchange="app.onProjectTypeChange(this.value)">
+            <option value="solar">☀️ Solar Rooftop & Advisory</option>
+            <option value="it">💻 IT, Website & Automation Retainer</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Client / Organization Name *</label>
+          <input type="text" id="project-client" class="form-control" required placeholder="e.g. North East Cold Storage Pvt Ltd">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3" id="project-solar-fields">
+          <div class="form-group">
+            <label class="form-label">System Capacity (kWp) *</label>
+            <input type="number" id="project-capacity" class="form-control" placeholder="e.g. 25">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Utility DISCOM</label>
+            <select id="project-discom" class="form-control">
+              <option value="APDCL">APDCL (Assam)</option>
+              <option value="MePDCL">MePDCL (Meghalaya)</option>
+              <option value="TSECL">TSECL (Tripura)</option>
+              <option value="MSPDCL">MSPDCL (Manipur)</option>
+              <option value="DoP Arunachal">DoP (Arunachal Pradesh)</option>
+              <option value="DoP Nagaland">DoP (Nagaland)</option>
+              <option value="P&ED Mizoram">P&ED (Mizoram)</option>
+              <option value="Energy Dept Sikkim">Energy Dept (Sikkim)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group hidden" id="project-it-fields">
+          <label class="form-label">Service Scope *</label>
+          <input type="text" id="project-scope" class="form-control" placeholder="e.g. 5-Page Responsive SMB Website & Maintenance">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Total Contract Value (₹) *</label>
+            <input type="number" id="project-value" class="form-control" required placeholder="e.g. 1250000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Site / Delivery Location</label>
+            <input type="text" id="project-location" class="form-control" placeholder="e.g. Guwahati / Maligaon">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Engineering / Technical Notes & Assumptions</label>
+          <textarea id="project-notes" class="form-control" placeholder="Key delivery milestones, structural specifications or hosting access details..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" id="project-modal-btn" onclick="app.saveProjectFromModal()">Save Project</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Universal Modify Record Selector Modal -->
+  <div id="modal-modify-selector" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h3 id="modify-selector-title" style="font-size: 15px;">✏️ Modify Existing Business Record</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Record Type Category</label>
+          <select id="modify-type-select" class="form-control" onchange="app.onModifyTypeSelected(this.value)">
+            <option value="lead">👥 Customer Leads & CRM</option>
+            <option value="quotation">📄 Quotations</option>
+            <option value="invoice">🧾 Invoices & Receivables</option>
+            <option value="expense">💸 Business Expenses</option>
+            <option value="drawing">🏦 Personal Withdrawals</option>
+            <option value="solar">☀️ Solar Projects</option>
+            <option value="it">💻 IT & Web Projects</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Choose Record to Modify *</label>
+          <select id="modify-record-select" class="form-control" onchange="app.updateModifyPreview(this.value)" style="font-family: var(--font-mono); font-size: 13px;">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <div id="modify-record-preview" style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md); font-size: 12px; border: 1px solid var(--border-color); min-height: 50px;">
+          Select a record above to view summary and proceed with edits.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.openSelectedRecordForEdit()">✏️ Open for Modification</button>
       </div>
     </div>
   </div>

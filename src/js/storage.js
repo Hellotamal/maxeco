@@ -202,6 +202,12 @@ class StorageController {
     return invoice;
   }
 
+  deleteInvoice(id) {
+    const store = this.getStore();
+    store.invoices = (store.invoices || []).filter(inv => inv.id !== id);
+    this.saveStore(store);
+  }
+
   // --- EXPENSES ---
   getExpenses() {
     const store = this.getStore();
@@ -302,6 +308,12 @@ class StorageController {
     return null;
   }
 
+  deleteSolarProject(id) {
+    const store = this.getStore();
+    store.solarProjects = (store.solarProjects || []).filter(p => p.id !== id);
+    this.saveStore(store);
+  }
+
   // --- IT & WEB PROJECTS ---
   getItProjects() {
     const store = this.getStore();
@@ -336,6 +348,12 @@ class StorageController {
       return proj;
     }
     return null;
+  }
+
+  deleteItProject(id) {
+    const store = this.getStore();
+    store.itProjects = (store.itProjects || []).filter(p => p.id !== id);
+    this.saveStore(store);
   }
 
   // --- BACKUP & RESTORE ---
