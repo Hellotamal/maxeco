@@ -193,7 +193,7 @@ class SolarCalculator {
     return `https://re.jrc.ec.europa.eu/pvg_tools/en/#PVP?lat=${lat}&lon=${lon}&peakpower=${peakPowerKw}&loss=${systemLoss}&angle=${tilt}&aspect=${azimuth}`;
   }
 
-  generateWhatsAppEnquiryUrl(calcResult, phone = "919876543210") {
+  generateWhatsAppEnquiryUrl(calcResult, phone = "919954493909") {
     const text = encodeURIComponent(
       `Hello MaxEco Energy & Tech,\n\n` +
       `I ran a preliminary solar feasibility assessment using your PVGIS-calibrated model for ${calcResult.location.name}:\n` +

@@ -5,10 +5,10 @@ const initialSeedData = {
   settings: {
     companyName: "MaxEco Energy & Tech",
     tagline: "Clean Energy Advisory & Digital Solutions for Northeast India",
-    location: "Guwahati, Assam, India",
-    contactPhone: "+91 98765 43210",
-    contactEmail: "contact@maxeco.in",
-    whatsappNumber: "919876543210",
+    location: "Maligaon, Guwahati, Assam, Pin - 781011",
+    contactPhone: "+91 99544 93909",
+    contactEmail: "maxecoenergyit@gmail.com",
+    whatsappNumber: "919954493909",
     adminPin: "maxeco2026",
     currencySymbol: "₹",
     taxReserveRate: 18, // 18% GST / estimated tax reserve

@@ -20,10 +20,10 @@ class StorageController {
         this.saveStore({
           settings: {
             companyName: "MaxEco Energy & Tech",
-            location: "Guwahati, Assam, India",
-            contactPhone: "+91 98765 43210",
-            contactEmail: "contact@maxeco.in",
-            whatsappNumber: "919876543210",
+            location: "Maligaon, Guwahati, Assam, Pin - 781011",
+            contactPhone: "+91 99544 93909",
+            contactEmail: "maxecoenergyit@gmail.com",
+            whatsappNumber: "919954493909",
             adminPin: "maxeco2026",
             currencySymbol: "₹",
             taxReserveRate: 18,
@@ -39,6 +39,20 @@ class StorageController {
           solarProjects: [],
           itProjects: []
         });
+      }
+    } else {
+      // Automatic update if previously cached with placeholder contacts
+      try {
+        const parsed = JSON.parse(existing);
+        if (parsed && parsed.settings && (parsed.settings.contactEmail === 'contact@maxeco.in' || parsed.settings.contactPhone === '+91 98765 43210')) {
+          parsed.settings.location = "Maligaon, Guwahati, Assam, Pin - 781011";
+          parsed.settings.contactPhone = "+91 99544 93909";
+          parsed.settings.contactEmail = "maxecoenergyit@gmail.com";
+          parsed.settings.whatsappNumber = "919954493909";
+          this.saveStore(parsed);
+        }
+      } catch (e) {
+        console.error('Error parsing existing storage', e);
       }
     }
   }

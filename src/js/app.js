@@ -1005,7 +1005,7 @@ class AppController {
     }
 
     const settings = window.storage.getSettings();
-    const waUrl = window.solarCalculator.generateWhatsAppEnquiryUrl(result, settings.whatsappNumber || '919876543210');
+    const waUrl = window.solarCalculator.generateWhatsAppEnquiryUrl(result, settings.whatsappNumber || '919954493909');
     const waBtn = document.getElementById('calc-btn-whatsapp');
     if (waBtn) {
       waBtn.href = waUrl;
@@ -1079,7 +1079,7 @@ class AppController {
       `Looking forward to connecting with your advisory team.`
     );
 
-    const waLink = `https://wa.me/${settings.whatsappNumber || '919876543210'}?text=${waText}`;
+    const waLink = `https://wa.me/${settings.whatsappNumber || '919954493909'}?text=${waText}`;
 
     showToast('Enquiry received! Opening WhatsApp to connect directly...', 'success');
     window.open(waLink, '_blank');
