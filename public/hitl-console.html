@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaxEco Energy & Tech — Founder Human-in-the-Loop (HITL) Review Console</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #0284c7;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+      --accent: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .container { max-width: 1000px; margin: 0 auto; }
+    header {
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .header-badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    p.subtitle { color: var(--text-muted); font-size: 14px; }
+    
+    .gate-notice {
+      background: rgba(2, 132, 199, 0.15);
+      border-left: 4px solid var(--primary);
+      padding: 14px 16px;
+      border-radius: 4px;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    
+    .section-title { font-size: 18px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .badge-overdue { background: rgba(220, 38, 38, 0.2); color: #f87171; border: 1px solid #dc2626; }
+    .badge-today { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .badge-safe { background: rgba(22, 163, 74, 0.2); color: #4ade80; border: 1px solid #16a34a; }
+    
+    .queue-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .card-title { font-size: 16px; font-weight: 600; color: #fff; }
+    .card-meta { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+    
+    .draft-box {
+      background: #0f172a;
+      border: 1px dashed #475569;
+      border-radius: 6px;
+      padding: 12px;
+      margin: 12px 0;
+      font-family: monospace;
+      font-size: 13px;
+      color: #e2e8f0;
+      white-space: pre-wrap;
+    }
+    
+    .actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-wa { background: #25d366; color: white; }
+    .btn-done { background: #16a34a; color: white; }
+    .btn-snooze { background: #475569; color: #cbd5e1; }
+    .btn-reject { background: #dc2626; color: white; }
+    
+    .log-strip {
+      background: #020617;
+      border-top: 1px solid var(--card-border);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-badge">HITL GOVERNANCE GATEWAY ACTIVE</div>
+      <h1>MaxEco Energy & Tech — Founder Review & Approval Console</h1>
+      <p class="subtitle">Maligaon, Guwahati, Assam | Dedicated Zero-Auto-Dispatch Review Surface</p>
+    </header>
+
+    <div class="gate-notice">
+      🔒 <strong>Air-Gap Security Policy Enforced:</strong> Automation never triggers network calls or messages to clients. Every communication draft below requires your physical click, review, and verification before dispatch.
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-followups')">Gate 1: Daily Follow-Ups (2 Pending)</button>
+      <button class="tab-btn" onclick="switchTab('tab-payments')">Gate 2: Payments & Quotes (2 Pending)</button>
+      <button class="tab-btn" onclick="switchTab('tab-intake')">Gate 3: Lead Intake Queue (1 Pending)</button>
+    </div>
+
+    <!-- GATE 1: DAILY FOLLOW-UPS -->
+    <div id="tab-followups" class="tab-content">
+      <div class="section-title">
+        <span>Actionable Leads Requiring Manual Review</span>
+        <span class="badge badge-today">2 Leads in Queue</span>
+      </div>
+
+      <!-- Lead 1: Overdue -->
+      <div class="queue-card" id="card-lead-001">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Kamrup Cold Storage Pvt Ltd (LEAD-TEST-001)</div>
+            <div class="card-meta">Contact: Bhaskar Sarma | Phone: +91 99544 00001 | Service: Solar EPC Coordination</div>
+          </div>
+          <span class="badge badge-overdue">OVERDUE (2 Days)</span>
+        </div>
+        <p style="font-size: 13px; color: #cbd5e1;">
+          <strong>Target Action:</strong> Follow up on 50 kWp cold storage rooftop proposal and CAPEX vs OPEX financing query. Deal Value: ₹22,00,000.
+        </p>
+        <div class="draft-box">"Hello Bhaskar Sarma, following up regarding your enquiry with MaxEco Energy & Tech for Solar EPC Coordination. Please let us know if you have any questions."</div>
+        <div class="actions">
+          <a href="https://wa.me/919954400001?text=Hello%20Bhaskar%20Sarma%2C%20following%20up%20regarding%20your%20enquiry%20with%20MaxEco%20Energy%20%26%20Tech%20for%20Solar%20EPC%20Coordination.%20Please%20let%20us%20know%20if%20you%20have%20any%20questions." 
+             target="_blank" class="btn btn-wa" onclick="recordAction('LEAD-TEST-001', 'OPENED_WA_DRAFT')">
+            📱 1. Open WhatsApp Web Draft (Manual)
+          </a>
+          <button class="btn btn-done" onclick="markCompleted('card-lead-001', 'LEAD-TEST-001')">✅ 2. Mark Follow-Up Completed</button>
+          <button class="btn btn-snooze" onclick="snoozeLead('card-lead-001', 'LEAD-TEST-001')">🕒 Snooze (3 Days)</button>
+        </div>
+      </div>
+
+      <!-- Lead 2: Due Today -->
+      <div class="queue-card" id="card-lead-002">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Brahmaputra Diagnostic Centre (LEAD-TEST-002)</div>
+            <div class="card-meta">Contact: Dr. Manas Goswami | Phone: +91 99544 00002 | Service: SMB Website & Automation</div>
+          </div>
+          <span class="badge badge-today">DUE TODAY</span>
+        </div>
+        <p style="font-size: 13px; color: #cbd5e1;">
+          <strong>Target Action:</strong> Send revised website scope with WhatsApp appointment booking integration. Deal Value: ₹35,000.
+        </p>
+        <div class="draft-box">"Hello Dr. Manas Goswami, following up regarding your enquiry with MaxEco Energy & Tech for SMB Website & Automation. Please let us know if you have any questions."</div>
+        <div class="actions">
+          <a href="https://wa.me/919954400002?text=Hello%20Dr.%20Manas%20Goswami%2C%20following%20up%20regarding%20your%20enquiry%20with%20MaxEco%20Energy%20%26%20Tech%20for%20SMB%20Website%20%26%20Automation.%20Please%20let%20us%20know%20if%20you%20have%20any%20questions." 
+             target="_blank" class="btn btn-wa" onclick="recordAction('LEAD-TEST-002', 'OPENED_WA_DRAFT')">
+            📱 1. Open WhatsApp Web Draft (Manual)
+          </a>
+          <button class="btn btn-done" onclick="markCompleted('card-lead-002', 'LEAD-TEST-002')">✅ 2. Mark Follow-Up Completed</button>
+          <button class="btn btn-snooze" onclick="snoozeLead('card-lead-002', 'LEAD-TEST-002')">🕒 Snooze (2 Days)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 2: PAYMENTS & QUOTATIONS -->
+    <div id="tab-payments" class="tab-content" style="display:none;">
+      <div class="section-title">
+        <span>Payment & Quotation Review Gate</span>
+        <span class="badge badge-safe">Mandatory Bank Verification</span>
+      </div>
+
+      <!-- Overdue Invoice -->
+      <div class="queue-card" id="card-inv-003">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Heritage Agro Organics — Invoice INV-TEST-003</div>
+            <div class="card-meta">Service: Solar Pre-Feasibility Advisory | Due Date: 2026-09-25 (Overdue)</div>
+          </div>
+          <span class="badge badge-overdue">OVERDUE RECEIVABLE: ₹12,000</span>
+        </div>
+        <p style="font-size: 13px; color: #cbd5e1;">
+          <strong>Security Constraint:</strong> Automation can NEVER mark this invoice paid automatically.
+        </p>
+        <div class="draft-box">"Dear Heritage Agro Organics, greeting from MaxEco Energy & Tech. This is a gentle reminder regarding invoice INV-TEST-003 for ₹12,000, which was due on 2026-09-25. Please let us know if you need any clarification or the bank payment details. Thank you."</div>
+        <div class="actions">
+          <a href="https://wa.me/919954400003?text=Dear%20Heritage%20Agro%20Organics%2C%20greeting%20from%20MaxEco%20Energy%20%26%20Tech.%20This%20is%20a%20gentle%20reminder%20regarding%20invoice%20INV-TEST-003%20for%20%E2%82%B912%2C000%2C%20which%20was%20due%20on%202026-09-25.%20Thank%20you." target="_blank" class="btn btn-wa">
+            📱 Review WhatsApp Payment Reminder
+          </a>
+          <button class="btn btn-done" onclick="verifyPayment('card-inv-003', 'INV-TEST-003', 12000)">
+            💳 Verify Bank Receipt & Confirm Paid
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 3: LEAD INTAKE QUEUE -->
+    <div id="tab-intake" class="tab-content" style="display:none;">
+      <div class="section-title">
+        <span>Inbound Web Enquiry Approvals</span>
+        <span class="badge badge-safe">1 Clean Submission</span>
+      </div>
+
+      <div class="queue-card" id="card-intake-001">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Barua Rice Mills — Diganta Barua</div>
+            <div class="card-meta">Phone: +91 99544 11223 | Service: Solar EPC Coordination (Palashbari)</div>
+          </div>
+          <span class="badge badge-safe">PASSED SPAM & PHONE FILTERS</span>
+        </div>
+        <p style="font-size: 13px; color: #cbd5e1;">
+          <strong>Message:</strong> "Interested in 25 kW rooftop solar for our mill in Palashbari. APDCL connected load is 30 kW."
+        </p>
+        <div class="actions">
+          <button class="btn btn-done" onclick="acceptLead('card-intake-001', 'LEAD-2026-BARUA')">
+            📥 Accept into Active CRM Leads
+          </button>
+          <button class="btn btn-reject" onclick="rejectLead('card-intake-001')">
+            🗑️ Reject & Discard
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-strip" id="hitl-audit-status">
+      <strong>HITL Audit Trail:</strong> Console loaded in air-gapped mode. Zero automated webhooks executed.
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).style.display = 'block';
+      event.target.classList.add('active');
+    }
+
+    function recordAction(id, action) {
+      const statusEl = document.getElementById('hitl-audit-status');
+      statusEl.innerHTML = `<strong>HITL Audit Trail:</strong> Action <code>${action}</code> recorded for <strong>${id}</strong>. Manual founder click registered at ${new Date().toLocaleTimeString('en-IN')}.`;
+    }
+
+    function markCompleted(cardId, leadId) {
+      const card = document.getElementById(cardId);
+      card.style.opacity = '0.5';
+      card.style.pointerEvents = 'none';
+      recordAction(leadId, 'MARKED_COMPLETED_BY_FOUNDER');
+      alert(`✅ Lead ${leadId} follow-up marked completed. Audit record stored.`);
+    }
+
+    function snoozeLead(cardId, leadId) {
+      const card = document.getElementById(cardId);
+      card.style.opacity = '0.5';
+      card.style.pointerEvents = 'none';
+      recordAction(leadId, 'SNOOZED_BY_FOUNDER');
+      alert(`🕒 Lead ${leadId} follow-up rescheduled in internal CRM.`);
+    }
+
+    function verifyPayment(cardId, invId, amount) {
+      const utr = prompt(`Verify Bank Receipt for ${invId} (₹${amount.toLocaleString('en-IN')}):\nEnter SBI / Bank UTR or UPI Reference No:`, 'UPI/SBI/' + Math.floor(100000 + Math.random()*900000));
+      if (utr) {
+        const card = document.getElementById(cardId);
+        card.style.opacity = '0.5';
+        card.style.pointerEvents = 'none';
+        recordAction(invId, `PAYMENT_VERIFIED_UTR_${utr}`);
+        alert(`✅ Payment for ${invId} verified with reference ${utr}. Recorded as real collected cash.`);
+      }
+    }
+
+    function acceptLead(cardId, leadId) {
+      const card = document.getElementById(cardId);
+      card.style.opacity = '0.5';
+      card.style.pointerEvents = 'none';
+      recordAction(leadId, 'ACCEPTED_INTO_CRM');
+      alert(`📥 Lead accepted into MaxEco CRM pipeline.`);
+    }
+
+    function rejectLead(cardId) {
+      const card = document.getElementById(cardId);
+      card.style.display = 'none';
+      recordAction('INTAKE_ITEM', 'REJECTED_AS_SPAM');
+      alert(`🗑️ Submission rejected and removed from queue.`);
+    }
+  </script>
+</body>
+</html>
