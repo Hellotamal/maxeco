@@ -12,7 +12,7 @@ color 0B
 
 echo.
 echo ============================================================================
-echo   MAXECO ENERGY & TECH -- AUTOMATED GITHUB SYNC
+echo   MAXECO ENERGY ^& TECH -- AUTOMATED GITHUB SYNC
 echo ============================================================================
 echo.
 
