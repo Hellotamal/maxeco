@@ -10,3 +10,6 @@ Thumbs.db
 # Ignore backups containing private live data
 backups/
 private_data/
+.n8n/
+*.sqlite
+*.db
