@@ -323,6 +323,7 @@ class AppController {
               <a href="${waUrl}" target="_blank" class="btn btn-whatsapp btn-sm" title="Draft WhatsApp message">💬</a>
               <button class="btn btn-secondary btn-sm" onclick="app.openEditLeadModal('${lead.id}')">✏️ Edit</button>
               <button class="btn btn-secondary btn-sm" onclick="app.openLeadToQuoteModal('${lead.id}')" title="Generate Quotation">📄 Quote</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteLead('${lead.id}')">🗑️ Delete</button>
             </div>
           </td>
         </tr>
@@ -1390,6 +1391,116 @@ class AppController {
       window.storage.deleteQuotation(id);
       showToast('Quotation removed.', 'info');
       this.renderQuotesInvoicesTab();
+    }
+  }
+
+  deleteLead(id) {
+    if (confirm('Are you sure you want to permanently delete this lead record?')) {
+      window.storage.deleteLead(id);
+      showToast('Lead record removed.', 'info');
+      this.renderLeadsTab();
+      if (this.currentView === 'dashboard') {
+        this.renderDashboardTab();
+      }
+    }
+  }
+
+  // --- UNIVERSAL DELETE SELECTOR CONTROLS ---
+  openDeleteSelectorModal(defaultType = 'lead') {
+    const typeSelect = document.getElementById('delete-type-select');
+    if (typeSelect) typeSelect.value = defaultType;
+    this.onDeleteTypeSelected(defaultType);
+    document.getElementById('modal-delete-selector').classList.remove('hidden');
+  }
+
+  onDeleteTypeSelected(type) {
+    const recSelect = document.getElementById('delete-record-select');
+    if (!recSelect) return;
+    recSelect.innerHTML = '';
+
+    let items = [];
+    if (type === 'lead') {
+      items = window.storage.getLeads().map(l => ({ id: l.id, label: `[${l.id}] ${l.name} — ${formatINR(l.estimatedValue)} (${l.stage})` }));
+    } else if (type === 'quotation') {
+      items = window.storage.getQuotations().map(q => ({ id: q.id, label: `[${q.id}] ${q.clientName} — ${formatINR(q.totalAmount)} (${q.status})` }));
+    } else if (type === 'invoice') {
+      items = window.storage.getInvoices().map(i => ({ id: i.id, label: `[${i.id}] ${i.clientName} — ${formatINR(i.amountBilled)} (${i.status})` }));
+    } else if (type === 'expense') {
+      items = window.storage.getExpenses().map(e => ({ id: e.id, label: `[${e.id}] ${e.description} — ${formatINR(e.amount)} (${e.category})` }));
+    } else if (type === 'drawing') {
+      items = window.storage.getDrawings().map(d => ({ id: d.id, label: `[${d.id}] ${d.purpose} — ${formatINR(d.amount)} (${formatDate(d.date)})` }));
+    } else if (type === 'solar') {
+      items = window.storage.getSolarProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} (${p.systemCapacityKwp} kWp) — ${formatINR(p.totalContractValue)}` }));
+    } else if (type === 'it') {
+      items = window.storage.getItProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} — ${formatINR(p.contractValue)}` }));
+    }
+
+    if (items.length === 0) {
+      recSelect.innerHTML = '<option value="">(No records found in this category)</option>';
+      this.updateDeletePreview('');
+    } else {
+      recSelect.innerHTML = items.map(it => `<option value="${it.id}">${it.label}</option>`).join('');
+      this.updateDeletePreview(items[0].id);
+    }
+  }
+
+  updateDeletePreview(id) {
+    const previewEl = document.getElementById('delete-record-preview');
+    if (!previewEl) return;
+    if (!id) {
+      previewEl.innerHTML = '<span class="text-muted">No record selected.</span>';
+      return;
+    }
+    const type = document.getElementById('delete-type-select').value;
+    let details = '';
+    if (type === 'lead') {
+      const l = window.storage.getLeads().find(x => x.id === id);
+      if (l) details = `<strong style="color: var(--accent-rose);">[Lead] ${l.name}</strong> • ${l.service} • Phone: ${l.phone} • Value: ${formatINR(l.estimatedValue)} • Stage: ${l.stage}`;
+    } else if (type === 'quotation') {
+      const q = window.storage.getQuotations().find(x => x.id === id);
+      if (q) details = `<strong style="color: var(--accent-rose);">[Quote] ${q.clientName}</strong> • ${q.service} • Value: ${formatINR(q.totalAmount)} • Status: ${q.status}`;
+    } else if (type === 'invoice') {
+      const i = window.storage.getInvoices().find(x => x.id === id);
+      if (i) details = `<strong style="color: var(--accent-rose);">[Invoice] ${i.clientName}</strong> • Billed: ${formatINR(i.amountBilled)} • Collected: ${formatINR(i.amountCollected)} • Due: ${formatDate(i.dueDate)} • Status: ${i.status}`;
+    } else if (type === 'expense') {
+      const e = window.storage.getExpenses().find(x => x.id === id);
+      if (e) details = `<strong style="color: var(--accent-rose);">[Expense] ${e.description}</strong> • ${e.category} • Amount: ${formatINR(e.amount)} • Paid to: ${e.paidTo}`;
+    } else if (type === 'drawing') {
+      const d = window.storage.getDrawings().find(x => x.id === id);
+      if (d) details = `<strong style="color: var(--accent-rose);">[Withdrawal] ${d.purpose}</strong> • Amount: ${formatINR(d.amount)} • Date: ${formatDate(d.date)}`;
+    } else if (type === 'solar') {
+      const s = window.storage.getSolarProjects().find(x => x.id === id);
+      if (s) details = `<strong style="color: var(--accent-rose);">[Solar Project] ${s.clientName}</strong> • ${s.systemCapacityKwp} kWp • Value: ${formatINR(s.totalContractValue)} • Site: ${s.siteLocation}`;
+    } else if (type === 'it') {
+      const it = window.storage.getItProjects().find(x => x.id === id);
+      if (it) details = `<strong style="color: var(--accent-rose);">[IT Project] ${it.clientName}</strong> • Scope: ${it.serviceScope} • Contract: ${formatINR(it.contractValue)}`;
+    }
+    previewEl.innerHTML = details || '<span class="text-muted">Record details loaded.</span>';
+  }
+
+  executeDeleteFromSelector() {
+    const id = document.getElementById('delete-record-select').value;
+    if (!id) {
+      showToast('Please select a record to delete.', 'error');
+      return;
+    }
+    const type = document.getElementById('delete-type-select').value;
+    this.closeAllModals();
+
+    if (type === 'lead') {
+      this.deleteLead(id);
+    } else if (type === 'quotation') {
+      this.deleteQuotation(id);
+    } else if (type === 'invoice') {
+      this.deleteInvoice(id);
+    } else if (type === 'expense') {
+      this.deleteExpense(id);
+    } else if (type === 'drawing') {
+      this.deleteDrawing(id);
+    } else if (type === 'solar') {
+      this.deleteSolarProject(id);
+    } else if (type === 'it') {
+      this.deleteItProject(id);
     }
   }
 
