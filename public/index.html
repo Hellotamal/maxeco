@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaxEco Energy & Tech | Solar Advisory & Digital Solutions | Guwahati, Assam</title>
+  <meta name="description" content="MaxEco Energy & Tech provides solar energy advisory, solar EPC coordination, and small business digital solutions across Guwahati and Northeast India.">
+  <link rel="stylesheet" href="../src/css/style.css">
+  <style>
+    /* Additional inline layout helpers */
+    .hero-section {
+      padding: 60px 0 40px;
+      background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(6, 182, 212, 0.08), transparent 40%);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .service-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .service-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--solar-amber);
+    }
+    .service-tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .calc-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      box-shadow: var(--shadow-md);
+    }
+    .result-kpi-box {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+    .hidden { display: none !important; }
+    .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="site-header">
+    <div class="container flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <a href="#home" style="text-decoration: none; display: flex; align-items: center; gap: 10px;">
+          <div class="logo-badge">M</div>
+          <div>
+            <div style="font-size: 16px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.3px;">MaxEco <span class="text-amber">Energy & Tech</span></div>
+            <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Guwahati, Assam</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Public Navigation Links -->
+      <nav id="public-nav-links" class="flex items-center gap-2 nav-menu">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#sec-solar-services" class="nav-link">Solar Services</a>
+        <a href="#sec-it-services" class="nav-link">IT & Digital</a>
+        <a href="#sec-solar-calculator" class="nav-link">Solar Calculator</a>
+        <a href="#sec-about" class="nav-link">About</a>
+        <a href="#sec-contact" class="nav-link">Contact</a>
+      </nav>
+
+      <!-- Private Founder Dashboard Links -->
+      <nav id="private-nav-links" class="flex items-center gap-2 nav-menu hidden">
+        <a href="#dashboard" class="nav-link">Overview</a>
+        <a href="#leads" class="nav-link">Leads & CRM</a>
+        <a href="#quotes-invoices" class="nav-link">Quotes & Invoices</a>
+        <a href="#finance" class="nav-link">Cash Flow</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#settings" class="nav-link">Settings & Backup</a>
+      </nav>
+
+      <!-- Auth Toggle & WhatsApp quick contact -->
+      <div class="flex items-center gap-3">
+        <a href="https://wa.me/919876543210?text=Hello%20MaxEco,%20I%20would%20like%20to%20enquire%20about%20your%20services." target="_blank" class="btn btn-whatsapp btn-sm">
+          💬 WhatsApp
+        </a>
+        <button id="btn-auth-toggle" class="btn btn-secondary btn-sm">🔑 Founder Login</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- PUBLIC WEBSITE PORTAL                      -->
+  <!-- ========================================== -->
+  <main id="public-portal">
+
+    <!-- Hero Section -->
+    <section id="sec-home" class="hero-section">
+      <div class="container">
+        <div style="max-width: 820px; margin: 0 auto; text-align: center;">
+          <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-full); margin-bottom: 20px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--solar-amber); text-transform: uppercase;">Clean Energy Advisory & Digital Execution</span>
+          </div>
+          <h1 style="font-size: 38px; line-height: 1.2; margin-bottom: 18px; letter-spacing: -0.5px;">
+            Practical Clean Energy Advisory & Digital Growth for Northeast India
+          </h1>
+          <p style="font-size: 16px; color: var(--text-secondary); margin-bottom: 30px; line-height: 1.6;">
+            Helping commercial enterprises, institutions, and growing businesses across Guwahati and Assam reduce power costs with rooftop solar and expand their digital reach with modern web solutions.
+          </p>
+
+          <div class="flex justify-center items-center gap-4" style="flex-wrap: wrap;">
+            <a href="#sec-solar-calculator" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
+              ☀️ Calculate Rooftop Solar Savings
+            </a>
+            <a href="#sec-solar-services" class="btn btn-secondary" style="padding: 12px 24px; font-size: 14px;">
+              Explore Services
+            </a>
+            <a href="https://wa.me/919876543210?text=Hello%20MaxEco,%20I%20would%20like%20to%20discuss%20a%20project%20in%20Assam." target="_blank" class="btn btn-whatsapp" style="padding: 12px 24px; font-size: 14px;">
+              💬 Direct Founder Chat
+            </a>
+          </div>
+
+          <!-- Regional Highlights -->
+          <div class="grid grid-cols-3 gap-4" style="margin-top: 48px; text-align: left;">
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md);">
+              <div style="font-size: 20px; margin-bottom: 6px;">⚡</div>
+              <h4 style="font-size: 13px; margin-bottom: 4px;">APDCL Net-Metering Guidance</h4>
+              <p style="font-size: 12px; color: var(--text-muted);">Assam regulatory compliance, sanctioned load matching, and transformer capacity verification.</p>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md);">
+              <div style="font-size: 20px; margin-bottom: 6px;">🤝</div>
+              <h4 style="font-size: 13px; margin-bottom: 4px;">Turnkey EPC Partner Coordination</h4>
+              <p style="font-size: 12px; color: var(--text-muted);">Independent advisory connecting clients with vetted regional contractors for reliable installations.</p>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 16px; border-radius: var(--radius-md);">
+              <div style="font-size: 20px; margin-bottom: 6px;">💻</div>
+              <h4 style="font-size: 13px; margin-bottom: 4px;">Modern SMB Web Solutions</h4>
+              <p style="font-size: 12px; color: var(--text-muted);">Fast, mobile-friendly websites, WhatsApp lead routing, and ongoing maintenance retainers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solar Energy Services Section -->
+    <section id="sec-solar-services" style="padding: 60px 0; border-bottom: 1px solid var(--border-color);">
+      <div class="container">
+        <div style="max-width: 600px; margin-bottom: 36px;">
+          <span class="text-amber" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Renewable Energy Practice</span>
+          <h2 style="font-size: 28px; margin-top: 6px;">Solar Consulting & Project Coordination</h2>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">
+            Guiding commercial, industrial, and institutional properties in Guwahati and across Assam from initial feasibility to grid synchronization.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6">
+          <div class="service-card">
+            <div>
+              <span class="service-tag text-amber">Advisory & Feasibility</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">Solar Rooftop Technical & Financial Sizing</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                Comprehensive rooftop evaluation assessing sanctioned load, shadow conditions, daily generation benchmarks (~120 units/kWp/mo in Assam), and payback modeling against APDCL commercial tariffs.
+              </p>
+              <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
+                <li>Sanctioned load & bill analysis</li>
+                <li>RCC and industrial shed shadow audit</li>
+                <li>Payback & 25-year financial projections</li>
+              </ul>
+            </div>
+            <div style="margin-top: 20px;">
+              <a href="#sec-solar-calculator" class="btn btn-secondary btn-sm" style="width: 100%;">Estimate Sizing Online</a>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div>
+              <span class="service-tag text-amber">EPC Coordination</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">Solar EPC Coordination & Vendor Management</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                Acting as client-side technical coordinator to source tier-1 solar modules, inverters, and hot-dip galvanized mounting structures from qualified regional EPC delivery partners.
+              </p>
+              <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
+                <li>BOQ (Bill of Quantities) validation</li>
+                <li>Equipment procurement oversight</li>
+                <li>Milestone-based progress monitoring</li>
+              </ul>
+            </div>
+            <div style="margin-top: 20px;">
+              <a href="#sec-contact" class="btn btn-secondary btn-sm" style="width: 100%;">Request Proposal Support</a>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div>
+              <span class="service-tag text-amber">Regulatory & Compliance</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">APDCL Net-Metering & Liaison Advisory</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                Navigating the statutory documentation required for net-metering approvals under Assam Electricity Regulatory Commission (AERC) guidelines.
+              </p>
+              <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
+                <li>Feasibility application guidance</li>
+                <li>Bi-directional net-meter coordination</li>
+                <li>CEIG electrical inspection advisory</li>
+              </ul>
+            </div>
+            <div style="margin-top: 20px;">
+              <a href="#sec-contact" class="btn btn-secondary btn-sm" style="width: 100%;">Discuss APDCL Process</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IT and Digital Services Section -->
+    <section id="sec-it-services" style="padding: 60px 0; border-bottom: 1px solid var(--border-color); background: rgba(19, 28, 46, 0.4);">
+      <div class="container">
+        <div style="max-width: 600px; margin-bottom: 36px;">
+          <span class="text-cyan" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Digital Solutions Practice</span>
+          <h2 style="font-size: 28px; margin-top: 6px;">Small-Business Websites & Digital Automation</h2>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">
+            Clean, fast, high-converting digital presence and workflow automations for local enterprises, clinics, and professional firms in Assam.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6">
+          <div class="service-card">
+            <div>
+              <span class="service-tag text-cyan">Web Design & Build</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">Professional SMB Business Websites</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                Custom, ultra-fast websites designed to generate customer enquiries on mobile devices with zero bloat and clean modern styling.
+              </p>
+              <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
+                <li>Mobile-first responsive architecture</li>
+                <li>Direct WhatsApp click-to-chat integration</li>
+                <li>Local search (Google Maps/Guwahati SEO)</li>
+              </ul>
+            </div>
+            <div style="margin-top: 20px;">
+              <a href="#sec-contact" class="btn btn-secondary btn-sm" style="width: 100%;">Enquire for Website</a>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div>
+              <span class="service-tag text-cyan">Retainers & Care</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">Website Maintenance & Support Retainers</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                Reliable ongoing care ensuring your business website remains online, updated, secure, and accurate without requiring full-time staff.
+              </p>
+              <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
+                <li>Regular text, product & catalog updates</li>
+                <li>Uptime monitoring & SSL renewal checks</li>
+                <li>Affordable monthly & quarterly retainers</li>
+              </ul>
+            </div>
+            <div style="margin-top: 20px;">
+              <a href="#sec-contact" class="btn btn-secondary btn-sm" style="width: 100%;">Retainer Plans</a>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div>
+              <span class="service-tag text-cyan">Productivity & AI</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">WhatsApp & Basic AI Workflow Automation</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                Connecting simple, low-cost tools to route enquiries automatically, pre-fill quotes, and streamline founder-led customer communications.
+              </p>
+              <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
+                <li>Direct WhatsApp lead routing</li>
+                <li>Automated customer intake forms</li>
+                <li>Google Sheets & CRM synchronization</li>
+              </ul>
+            </div>
+            <div style="margin-top: 20px;">
+              <a href="#sec-contact" class="btn btn-secondary btn-sm" style="width: 100%;">Explore Automations</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Solar Rooftop Sizing Calculator Section -->
+    <section id="sec-solar-calculator" style="padding: 60px 0; border-bottom: 1px solid var(--border-color);">
+      <div class="container">
+        <div style="text-align: center; max-width: 720px; margin: 0 auto 36px;">
+          <span class="text-amber" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Interactive Feasibility Engine</span>
+          <h2 style="font-size: 32px; margin-top: 6px;">Guwahati & Assam Solar Rooftop Sizing Calculator</h2>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">
+            Estimate your optimal system capacity, generation, electricity bill reduction, and payback timeline based on APDCL benchmark tariffs and regional irradiation.
+          </p>
+        </div>
+
+        <div style="max-width: 900px; margin: 0 auto;">
+          <div class="calc-card">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="form-group">
+                <label class="form-label">Sanctioned Connected Load (kW)</label>
+                <input type="number" id="calc-load" class="form-control" value="25" min="1" max="1000" placeholder="e.g. 25">
+                <small class="text-muted">Per APDCL bill (Net metering is capped up to sanctioned load)</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Average Monthly Electricity Bill (₹)</label>
+                <input type="number" id="calc-bill" class="form-control" value="28000" min="500" step="500" placeholder="e.g. 28000">
+                <small class="text-muted">Average monthly billing amount in INR</small>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Customer Tariff Category</label>
+                <select id="calc-type" class="form-control">
+                  <option value="commercial" selected>Commercial LT (~₹7.85 / unit benchmark)</option>
+                  <option value="domestic">Domestic / Residential (~₹6.20 / unit benchmark)</option>
+                  <option value="industrial">Industrial LT/HT (~₹7.20 / unit benchmark)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Available Shadow-Free Roof Area (sq. ft.)</label>
+                <input type="number" id="calc-roof" class="form-control" value="2500" min="100" placeholder="e.g. 2500">
+                <small class="text-muted">Requires approx. 95 sq. ft. per kWp</small>
+              </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 10px;">
+              <button class="btn btn-primary" onclick="app.runPublicCalculator()" style="padding: 12px 32px; font-size: 14px;">
+                ⚡ Calculate Sizing & Financial Model
+              </button>
+            </div>
+
+            <!-- Dynamic Results Container -->
+            <div id="calc-results-box" class="hidden" style="margin-top: 28px; border-top: 1px solid var(--border-color); padding-top: 24px;">
+              <div class="flex justify-between items-center" style="margin-bottom: 16px;">
+                <h3 style="font-size: 18px; color: var(--text-primary);">Estimated Advisory Results</h3>
+                <span class="badge badge-proposal">Assam Regional Calibration</span>
+              </div>
+
+              <div class="grid grid-cols-4 gap-3" style="margin-bottom: 16px;">
+                <div class="result-kpi-box">
+                  <div class="kpi-label">Recommended Capacity</div>
+                  <div class="kpi-value text-amber" id="calc-res-capacity">—</div>
+                  <div class="kpi-subtext" id="calc-res-area">—</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">Monthly Generation</div>
+                  <div class="kpi-value text-cyan" id="calc-res-monthly-gen">—</div>
+                  <div class="kpi-subtext" id="calc-res-annual-gen">—</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">Annual Bill Reduction</div>
+                  <div class="kpi-value text-emerald" id="calc-res-annual-savings">—</div>
+                  <div class="kpi-subtext">Direct power savings</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">Estimated Payback</div>
+                  <div class="kpi-value" id="calc-res-payback">—</div>
+                  <div class="kpi-subtext">Return on investment</div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-3 gap-3" style="margin-bottom: 20px;">
+                <div class="result-kpi-box">
+                  <div class="kpi-label">Benchmark System Cost Range</div>
+                  <div style="font-size: 16px; font-weight: 700; margin-top: 4px;" id="calc-res-investment">—</div>
+                  <div class="kpi-subtext">Tier-1 modules & inverter setup</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">25-Year Cumulative Savings</div>
+                  <div style="font-size: 16px; font-weight: 700; color: var(--accent-emerald); margin-top: 4px;" id="calc-res-lifetime-savings">—</div>
+                  <div class="kpi-subtext">Factoring 0.7% annual degradation</div>
+                </div>
+
+                <div class="result-kpi-box">
+                  <div class="kpi-label">25-Year Carbon Offset</div>
+                  <div style="font-size: 16px; font-weight: 700; color: var(--tech-cyan); margin-top: 4px;" id="calc-res-co2">—</div>
+                  <div class="kpi-subtext">Clean energy contribution</div>
+                </div>
+              </div>
+
+              <!-- Important Disclaimer Banner -->
+              <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--solar-amber); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.5;">
+                <strong>Regulatory & Technical Disclaimer:</strong> Sizing estimates are advisory calculations calibrated to Assam solar insolation (~120 units/kWp/month) and APDCL average tariff benchmarks. Final net-metering clearance is subject to physical shadow audit and local APDCL distribution transformer capacity margin under AERC regulations.
+              </div>
+
+              <div class="flex justify-center items-center gap-3">
+                <a id="calc-btn-whatsapp" href="#" target="_blank" class="btn btn-whatsapp" style="padding: 10px 24px;">
+                  💬 Discuss Results with MaxEco Advisory on WhatsApp
+                </a>
+                <a href="#sec-contact" class="btn btn-secondary" style="padding: 10px 24px;">
+                  Submit Formal Site Survey Request
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About MaxEco Section -->
+    <section id="sec-about" style="padding: 60px 0; border-bottom: 1px solid var(--border-color); background: rgba(19, 28, 46, 0.4);">
+      <div class="container">
+        <div style="max-width: 800px; margin: 0 auto;">
+          <span class="text-amber" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">About The Firm</span>
+          <h2 style="font-size: 28px; margin: 8px 0 16px;">Founder-Led Integrity & Regional Commitment</h2>
+
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px;">
+            <strong>MaxEco Energy & Tech</strong> is an independent advisory and digital solutions firm based in Guwahati, Assam. We are built on a practical, founder-led model: combining hands-on technical analysis with trusted local delivery partners to solve energy and technology challenges for growing Northeast India businesses.
+          </p>
+
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 24px;">
+            In solar energy, we do not push generic equipment sales. We advise clients on real economic feasibility, APDCL net-metering viability, and quality-assured EPC delivery. In technology, we build lean, fast, reliable digital assets that generate real commercial enquiries for local entrepreneurs without expensive recurring subscriptions.
+          </p>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 18px; border-radius: var(--radius-md);">
+              <h4 style="font-size: 14px; margin-bottom: 6px;">📍 Local Presence & Focus</h4>
+              <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                Headquartered in Guwahati, serving commercial and industrial clients across Kamrup Metropolitan, Upper Assam, and neighboring Northeast states.
+              </p>
+            </div>
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); padding: 18px; border-radius: var(--radius-md);">
+              <h4 style="font-size: 14px; margin-bottom: 6px;">⚖️ Transparent Advisory</h4>
+              <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+                Clear calculations showing assumptions and limitations. No fabricated claims, no unverified stats, and complete financial clarity on all quotes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact & Enquiry Section -->
+    <section id="sec-contact" style="padding: 60px 0;">
+      <div class="container">
+        <div class="grid grid-cols-2 gap-6" style="max-width: 960px; margin: 0 auto;">
+          <div>
+            <span class="text-amber" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Get In Touch</span>
+            <h2 style="font-size: 28px; margin: 8px 0 16px;">Connect with MaxEco</h2>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+              Whether you are evaluating a rooftop solar system for your commercial property or require a responsive business website, we are glad to discuss feasibility.
+            </p>
+
+            <div style="margin-bottom: 24px;">
+              <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 16px;">📍</span>
+                <span style="font-size: 13px; color: var(--text-primary);">Guwahati, Assam, India</span>
+              </div>
+              <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 16px;">📞</span>
+                <span style="font-size: 13px; color: var(--text-primary);">+91 98765 43210</span>
+              </div>
+              <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 16px;">✉️</span>
+                <span style="font-size: 13px; color: var(--text-primary);">contact@maxeco.in</span>
+              </div>
+            </div>
+
+            <a href="https://wa.me/919876543210?text=Hello%20MaxEco,%20I%20would%20like%20to%20discuss%20a%20project%20in%20Guwahati." target="_blank" class="btn btn-whatsapp" style="padding: 10px 20px;">
+              💬 Direct WhatsApp Message
+            </a>
+          </div>
+
+          <!-- Public Enquiry Form -->
+          <div class="card">
+            <h3 style="font-size: 18px; margin-bottom: 14px;">Submit an Enquiry</h3>
+            <form id="public-contact-form" onsubmit="app.submitPublicContact(event)">
+              <div class="form-group">
+                <label class="form-label">Your Name / Business Name *</label>
+                <input type="text" id="contact-name" class="form-control" required placeholder="e.g. Pranab Barman">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Phone Number (WhatsApp preferred) *</label>
+                <input type="tel" id="contact-phone" class="form-control" required placeholder="e.g. +91 98640 12345">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Service of Interest</label>
+                <select id="contact-service" class="form-control">
+                  <option value="Solar EPC Coordination">Solar Rooftop EPC Coordination</option>
+                  <option value="Solar Energy Advisory">Solar Energy & APDCL Feasibility Advisory</option>
+                  <option value="SMB Website">Small-Business Website Design</option>
+                  <option value="Web Maintenance & AI Automation">Website Maintenance & AI Automation</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Location (City / District)</label>
+                <input type="text" id="contact-location" class="form-control" value="Guwahati, Assam" placeholder="e.g. Zoo Road, Guwahati">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Project Details or Questions</label>
+                <textarea id="contact-message" class="form-control" placeholder="Briefly describe your rooftop size, monthly bill, or website requirements..."></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Submit & Connect on WhatsApp
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Public Footer -->
+    <footer style="background: #080d16; border-top: 1px solid var(--border-color); padding: 30px 0; font-size: 12px; color: var(--text-muted);">
+      <div class="container flex justify-between items-center" style="flex-wrap: wrap; gap: 16px;">
+        <div>
+          <strong>MaxEco Energy & Tech</strong> — Clean Energy Advisory & Digital Solutions. Guwahati, Assam, India.
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="#sec-solar-services" style="color: var(--text-muted); text-decoration: none;">Solar</a>
+          <span>•</span>
+          <a href="#sec-it-services" style="color: var(--text-muted); text-decoration: none;">Digital</a>
+          <span>•</span>
+          <a href="#sec-solar-calculator" style="color: var(--text-muted); text-decoration: none;">Calculator</a>
+          <span>•</span>
+          <button onclick="app.openPinModal('dashboard')" class="btn btn-secondary btn-sm">Founder OS</button>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- PRIVATE FOUNDER BUSINESS OPERATING SYSTEM  -->
+  <!-- ========================================== -->
+  <main id="private-dashboard" class="hidden" style="flex: 1; padding: 24px 0;">
+    <div class="container">
+
+      <!-- Private Sub-Header Navigation Pills -->
+      <div class="flex justify-between items-center" style="margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+        <div class="flex items-center gap-2">
+          <span style="background: var(--solar-amber); color: #0f172a; font-weight: 800; font-size: 11px; padding: 2px 8px; border-radius: var(--radius-sm); text-transform: uppercase;">Founder OS</span>
+          <span style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Business Command Center</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('dashboard', true)">📊 Overview</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('leads', true)">👥 Leads & CRM</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('quotes-invoices', true)">📄 Quotes & Invoices</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('finance', true)">💰 Cash Flow</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('projects', true)">🚀 Projects</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('settings', true)">⚙️ Settings</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('home', false)">🌐 View Public Site</button>
+        </div>
+      </div>
+
+      <!-- TAB 1: EXECUTIVE OVERVIEW DASHBOARD -->
+      <section id="tab-dashboard" class="dashboard-tab">
+        <div id="dashboard-alerts"></div>
+
+        <!-- KPI Grid -->
+        <div class="grid grid-cols-5 gap-3" style="margin-bottom: 24px;">
+          <div class="kpi-card" style="border-left: 4px solid var(--solar-amber);">
+            <div class="kpi-label">Available Cash Balance</div>
+            <div class="kpi-value text-amber font-mono" id="kpi-cash-balance">₹0</div>
+            <div class="kpi-subtext">True net liquid cash</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Cash Actually Collected</div>
+            <div class="kpi-value text-emerald font-mono" id="kpi-cash-collected">₹0</div>
+            <div class="kpi-subtext">Real cash received</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Outstanding Receivables</div>
+            <div class="kpi-value font-mono" id="kpi-outstanding">₹0</div>
+            <div class="kpi-subtext">Billed but uncollected</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Active Sales Pipeline</div>
+            <div class="kpi-value text-cyan font-mono" id="kpi-active-pipeline">₹0</div>
+            <div class="kpi-subtext">Open proposals & qualified</div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-label">Tax Reserve (18%)</div>
+            <div class="kpi-value text-rose font-mono" id="kpi-tax-reserve">₹0</div>
+            <div class="kpi-subtext">Protected tax reserve</div>
+          </div>
+        </div>
+
+        <!-- Upcoming Follow-up Schedule -->
+        <div class="card">
+          <div class="flex justify-between items-center" style="margin-bottom: 14px;">
+            <div>
+              <h3 class="card-title">Priority Follow-up Schedule</h3>
+              <p style="font-size: 12px; color: var(--text-muted);">Actionable leads requiring outreach today or this week</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="app.openAddLeadModal()">+ Add New Lead</button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Client / Business</th>
+                  <th>Contact Person</th>
+                  <th>Follow-up Date</th>
+                  <th>Next Action</th>
+                  <th>Outreach</th>
+                </tr>
+              </thead>
+              <tbody id="dashboard-upcoming-followups">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: LEADS & SALES CRM -->
+      <section id="tab-leads" class="dashboard-tab hidden">
+        <div class="grid grid-cols-4 gap-3" style="margin-bottom: 18px;">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Leads</div>
+            <div class="kpi-value" id="leads-metric-total">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Active Pipeline Value</div>
+            <div class="kpi-value text-amber font-mono" id="leads-metric-pipeline">₹0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Overdue Follow-ups</div>
+            <div class="kpi-value text-rose font-mono" id="leads-metric-overdue">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Won Deals</div>
+            <div class="kpi-value text-emerald font-mono" id="leads-metric-won">0</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="flex justify-between items-center" style="margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div class="flex items-center gap-2" style="flex: 1; max-width: 600px;">
+              <input type="text" class="form-control" placeholder="Search leads by name, phone, notes..." oninput="crmController.currentSearchQuery = this.value; app.renderLeadsTab();">
+              <select class="form-control" style="width: auto;" onchange="crmController.currentFilterStage = this.value; app.renderLeadsTab();">
+                <option value="ALL">All Stages</option>
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Qualified">Qualified</option>
+                <option value="Proposal Sent">Proposal Sent</option>
+                <option value="Negotiation">Negotiation</option>
+                <option value="Won">Won</option>
+                <option value="Lost">Lost</option>
+                <option value="Follow-up Later">Follow-up Later</option>
+              </select>
+              <select class="form-control" style="width: auto;" onchange="crmController.currentServiceFilter = this.value; app.renderLeadsTab();">
+                <option value="ALL">All Services</option>
+                <option value="Solar EPC Coordination">Solar EPC</option>
+                <option value="Solar Energy Advisory">Solar Advisory</option>
+                <option value="SMB Website">SMB Website</option>
+                <option value="Web Maintenance & AI Automation">Maintenance & AI</option>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('leads')">📥 Export CSV</button>
+              <button class="btn btn-primary btn-sm" onclick="app.openAddLeadModal()">+ Add Lead</button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Client / Entity</th>
+                  <th>Contact</th>
+                  <th>Service</th>
+                  <th>Est. Value</th>
+                  <th>Stage</th>
+                  <th>Next Follow-up</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leads-table-body">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: QUOTES & INVOICES REGISTER -->
+      <section id="tab-quotes-invoices" class="dashboard-tab hidden">
+        <div class="grid grid-cols-2 gap-4" style="margin-bottom: 24px;">
+          <!-- Quotations Register -->
+          <div class="card">
+            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+              <h3 class="card-title">Quotations Register</h3>
+              <button class="btn btn-primary btn-sm" onclick="app.openAddQuotationModal()">+ New Quotation</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Quote ID</th>
+                    <th>Client & Service</th>
+                    <th>Total (INR)</th>
+                    <th>Est. Direct Cost</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="quotes-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Invoices & Collections Register -->
+          <div class="card">
+            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+              <div>
+                <h3 class="card-title">Invoices & Collections</h3>
+                <small class="text-muted">Strict cash-basis tracking</small>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('invoices')">📥 Export CSV</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Invoice ID</th>
+                    <th>Client</th>
+                    <th>Billed</th>
+                    <th>Collected</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="invoices-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: FINANCE & 90-DAY CASH FLOW -->
+      <section id="tab-finance" class="dashboard-tab hidden">
+        <!-- Separate Measures Grid -->
+        <div class="grid grid-cols-5 gap-3" style="margin-bottom: 20px;">
+          <div class="kpi-card">
+            <div class="kpi-label">Quoted Pipeline</div>
+            <div class="kpi-value font-mono" id="fin-quoted-amount">₹0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Invoiced Revenue</div>
+            <div class="kpi-value font-mono" id="fin-invoiced-rev">₹0</div>
+          </div>
+          <div class="kpi-card" style="border-left: 3px solid var(--accent-emerald);">
+            <div class="kpi-label">Cash Collected</div>
+            <div class="kpi-value text-emerald font-mono" id="fin-collected-cash">₹0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Outstanding Receivables</div>
+            <div class="kpi-value text-amber font-mono" id="fin-receivables">₹0</div>
+          </div>
+          <div class="kpi-card" style="border-left: 3px solid var(--solar-amber);">
+            <div class="kpi-label">Net Available Cash</div>
+            <div class="kpi-value text-amber font-mono" id="fin-available-cash">₹0</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-5 gap-3" style="margin-bottom: 24px;">
+          <div class="kpi-card">
+            <div class="kpi-label">Direct Project Costs</div>
+            <div class="kpi-value text-rose font-mono" id="fin-direct-costs">₹0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Gross Profit (Real Cash)</div>
+            <div class="kpi-value text-emerald font-mono" id="fin-gross-profit">₹0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Operating Overheads</div>
+            <div class="kpi-value text-rose font-mono" id="fin-overheads">₹0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Tax Reserve (18%)</div>
+            <div class="kpi-value font-mono" id="fin-tax-reserve">₹0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Personal Living Drawings</div>
+            <div class="kpi-value font-mono" id="fin-drawings">₹0</div>
+          </div>
+        </div>
+
+        <!-- 90-Day Cash Flow Forecast -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+            <div>
+              <h3 class="card-title">90-Day Forward Cash-Flow Forecast</h3>
+              <p style="font-size: 12px; color: var(--text-muted);">Proactive liquidity protection: highlights any projected month-end cash deficit</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-4" id="forecast-container">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- Expenses & Personal Drawings Register -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Expenses -->
+          <div class="card">
+            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+              <h3 class="card-title">Business Expenses Register</h3>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('expenses')">📥 CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddExpenseModal()">+ Add Expense</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Project</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="expenses-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Personal Drawings -->
+          <div class="card">
+            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+              <div>
+                <h3 class="card-title">Founder Living Withdrawals</h3>
+                <small class="text-muted">Separate personal living drawings from business cash</small>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="app.openAddDrawingModal()">+ Log Withdrawal</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Purpose</th>
+                    <th>Account</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="drawings-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: PROJECTS TRACKER -->
+      <section id="tab-projects" class="dashboard-tab hidden">
+        <div class="flex justify-between items-center" style="margin-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 20px;">Client Project Execution Trackers</h2>
+            <p style="font-size: 12px; color: var(--text-muted);">Monitor delivery milestones, contractor coordination, and local credentials</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Solar EPC Projects -->
+          <div>
+            <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--solar-amber);">☀️ Solar Rooftop & Advisory Projects</h3>
+            <div id="solar-projects-container">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- IT & Web Projects -->
+          <div>
+            <h3 style="font-size: 15px; margin-bottom: 12px; color: var(--tech-cyan);">💻 IT & Web Retainer Engagements</h3>
+            <div id="it-projects-container">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: SETTINGS & BACKUP -->
+      <section id="tab-settings" class="dashboard-tab hidden">
+        <div class="grid grid-cols-2 gap-4" style="max-width: 900px; margin: 0 auto;">
+          <div class="card">
+            <h3 class="card-title">Firm Settings & Preferences</h3>
+            <div class="form-group">
+              <label class="form-label">Company Name</label>
+              <input type="text" id="setting-company-name" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Phone</label>
+              <input type="text" id="setting-phone" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Email</label>
+              <input type="email" id="setting-email" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">WhatsApp Number (e.g. 919876543210)</label>
+              <input type="text" id="setting-whatsapp" class="form-control">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tax Reserve Rate (%)</label>
+              <input type="number" id="setting-tax-rate" class="form-control" value="18">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Founder Admin PIN</label>
+              <input type="password" id="setting-admin-pin" class="form-control">
+            </div>
+            <button class="btn btn-primary" onclick="app.saveSettingsFromModal()">Save Settings</button>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">Data Backup & Local Recovery</h3>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+              All records are stored locally in your browser storage. Export an offline JSON backup regularly to safeguard your CRM leads, quotes, invoices, and cash-flow data.
+            </p>
+
+            <div style="margin-bottom: 20px;">
+              <button class="btn btn-primary" onclick="storage.exportJsonBackup()" style="width: 100%; margin-bottom: 8px;">
+                💾 Download Full JSON Database Backup
+              </button>
+              <small class="text-muted">Creates a portable timestamped JSON file.</small>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 16px; margin-bottom: 20px;">
+              <label class="form-label">Restore Database from JSON Backup File</label>
+              <input type="file" id="import-json-file" class="form-control" accept=".json" style="margin-bottom: 8px;">
+              <button class="btn btn-secondary btn-sm" onclick="
+                const file = document.getElementById('import-json-file').files[0];
+                if (!file) { showToast('Please select a JSON backup file first.', 'warning'); return; }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  if (storage.importJsonBackup(e.target.result)) {
+                    showToast('Database restored successfully!', 'success');
+                    app.handleRoute();
+                  } else {
+                    showToast('Failed to import backup: invalid format.', 'error');
+                  }
+                };
+                reader.readAsText(file);
+              ">
+                Restore Database
+              </button>
+            </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 16px;">
+              <label class="form-label">Demo Reset</label>
+              <button class="btn btn-danger btn-sm" onclick="
+                if (confirm('Reset database to default seed data? (Any unbacked modifications will be overwritten)')) {
+                  storage.resetToInitialData();
+                  showToast('Database reset to initial Guwahati seed data.', 'info');
+                  app.handleRoute();
+                }
+              ">
+                Reset to Initial Seed Data
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODALS                                     -->
+  <!-- ========================================== -->
+
+  <!-- PIN Security Gate Modal -->
+  <div id="modal-pin" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 380px;">
+      <div class="modal-header">
+        <h3 style="font-size: 15px;">🔒 Founder Security Gate</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body text-center">
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+          Enter your Founder Security PIN to unlock private cash-flow records, CRM leads, and financials.
+        </p>
+        <div class="form-group">
+          <input type="password" id="pin-input" class="form-control text-center" style="font-size: 20px; letter-spacing: 4px;" placeholder="••••••••" onkeydown="if(event.key==='Enter') app.verifyPin()">
+          <small class="text-muted" style="display: block; margin-top: 6px;">Default setup PIN: <code>maxeco2026</code></small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.verifyPin()">Unlock Founder OS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lead Add/Edit Modal -->
+  <div id="modal-lead" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="lead-modal-title" style="font-size: 15px;">Add New Customer Lead</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="lead-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Client / Business Name *</label>
+            <input type="text" id="lead-name" class="form-control" required placeholder="e.g. Brahmaputra Logistics">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Person</label>
+            <input type="text" id="lead-contact" class="form-control" placeholder="e.g. Pranab Barman">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" id="lead-phone" class="form-control" required placeholder="+91 98640 12345">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="lead-email" class="form-control" placeholder="client@company.com">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Location / Area</label>
+            <input type="text" id="lead-location" class="form-control" placeholder="e.g. Amingaon, Guwahati">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Customer Type</label>
+            <select id="lead-type" class="form-control">
+              <option value="Commercial & Industrial">Commercial & Industrial</option>
+              <option value="Residential / Domestic">Residential / Domestic</option>
+              <option value="Healthcare / Small Business">Healthcare / Clinic</option>
+              <option value="Educational Institution">Educational Institution</option>
+              <option value="Retail SMB">Retail SMB</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="form-group">
+            <label class="form-label">Service Interest</label>
+            <select id="lead-service" class="form-control">
+              <option value="Solar EPC Coordination">Solar EPC Coordination</option>
+              <option value="Solar Energy Advisory">Solar Energy Advisory</option>
+              <option value="SMB Website">SMB Website</option>
+              <option value="Web Maintenance & AI Automation">Web Maintenance & AI</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lead Source</label>
+            <select id="lead-source" class="form-control">
+              <option value="Direct Referral">Direct Referral</option>
+              <option value="Website Form">Website Form</option>
+              <option value="WhatsApp Outreach">WhatsApp Outreach</option>
+              <option value="Cold Visit">Cold Visit</option>
+              <option value="Industry Event">Industry Event</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Deal Value (₹)</label>
+            <input type="number" id="lead-value" class="form-control" placeholder="e.g. 50000">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Deal Stage</label>
+            <select id="lead-stage" class="form-control" onchange="
+              const val = this.value;
+              const lostGroup = document.getElementById('lead-lost-reason-group');
+              if (val === 'Lost') lostGroup.classList.remove('hidden');
+              else lostGroup.classList.add('hidden');
+            ">
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Meeting">Meeting</option>
+              <option value="Qualified">Qualified</option>
+              <option value="Proposal Sent">Proposal Sent</option>
+              <option value="Negotiation">Negotiation</option>
+              <option value="Won">Won</option>
+              <option value="Lost">Lost</option>
+              <option value="Follow-up Later">Follow-up Later</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Next Follow-Up Date</label>
+            <input type="date" id="lead-next-date" class="form-control">
+          </div>
+        </div>
+
+        <!-- Mandatory Lost Reason Field -->
+        <div id="lead-lost-reason-group" class="form-group hidden">
+          <label class="form-label text-rose">Lost Reason (Required for founder analysis) *</label>
+          <input type="text" id="lead-lost-reason" class="form-control" placeholder="e.g. Budget constraints, selected competing vendor, APDCL transformer overloaded">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Next Action Commitment</label>
+          <input type="text" id="lead-next-action" class="form-control" placeholder="e.g. Call to discuss APDCL feasibility report">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Discovery Notes & Technical Parameters</label>
+          <textarea id="lead-notes" class="form-control" placeholder="e.g. Sanctioned load 40 kW, roof area 3000 sq ft, current bill ~35k..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveLeadFromModal()">Save Lead Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Record Payment Modal -->
+  <div id="modal-payment" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="font-size: 15px;">Record Customer Collection</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="pay-invoice-id">
+        <div style="background: var(--bg-surface); padding: 12px; border-radius: var(--radius-md); margin-bottom: 16px;">
+          <div style="font-size: 13px; font-weight: 700;" id="pay-client-name">—</div>
+          <div class="flex justify-between" style="font-size: 12px; margin-top: 6px;">
+            <span>Total Billed:</span> <span id="pay-billed-amount">—</span>
+          </div>
+          <div class="flex justify-between" style="font-size: 12px; margin-top: 2px;">
+            <span>Outstanding Balance:</span> <span class="text-amber" id="pay-outstanding-amount">—</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Amount Collected (₹) *</label>
+          <input type="number" id="pay-amount" class="form-control" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select id="pay-method" class="form-control">
+            <option value="UPI / Bank Transfer">UPI / Bank Transfer (SBI / HDFC)</option>
+            <option value="Cheque / RTGS">Cheque / RTGS</option>
+            <option value="Cash">Cash Handover</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Transaction Reference / UTR Number</label>
+          <input type="text" id="pay-ref" class="form-control" placeholder="e.g. UPI/20261010/88124">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Collection Date</label>
+          <input type="date" id="pay-date" class="form-control">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.savePaymentFromModal()">Record Collection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Expense Modal -->
+  <div id="modal-expense" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3 style="font-size: 15px;">Record Business Expense</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Expense Classification *</label>
+          <select id="exp-category" class="form-control">
+            <option value="Operating Overhead">Operating Overhead (Office, Internet, Travel)</option>
+            <option value="Direct Delivery Cost">Direct Delivery Cost (Partner Contractor / Freelance)</option>
+          </select>
+          <small class="text-muted">Direct costs reduce gross profit; overheads reduce net profit.</small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description / Purpose *</label>
+          <input type="text" id="exp-desc" class="form-control" required placeholder="e.g. Amingaon site survey fuel / Broadband bill">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Amount (₹) *</label>
+            <input type="number" id="exp-amount" class="form-control" required placeholder="e.g. 1500">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Paid To / Vendor</label>
+            <input type="text" id="exp-paidto" class="form-control" placeholder="e.g. Airtel / Contractor">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Expense Date</label>
+            <input type="date" id="exp-date" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Linked Project ID (Optional)</label>
+            <input type="text" id="exp-project" class="form-control" placeholder="e.g. SOL-2026-001">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveExpenseFromModal()">Save Expense</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Personal Drawing Modal -->
+  <div id="modal-drawing" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 style="font-size: 15px;">Log Founder Living Withdrawal</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
+          Track personal living allowance withdrawals separately from operational company funds to maintain cash solvency.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Withdrawal Amount (₹) *</label>
+          <input type="number" id="drw-amount" class="form-control" required placeholder="e.g. 5000">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Purpose / Detail</label>
+          <input type="text" id="drw-purpose" class="form-control" value="Founder personal living allowance">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Withdrawal Date</label>
+          <input type="date" id="drw-date" class="form-control">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveDrawingFromModal()">Log Withdrawal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Quotation Modal -->
+  <div id="modal-quotation" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 15px;">Create Formal Quotation</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Client / Entity Name *</label>
+          <input type="text" id="quote-client" class="form-control" required placeholder="e.g. Pragjyotish Diagnostic Clinic">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Service & Deliverable Scope *</label>
+          <input type="text" id="quote-service" class="form-control" required placeholder="e.g. SMB Website & WhatsApp Booking System">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Total Quotation Value (₹) *</label>
+            <input type="number" id="quote-amount" class="form-control" required placeholder="e.g. 42000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Direct Delivery Cost (₹)</label>
+            <input type="number" id="quote-cost" class="form-control" placeholder="e.g. 8000">
+            <small class="text-muted">Vendor/partner fulfillment costs</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Payment Milestone Terms</label>
+          <textarea id="quote-terms" class="form-control">50% project advance with work order, 50% upon final delivery & signoff.</textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveQuotationFromModal()">Save Quotation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Application Scripts (Zero External Dependencies) -->
+  <script src="../src/data/initial-data.js"></script>
+  <script src="../src/js/storage.js"></script>
+  <script src="../src/js/calculator.js"></script>
+  <script src="../src/js/crm.js"></script>
+  <script src="../src/js/finance.js"></script>
+  <script src="../src/js/projects.js"></script>
+  <script src="../src/js/app.js"></script>
+</body>
+</html>

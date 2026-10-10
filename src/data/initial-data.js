@@ -1,0 +1,238 @@
+// Initial seed dataset for MaxEco Business Operating System
+// Realistic demo data based in Guwahati, Assam for offline testing
+
+const initialSeedData = {
+  settings: {
+    companyName: "MaxEco Energy & Tech",
+    tagline: "Clean Energy Advisory & Digital Solutions for Northeast India",
+    location: "Guwahati, Assam, India",
+    contactPhone: "+91 98765 43210",
+    contactEmail: "contact@maxeco.in",
+    whatsappNumber: "919876543210",
+    adminPin: "maxeco2026",
+    currencySymbol: "₹",
+    taxReserveRate: 18, // 18% GST / estimated tax reserve
+    solarTariffCommercial: 7.85, // APDCL benchmark
+    solarTariffDomestic: 6.20,
+    solarGenPerKwp: 120 // units/month in Assam
+  },
+
+  leads: [
+    {
+      id: "LEAD-2026-001",
+      name: "Brahmaputra Packaging & Logistics",
+      contactPerson: "Pranab Barman",
+      phone: "+91 98640 12345",
+      email: "pranab@brahmaputrapack.com",
+      location: "Amingaon Industrial Area, Guwahati",
+      customerType: "Commercial & Industrial",
+      service: "Solar EPC Coordination",
+      source: "Direct Referral",
+      estimatedValue: 1450000,
+      stage: "Proposal Sent",
+      lastContactDate: "2026-10-04",
+      nextFollowUpDate: "2026-10-12",
+      nextAction: "Review 35 kWp rooftop proposal & APDCL net metering feasibility",
+      notes: "Client has 40 kW sanctioned load from APDCL. Monthly electricity bill ~₹38,000. Flat RCC roof available.",
+      createdAt: "2026-09-28"
+    },
+    {
+      id: "LEAD-2026-002",
+      name: "Pragjyotish Diagnostic Clinic",
+      contactPerson: "Dr. Anamika Kalita",
+      phone: "+91 94350 98765",
+      email: "pragjyotishclinic@gmail.com",
+      location: "Zoo Road, Guwahati",
+      customerType: "Healthcare / Small Business",
+      service: "SMB Website",
+      source: "Website Form",
+      estimatedValue: 42000,
+      stage: "Qualified",
+      lastContactDate: "2026-10-07",
+      nextFollowUpDate: "2026-10-11",
+      nextAction: "Send 5-page diagnostic center website scope and quotation",
+      notes: "Needs online test booking form, doctor schedule, and WhatsApp direct consultation button.",
+      createdAt: "2026-10-02"
+    },
+    {
+      id: "LEAD-2026-003",
+      name: "Kaziranga Organic Tea Estate",
+      contactPerson: "Sanjib Saikia",
+      phone: "+91 99541 33221",
+      email: "sanjib@kazirangatea.in",
+      location: "Golaghat / Guwahati Office (Beltola)",
+      customerType: "Commercial & Agro",
+      service: "Solar Energy Advisory",
+      source: "Industry Event",
+      estimatedValue: 180000,
+      stage: "Meeting",
+      lastContactDate: "2026-10-08",
+      nextFollowUpDate: "2026-10-14",
+      nextAction: "In-person advisory meeting on captive solar viability vs DG backup",
+      notes: "Tea processing shed with high diesel generation costs. Evaluating 50 kWp grid-interactive setup.",
+      createdAt: "2026-10-05"
+    },
+    {
+      id: "LEAD-2026-004",
+      name: "Assam Craft & Loom Traders",
+      contactPerson: "Rupjyoti Deka",
+      phone: "+91 97060 44556",
+      email: "rupjyoti@assamcrafts.com",
+      location: "Panbazar, Guwahati",
+      customerType: "Retail SMB",
+      service: "Web Maintenance & AI Automation",
+      source: "WhatsApp Outreach",
+      estimatedValue: 24000,
+      stage: "Won",
+      lastContactDate: "2026-10-09",
+      nextFollowUpDate: "2026-10-25",
+      nextAction: "Deliver first batch of product catalog updates & setup WhatsApp catalog link",
+      notes: "Agreed to ₹2,000/month recurring maintenance retainer. ₹6,000 quarterly advance received.",
+      createdAt: "2026-09-20"
+    }
+  ],
+
+  quotations: [
+    {
+      id: "QT-2026-001",
+      leadId: "LEAD-2026-001",
+      clientName: "Brahmaputra Packaging & Logistics",
+      service: "Solar EPC Coordination (35 kWp Rooftop System)",
+      date: "2026-10-03",
+      validUntil: "2026-10-24",
+      totalAmount: 1450000,
+      directCostEstimate: 1180000,
+      projectedMargin: 270000,
+      marginPercent: 18.6,
+      status: "Sent",
+      terms: "15% with work order, 45% upon module/inverter delivery, 25% upon structural erection, 15% upon APDCL net-meter sync."
+    },
+    {
+      id: "QT-2026-002",
+      leadId: "LEAD-2026-004",
+      clientName: "Assam Craft & Loom Traders",
+      service: "Website Maintenance Retainer (Quarterly Advance)",
+      date: "2026-09-25",
+      validUntil: "2026-10-15",
+      totalAmount: 6000,
+      directCostEstimate: 1000,
+      projectedMargin: 5000,
+      marginPercent: 83.3,
+      status: "Accepted",
+      terms: "Quarterly advance for 3 months maintenance & WhatsApp catalog link setup."
+    }
+  ],
+
+  invoices: [
+    {
+      id: "INV-2026-001",
+      clientName: "Assam Craft & Loom Traders",
+      service: "Website Maintenance (Q4 2026 Retainer)",
+      date: "2026-09-26",
+      dueDate: "2026-10-05",
+      amountBilled: 6000,
+      amountCollected: 6000,
+      status: "Paid",
+      paymentDate: "2026-09-28",
+      paymentMethod: "UPI / Bank Transfer (SBI)",
+      referenceNo: "UPI/20260928/998124"
+    }
+  ],
+
+  expenses: [
+    {
+      id: "EXP-2026-001",
+      date: "2026-09-27",
+      category: "Direct Delivery Cost",
+      description: "Freelance graphic asset preparation for craft website",
+      amount: 1000,
+      paidTo: "Diganta Graphic Studio, Chandmari",
+      linkedProject: "IT-2026-001",
+      paymentMethod: "UPI"
+    },
+    {
+      id: "EXP-2026-002",
+      date: "2026-10-01",
+      category: "Operating Overhead",
+      description: "Broadband internet bill (Airtel Xstream Guwahati)",
+      amount: 943,
+      paidTo: "Airtel Broadband",
+      linkedProject: null,
+      paymentMethod: "UPI"
+    },
+    {
+      id: "EXP-2026-003",
+      date: "2026-10-03",
+      category: "Direct Delivery Cost",
+      description: "Site survey travel & structural inspection at Amingaon",
+      amount: 650,
+      paidTo: "Fuel / Cab reimbursement",
+      linkedProject: "SOL-2026-001",
+      paymentMethod: "Cash"
+    }
+  ],
+
+  drawings: [
+    {
+      id: "DRW-2026-001",
+      date: "2026-10-05",
+      amount: 2500,
+      purpose: "Founder personal living allowance",
+      account: "Personal Bank Account"
+    }
+  ],
+
+  solarProjects: [
+    {
+      id: "SOL-2026-001",
+      clientName: "Brahmaputra Packaging & Logistics",
+      siteLocation: "Amingaon, North Guwahati",
+      discom: "APDCL (Assam Power Distribution Co. Ltd.)",
+      consumerNo: "1023849102",
+      sanctionedLoadKw: 40,
+      systemCapacityKwp: 35,
+      totalContractValue: 1450000,
+      collectedAmount: 0,
+      costCommitted: 650,
+      status: "Site Feasibility Completed",
+      milestones: [
+        { name: "Site Audit & Structural Feasibility", status: "Completed", date: "2026-10-03" },
+        { name: "APDCL Net-Metering NOC Submission", status: "In Progress", date: "2026-10-15" },
+        { name: "Partner Equipment Procurement", status: "Pending", date: "2026-10-25" },
+        { name: "Civil & Structural Mounting", status: "Pending", date: "2026-11-05" },
+        { name: "Wiring, Inverter & CEIG Testing", status: "Pending", date: "2026-11-15" },
+        { name: "Commissioning & Handover", status: "Pending", date: "2026-11-20" }
+      ],
+      assumptions: "Solar generation estimated at 120 units/kWp/month (4,200 units/mo). APDCL net metering clearance subject to distribution transformer capacity margin."
+    }
+  ],
+
+  itProjects: [
+    {
+      id: "IT-2026-001",
+      clientName: "Assam Craft & Loom Traders",
+      serviceScope: "E-Commerce Catalog Maintenance & WhatsApp Store",
+      contractValue: 6000,
+      collectedAmount: 6000,
+      partnerCost: 1000,
+      status: "In Progress",
+      milestones: [
+        { name: "Product Asset Collection", status: "Completed", date: "2026-09-29" },
+        { name: "Catalog Upload & Optimization", status: "In Progress", date: "2026-10-10" },
+        { name: "WhatsApp Direct Order Testing", status: "Pending", date: "2026-10-12" },
+        { name: "Client Preview & Handover", status: "Pending", date: "2026-10-15" }
+      ],
+      vaultNotes: "Client WordPress admin and WhatsApp Business account credentials stored securely in local vault."
+    }
+  ]
+};
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = initialSeedData;
+}
+if (typeof window !== 'undefined') {
+  window.initialSeedData = initialSeedData;
+}
+if (typeof global !== 'undefined') {
+  global.initialSeedData = initialSeedData;
+}
