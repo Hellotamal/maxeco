@@ -1,0 +1,132 @@
+{
+  "name": "MaxEco - Workflow E: Weekly Management & Liquidity Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 18 * * 6"
+            }
+          ]
+        }
+      },
+      "id": "e4b1c201-2222-4000-8000-000000000001",
+      "name": "Weekly Schedule Trigger (Sat 6:00 PM IST)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node E.2: Load Business Registers from Local Storage\nconst fs = require('fs');\nconst path = require('path');\n\nconst testDataPath = path.resolve(process.cwd(), 'automation/data/dummy-finance-registers.json');\nlet data = {};\n\nif (fs.existsSync(testDataPath)) {\n  data = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));\n} else {\n  data = {\n    invoices: [],\n    expenses: [],\n    drawings: [],\n    quotations: [],\n    solarProjects: [],\n    itProjects: []\n  };\n}\n\nreturn [{ json: data }];"
+      },
+      "id": "e4b1c201-2222-4000-8000-000000000002",
+      "name": "Load Financial Registers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node E.3: Strict Cash-Basis Accounting Engine\n// Enforces strict separation of billed invoices, collected cash, tax reserve, and drawings\n\nconst raw = $input.first().json;\nconst invoices = raw.invoices || [];\nconst expenses = raw.expenses || [];\nconst drawings = raw.drawings || [];\nconst quotations = raw.quotations || [];\n\n// 1. Quoted Pipeline (Not revenue)\nconst quotedPipelineTotal = quotations.reduce((sum, q) => sum + (Number(q.totalAmount) || 0), 0);\n\n// 2. Invoiced vs Collected Cash\nlet totalBilled = 0;\nlet realCollectedCash = 0;\nlet outstandingReceivables = 0;\nconst overdueInvoices = [];\n\nconst todayStr = new Date().toISOString().slice(0, 10);\n\ninvoices.forEach(inv => {\n  const billed = Number(inv.amountBilled) || 0;\n  const collected = Number(inv.amountCollected) || 0;\n  totalBilled += billed;\n  realCollectedCash += collected;\n  \n  const unpaid = billed - collected;\n  if (unpaid > 0) {\n    outstandingReceivables += unpaid;\n    if (inv.dueDate && inv.dueDate < todayStr) {\n      overdueInvoices.push({\n        id: inv.id,\n        clientName: inv.clientName,\n        amountDue: unpaid,\n        dueDate: inv.dueDate\n      });\n    }\n  }\n});\n\n// 3. Direct Delivery Costs vs Operating Overheads\nlet directProjectCosts = 0;\nlet operatingOverheads = 0;\nexpenses.forEach(exp => {\n  const amt = Number(exp.amount) || 0;\n  if (exp.category === 'Direct Delivery Cost' || exp.linkedProject) {\n    directProjectCosts += amt;\n  } else {\n    operatingOverheads += amt;\n  }\n});\n\n// 4. Gross Profit on Real Cash\nconst grossProfitCash = realCollectedCash - directProjectCosts;\n\n// 5. 18% Tax / GST Reserve on collected cash\nconst taxReserveRate = (raw.taxReserveRatePercent || 18) / 100;\nconst taxReserveAllocated = Math.round(realCollectedCash * taxReserveRate);\n\n// 6. Founder Personal Living Drawings (Isolated)\nconst founderDrawings = drawings.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);\n\n// 7. Net Cash Balance (True liquid runway)\nconst netAvailableCash = realCollectedCash - directProjectCosts - operatingOverheads - founderDrawings - taxReserveAllocated;\n\nreturn [{\n  json: {\n    ...raw,\n    metrics: {\n      quotedPipelineTotal,\n      totalBilled,\n      realCollectedCash,\n      outstandingReceivables,\n      overdueInvoices,\n      directProjectCosts,\n      operatingOverheads,\n      grossProfitCash,\n      taxReserveAllocated,\n      founderDrawings,\n      netAvailableCash\n    }\n  }\n}];"
+      },
+      "id": "e4b1c201-2222-4000-8000-000000000003",
+      "name": "Cash-Basis Accounting Engine",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node E.4: Projects & Milestone Pipeline Rollup\nconst data = $input.first().json;\nconst solarProjects = data.solarProjects || [];\nconst itProjects = data.itProjects || [];\n\nlet totalSolarMilestones = 0;\nlet completedSolarMilestones = 0;\nlet pendingSolarMilestones = 0;\n\nsolarProjects.forEach(p => {\n  (p.milestones || []).forEach(m => {\n    totalSolarMilestones++;\n    if (m.status === 'Completed') completedSolarMilestones++;\n    else pendingSolarMilestones++;\n  });\n});\n\nlet totalItMilestones = 0;\nlet completedItMilestones = 0;\nlet pendingItMilestones = 0;\n\nitProjects.forEach(p => {\n  (p.milestones || []).forEach(m => {\n    totalItMilestones++;\n    if (m.status === 'Completed') completedItMilestones++;\n    else pendingItMilestones++;\n  });\n});\n\nreturn [{\n  json: {\n    ...data,\n    milestoneSummary: {\n      solar: { total: totalSolarMilestones, completed: completedSolarMilestones, pending: pendingSolarMilestones },\n      it: { total: totalItMilestones, completed: completedItMilestones, pending: pendingItMilestones }\n    }\n  }\n}];"
+      },
+      "id": "e4b1c201-2222-4000-8000-000000000004",
+      "name": "Milestone & Pipeline Rollup",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node E.5: Format Executive Markdown & Solvency Report\nconst payload = $input.first().json;\nconst m = payload.metrics;\nconst ms = payload.milestoneSummary;\n\nconst inr = (val) => '₹' + Number(val || 0).toLocaleString('en-IN');\nconst now = new Date();\nconst reportDate = now.toISOString().slice(0, 10);\n\nconst overdueList = m.overdueInvoices.length > 0\n  ? m.overdueInvoices.map(i => '* ⚠️ **OVERDUE**: Invoice (' + i.id + ') — ' + i.clientName + ' | ' + inr(i.amountDue) + ' due on ' + i.dueDate).join('\\n')\n  : '* ✅ No overdue invoices.';\n\nconst reportMd = '# MaxEco Energy & Tech — Weekly Management & Liquidity Report\\n' +\n  '**Report Date**: ' + reportDate + ' | **Location**: Maligaon, Guwahati, Assam\\n\\n' +\n  '---\\n\\n' +\n  '## 1. Cash-Basis Liquidity & Solvency Summary\\n' +\n  '> **Rule Enforced**: Unpaid invoices and pending quotes are NEVER counted as cash on hand.\\n\\n' +\n  '| Financial Measure | Amount (INR) | Governance Notes |\\n' +\n  '| :--- | :--- | :--- |\\n' +\n  '| **Real Cash Collected in Bank** | **' + inr(m.realCollectedCash) + '** | Physically cleared customer funds |\\n' +\n  '| **Direct Project Costs Paid** | (' + inr(m.directProjectCosts) + ') | Contractor, site survey & delivery costs |\\n' +\n  '| **Gross Profit on Real Cash** | **' + inr(m.grossProfitCash) + '** | Collected Cash minus Direct Delivery Costs |\\n' +\n  '| **18% Statutory Tax Reserve** | (' + inr(m.taxReserveAllocated) + ') | Ring-fenced reserve for tax obligations |\\n' +\n  '| **Operating Overheads** | (' + inr(m.operatingOverheads) + ') | Office, internet & recurring tools |\\n' +\n  '| **Founder Living Drawings** | (' + inr(m.founderDrawings) + ') | Personal allowance (kept separate) |\\n' +\n  '| **NET AVAILABLE CASH RUNWAY** | **' + inr(m.netAvailableCash) + '** | **Net Liquid Operating Balance** |\\n\\n' +\n  '---\\n\\n' +\n  '## 2. Receivables & Collection Warnings\\n' +\n  '* **Total Billed Invoices**: ' + inr(m.totalBilled) + '\\n' +\n  '* **Outstanding Receivables (Uncollected)**: **' + inr(m.outstandingReceivables) + '**\\n' +\n  '* **Overdue Customer Invoices**: ' + m.overdueInvoices.length + '\\n\\n' +\n  overdueList + '\\n\\n' +\n  '---\\n\\n' +\n  '## 3. Commercial Pipeline & Quotations\\n' +\n  '* **Quoted Pipeline (Non-binding)**: ' + inr(m.quotedPipelineTotal) + '\\n' +\n  '* Active Quotations: ' + payload.quotations.length + '\\n\\n' +\n  '---\\n\\n' +\n  '## 4. Project Delivery Milestones\\n' +\n  '* **Solar Projects**: ' + ms.solar.completed + ' completed, **' + ms.solar.pending + ' pending action**\\n' +\n  '* **IT & Web Projects**: ' + ms.it.completed + ' completed, **' + ms.it.pending + ' pending action**\\n\\n' +\n  '---\\n' +\n  '*Confidential Internal Document — Generated by MaxEco Automated Systems*';\n\nreturn [{\n  json: {\n    reportDate,\n    reportMarkdown: reportMd,\n    metrics: m,\n    milestones: ms\n  }\n}];"
+      },
+      "id": "e4b1c201-2222-4000-8000-000000000005",
+      "name": "Format Executive Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node E.6: Save Local Management Report to Disk & Audit Output\nconst fs = require('fs');\nconst path = require('path');\n\nconst payload = $input.first().json;\nconst outDir = path.resolve(process.cwd(), 'docs/reports');\nif (!fs.existsSync(outDir)) {\n  fs.mkdirSync(outDir, { recursive: true });\n}\n\nconst reportFilePath = path.join(outDir, `weekly-management-report-${payload.reportDate}.md`);\nfs.writeFileSync(reportFilePath, payload.reportMarkdown, 'utf8');\n\nreturn [{\n  json: {\n    status: 'SUCCESS',\n    reportDate: payload.reportDate,\n    savedTo: reportFilePath,\n    netAvailableCash: payload.metrics.netAvailableCash,\n    outstandingReceivables: payload.metrics.outstandingReceivables,\n    overdueInvoiceCount: payload.metrics.overdueInvoices.length,\n    completedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "e4b1c201-2222-4000-8000-000000000006",
+      "name": "Save Report & Audit Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "Weekly Schedule Trigger (Sat 6:00 PM IST)": {
+      "main": [
+        [
+          {
+            "node": "Load Financial Registers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Financial Registers": {
+      "main": [
+        [
+          {
+            "node": "Cash-Basis Accounting Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cash-Basis Accounting Engine": {
+      "main": [
+        [
+          {
+            "node": "Milestone & Pipeline Rollup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Milestone & Pipeline Rollup": {
+      "main": [
+        [
+          {
+            "node": "Format Executive Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Executive Report": {
+      "main": [
+        [
+          {
+            "node": "Save Report & Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

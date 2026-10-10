@@ -1,0 +1,120 @@
+{
+  "name": "MaxEco - Workflow A: Lead Intake & Validation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake",
+        "options": {}
+      },
+      "id": "e4b1c201-3333-4000-8000-000000000001",
+      "name": "Webhook Intake (Local Only)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node A.2: Validation, Honeypot Check & Indian Phone Sanitization\nconst input = $input.first().json;\nconst body = input.body || input;\n\n// 1. Bot Honeypot Check\nif (body.honeypot && body.honeypot.trim().length > 0) {\n  return [{\n    json: {\n      status: 'REJECTED_SPAM',\n      reason: 'Honeypot field populated by automated bot',\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\n// 2. Phone Validation (Indian 10-digit format with optional +91)\nconst rawPhone = String(body.phone || '').trim();\nconst digits = rawPhone.replace(/[^0-9]/g, '');\nconst isValidPhone = (digits.length === 10) || (digits.length === 12 && digits.startsWith('91'));\n\nif (!isValidPhone) {\n  return [{\n    json: {\n      status: 'REJECTED_VALIDATION_ERROR',\n      reason: 'Invalid Indian mobile number format. Expected 10 digits.',\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\n// 3. Name & Service Check\nconst name = String(body.name || '').trim();\nif (name.length < 2) {\n  return [{\n    json: {\n      status: 'REJECTED_VALIDATION_ERROR',\n      reason: 'Name must be at least 2 characters.',\n      timestamp: new Date().toISOString()\n    }\n  }];\n}\n\nconst cleanPhone = digits.length === 10 ? ('+91 ' + digits) : ('+' + digits.slice(0, 2) + ' ' + digits.slice(2));\nconst newLeadId = 'LEAD-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);\n\nreturn [{\n  json: {\n    status: 'ACCEPTED',\n    lead: {\n      id: newLeadId,\n      name: name,\n      contactPerson: body.contactPerson || name,\n      phone: cleanPhone,\n      email: (body.email || '').trim().toLowerCase(),\n      service: body.service || 'Solar Advisory / IT Services',\n      source: body.source || 'Website Form',\n      stage: 'New',\n      receivedAt: new Date().toISOString(),\n      nextFollowUpDate: new Date().toISOString().slice(0, 10),\n      nextAction: 'Review technical requirement and make introductory contact',\n      notes: body.message || 'Website intake submission'\n    }\n  }\n}];"
+      },
+      "id": "e4b1c201-3333-4000-8000-000000000002",
+      "name": "Validate & Sanitize Lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "ACCEPTED",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "e4b1c201-3333-4000-8000-000000000003",
+      "name": "Check Valid Lead",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node A.4: Queue Lead to Local Intake Storage & Trigger Founder Digest Notification\nconst fs = require('fs');\nconst path = require('path');\n\nconst item = $input.first().json;\nconst outPath = path.resolve(process.cwd(), 'automation/data/lead-intake-queue.json');\n\nlet queue = [];\nif (fs.existsSync(outPath)) {\n  try { queue = JSON.parse(fs.readFileSync(outPath, 'utf8')); } catch(e) { queue = []; }\n}\n\nqueue.push(item.lead);\nfs.writeFileSync(outPath, JSON.stringify(queue, null, 2), 'utf8');\n\nreturn [{\n  json: {\n    status: 'QUEUED_FOR_FOUNDER_REVIEW',\n    leadId: item.lead.id,\n    service: item.lead.service,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "e4b1c201-3333-4000-8000-000000000004",
+      "name": "Queue Lead & Founder Alert",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node A.5: Reject / Log Invalid Intake Attempt\nconst item = $input.first().json;\nreturn [{\n  json: {\n    status: item.status,\n    reason: item.reason,\n    timestamp: item.timestamp\n  }\n}];"
+      },
+      "id": "e4b1c201-3333-4000-8000-000000000005",
+      "name": "Log Rejection (Spam/Malformed)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 420]
+    }
+  ],
+  "connections": {
+    "Webhook Intake (Local Only)": {
+      "main": [
+        [
+          {
+            "node": "Validate & Sanitize Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Sanitize Lead": {
+      "main": [
+        [
+          {
+            "node": "Check Valid Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Valid Lead": {
+      "main": [
+        [
+          {
+            "node": "Queue Lead & Founder Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Rejection (Spam/Malformed)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

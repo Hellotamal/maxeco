@@ -1,0 +1,64 @@
+{
+  "submissions": [
+    {
+      "testCase": "TC-A01: Valid Commercial Solar Enquiry",
+      "payload": {
+        "name": "Barua Rice Mills",
+        "contactPerson": "Diganta Barua",
+        "phone": "+91 99544 11223",
+        "email": "test-diganta@example-baruarice.in",
+        "service": "Solar EPC Coordination",
+        "message": "Interested in 25 kW rooftop solar for our mill in Palashbari. APDCL connected load is 30 kW.",
+        "source": "Website Contact Form",
+        "honeypot": ""
+      },
+      "expectedStatus": "ACCEPTED",
+      "expectedLeadStage": "New"
+    },
+    {
+      "testCase": "TC-A02: Malformed Phone Number (Validation Failure)",
+      "payload": {
+        "name": "Invalid Phone Test",
+        "contactPerson": "Unknown",
+        "phone": "12345",
+        "email": "invalid-phone@example.com",
+        "service": "SMB Website",
+        "message": "Please call me back.",
+        "source": "Website Contact Form",
+        "honeypot": ""
+      },
+      "expectedStatus": "REJECTED_VALIDATION_ERROR",
+      "expectedReason": "Invalid Indian mobile number format"
+    },
+    {
+      "testCase": "TC-A03: Bot / Spam Honeypot Triggered",
+      "payload": {
+        "name": "SEO Spam Bot",
+        "contactPerson": "SpamBot",
+        "phone": "+91 99544 99999",
+        "email": "bot@spam-network.ru",
+        "service": "Other",
+        "message": "Cheap SEO ranking backlink service",
+        "source": "Website Contact Form",
+        "honeypot": "http://spamsite.example.com"
+      },
+      "expectedStatus": "REJECTED_SPAM",
+      "expectedReason": "Honeypot field populated by bot"
+    },
+    {
+      "testCase": "TC-A04: Duplicate Submission within 1 Hour",
+      "payload": {
+        "name": "Barua Rice Mills",
+        "contactPerson": "Diganta Barua",
+        "phone": "+91 99544 11223",
+        "email": "test-diganta@example-baruarice.in",
+        "service": "Solar EPC Coordination",
+        "message": "Submitting again just in case",
+        "source": "Website Contact Form",
+        "honeypot": ""
+      },
+      "expectedStatus": "DUPLICATE_SUPPRESSED",
+      "expectedReason": "Identical active lead received within deduplication window"
+    }
+  ]
+}

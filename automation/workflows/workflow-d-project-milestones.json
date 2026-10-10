@@ -1,0 +1,90 @@
+{
+  "name": "MaxEco - Workflow D: Project Milestone Reminders",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "e4b1c201-5555-4000-8000-000000000001",
+      "name": "Weekday Schedule (9:00 AM IST)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node D.2: Load Active Projects from Registers\nconst fs = require('fs');\nconst path = require('path');\n\nconst testDataPath = path.resolve(process.cwd(), 'automation/data/dummy-finance-registers.json');\nlet data = {};\nif (fs.existsSync(testDataPath)) {\n  data = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));\n}\n\nreturn [{ json: data }];"
+      },
+      "id": "e4b1c201-5555-4000-8000-000000000002",
+      "name": "Load Project Registers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node D.3: Identify Approaching & Overdue Milestones\n// Policy: Zero automated procurement; only internal founder monitoring\nconst data = $input.first().json;\nconst solarProjects = data.solarProjects || [];\nconst itProjects = data.itProjects || [];\n\nconst now = new Date();\nconst todayStr = now.toISOString().slice(0, 10);\nconst fiveDaysAhead = new Date(now.getTime() + 5 * 86400000).toISOString().slice(0, 10);\n\nconst activeMilestones = [];\n\n// 1. Audit Solar Milestones\nsolarProjects.forEach(p => {\n  (p.milestones || []).forEach(m => {\n    if (m.status !== 'Completed' && m.dueDate && m.dueDate <= fiveDaysAhead) {\n      activeMilestones.push({\n        projectType: 'SOLAR',\n        projectId: p.id,\n        clientName: p.clientName,\n        milestone: m.name,\n        status: m.status,\n        dueDate: m.dueDate,\n        isOverdue: m.dueDate < todayStr,\n        internalNote: 'Verify site physical condition / APDCL clearance with partner'\n      });\n    }\n  });\n});\n\n// 2. Audit IT Milestones\nitProjects.forEach(p => {\n  (p.milestones || []).forEach(m => {\n    if (m.status !== 'Completed' && m.dueDate && m.dueDate <= fiveDaysAhead) {\n      activeMilestones.push({\n        projectType: 'IT_WEB',\n        projectId: p.id,\n        clientName: p.clientName,\n        milestone: m.name,\n        status: m.status,\n        dueDate: m.dueDate,\n        isOverdue: m.dueDate < todayStr,\n        internalNote: 'Review code staging & WhatsApp testing locally before client demo'\n      });\n    }\n  });\n});\n\nreturn activeMilestones.map(m => ({ json: m }));"
+      },
+      "id": "e4b1c201-5555-4000-8000-000000000003",
+      "name": "Audit Pending Milestones",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node D.4: Write Internal Milestone Action Digest\nconst fs = require('fs');\nconst path = require('path');\n\nconst items = $input.all().map(i => i.json);\nconst outDir = path.resolve(process.cwd(), 'docs/reports');\nif (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });\n\nconst todayStr = new Date().toISOString().slice(0, 10);\nlet md = '# MaxEco Project Milestone Action Board — ' + todayStr + '\\n\\n';\n\nif (items.length === 0) {\n  md += '✅ All active solar and IT project milestones are on schedule.\\n';\n} else {\n  items.forEach(m => {\n    md += '* [' + m.projectType + '] **' + m.clientName + '** (' + m.projectId + '): **' + m.milestone + '**\\n';\n    md += '  - Status: ' + m.status + ' | Due: **' + m.dueDate + '** ' + (m.isOverdue ? '⚠️ **OVERDUE**' : '') + '\\n';\n    md += '  - Action: ' + m.internalNote + '\\n\\n';\n  });\n}\n\nconst outFilePath = path.join(outDir, 'project-milestones-' + todayStr + '.md');\nfs.writeFileSync(outFilePath, md, 'utf8');\n\nreturn [{\n  json: {\n    status: 'MILESTONES_AUDITED',\n    pendingMilestoneCount: items.length,\n    reportPath: outFilePath,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "e4b1c201-5555-4000-8000-000000000004",
+      "name": "Save Milestone Report",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 300]
+    }
+  ],
+  "connections": {
+    "Weekday Schedule (9:00 AM IST)": {
+      "main": [
+        [
+          {
+            "node": "Load Project Registers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Project Registers": {
+      "main": [
+        [
+          {
+            "node": "Audit Pending Milestones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audit Pending Milestones": {
+      "main": [
+        [
+          {
+            "node": "Save Milestone Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

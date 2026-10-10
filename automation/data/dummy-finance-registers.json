@@ -1,0 +1,144 @@
+{
+  "currency": "INR",
+  "taxReserveRatePercent": 18,
+  "quotations": [
+    {
+      "id": "QT-TEST-001",
+      "leadId": "LEAD-TEST-001",
+      "clientName": "Kamrup Cold Storage Pvt Ltd",
+      "service": "Solar EPC Coordination (50 kWp Rooftop System)",
+      "date": "2026-10-02",
+      "validUntil": "2026-10-23",
+      "totalAmount": 2200000,
+      "directCostEstimate": 1800000,
+      "projectedMargin": 400000,
+      "status": "Sent",
+      "notes": "TEST RECORD: Commercial EPC quote under review by client director."
+    },
+    {
+      "id": "QT-TEST-002",
+      "leadId": "LEAD-TEST-002",
+      "clientName": "Brahmaputra Diagnostic Centre",
+      "service": "SMB Website Development & WhatsApp Module",
+      "date": "2026-10-06",
+      "validUntil": "2026-10-20",
+      "totalAmount": 35000,
+      "directCostEstimate": 8000,
+      "projectedMargin": 27000,
+      "status": "Accepted",
+      "notes": "TEST RECORD: Client agreed to terms, awaiting invoice issuance."
+    }
+  ],
+  "invoices": [
+    {
+      "id": "INV-TEST-001",
+      "clientName": "Assam Craft & Loom Traders",
+      "service": "Quarterly Website Maintenance Retainer",
+      "date": "2026-09-26",
+      "dueDate": "2026-10-05",
+      "amountBilled": 6000,
+      "amountCollected": 6000,
+      "status": "Paid",
+      "paymentDate": "2026-09-28",
+      "paymentMethod": "UPI (SBI)",
+      "referenceNo": "UPI/TEST/0928/1102"
+    },
+    {
+      "id": "INV-TEST-002",
+      "clientName": "Brahmaputra Diagnostic Centre",
+      "service": "SMB Website Advance Milestone (50%)",
+      "date": "2026-10-07",
+      "dueDate": "2026-10-14",
+      "amountBilled": 17500,
+      "amountCollected": 0,
+      "status": "Unpaid",
+      "paymentDate": null,
+      "paymentMethod": null,
+      "referenceNo": null,
+      "notes": "TEST RECORD: Billed legal receivable due in 4 days. NOT collected cash."
+    },
+    {
+      "id": "INV-TEST-003",
+      "clientName": "Heritage Agro Organics",
+      "service": "Solar Pre-Feasibility Advisory Fee",
+      "date": "2026-09-15",
+      "dueDate": "2026-09-25",
+      "amountBilled": 12000,
+      "amountCollected": 0,
+      "status": "Overdue",
+      "paymentDate": null,
+      "paymentMethod": null,
+      "referenceNo": null,
+      "notes": "TEST RECORD: Overdue receivable >15 days. Needs founder collection follow-up."
+    }
+  ],
+  "expenses": [
+    {
+      "id": "EXP-TEST-001",
+      "date": "2026-09-27",
+      "category": "Direct Delivery Cost",
+      "description": "Graphic & asset customization for craft client",
+      "amount": 1000,
+      "paidTo": "Diganta Graphic Studio, Chandmari",
+      "linkedProject": "IT-TEST-001"
+    },
+    {
+      "id": "EXP-TEST-002",
+      "date": "2026-10-01",
+      "category": "Operating Overhead",
+      "description": "Office broadband internet (Guwahati)",
+      "amount": 943,
+      "paidTo": "Airtel Broadband",
+      "linkedProject": null
+    },
+    {
+      "id": "EXP-TEST-003",
+      "date": "2026-10-03",
+      "category": "Direct Delivery Cost",
+      "description": "Fuel and local transport for rooftop survey at Amingaon",
+      "amount": 650,
+      "paidTo": "Local Transport",
+      "linkedProject": "SOL-TEST-001"
+    }
+  ],
+  "drawings": [
+    {
+      "id": "DRW-TEST-001",
+      "date": "2026-10-05",
+      "amount": 2500,
+      "purpose": "Founder personal living allowance (Isolated from business expenses)",
+      "account": "Personal Savings Account"
+    }
+  ],
+  "solarProjects": [
+    {
+      "id": "SOL-TEST-001",
+      "clientName": "Kamrup Cold Storage Pvt Ltd",
+      "systemCapacityKwp": 50,
+      "contractValue": 2200000,
+      "collectedAmount": 0,
+      "status": "Feasibility Review",
+      "milestones": [
+        { "name": "Site Survey & Rooftop Structural Analysis", "status": "Completed", "dueDate": "2026-10-03" },
+        { "name": "APDCL Net-Metering Feasibility", "status": "In Progress", "dueDate": "2026-10-15" },
+        { "name": "Formal Proposal Signoff", "status": "Pending", "dueDate": "2026-10-20" },
+        { "name": "Advance Payment (20%)", "status": "Pending", "dueDate": "2026-10-25" }
+      ]
+    }
+  ],
+  "itProjects": [
+    {
+      "id": "IT-TEST-001",
+      "clientName": "Assam Craft & Loom Traders",
+      "serviceScope": "E-Commerce Catalog Maintenance & WhatsApp Store",
+      "contractValue": 6000,
+      "collectedAmount": 6000,
+      "status": "In Progress",
+      "milestones": [
+        { "name": "Product Photos & Catalog Staging", "status": "Completed", "dueDate": "2026-09-29" },
+        { "name": "Catalog Upload & Optimization", "status": "In Progress", "dueDate": "2026-10-10" },
+        { "name": "WhatsApp Direct Order Testing", "status": "Pending", "dueDate": "2026-10-12" }
+      ]
+    }
+  ]
+}

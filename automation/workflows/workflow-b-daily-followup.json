@@ -1,0 +1,168 @@
+{
+  "name": "MaxEco - Workflow B: Daily Follow-up Reminder",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 8 * * *"
+            }
+          ]
+        }
+      },
+      "id": "e4b1c201-1111-4000-8000-000000000001",
+      "name": "Daily Schedule Trigger (8:30 AM IST)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node B.2: Load Active CRM Leads from Local Store / Dummy Seed\n// Note: Uses sandboxed file read or returns test fixtures\nconst fs = require('fs');\nconst path = require('path');\n\nconst testDataPath = path.resolve(process.cwd(), 'automation/data/dummy-crm-leads.json');\nlet leads = [];\n\nif (fs.existsSync(testDataPath)) {\n  const raw = fs.readFileSync(testDataPath, 'utf8');\n  const parsed = JSON.parse(raw);\n  leads = parsed.testScenarios || [];\n} else {\n  leads = [\n    {\n      id: 'LEAD-FALLBACK-001',\n      name: 'Default Test Lead',\n      phone: '+91 99544 00000',\n      service: 'Solar EPC',\n      stage: 'Proposal Sent',\n      nextFollowUpDate: new Date().toISOString().slice(0, 10),\n      nextAction: 'Review technical feasibility'\n    }\n  ];\n}\n\nreturn leads.map(item => ({ json: item }));"
+      },
+      "id": "e4b1c201-1111-4000-8000-000000000002",
+      "name": "Load Leads Store",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.stage }}",
+              "rightValue": "Won",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.stage }}",
+              "rightValue": "Lost",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            },
+            {
+              "id": "c3",
+              "leftValue": "={{ $json.nextFollowUpDate }}",
+              "rightValue": "={{ $now.toFormat('yyyy-MM-dd') }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "beforeOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "e4b1c201-1111-4000-8000-000000000003",
+      "name": "Filter Overdue & Due Today",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node B.4: Sorter & Days Overdue Calculator\nconst items = $input.all();\nconst todayStr = new Date().toISOString().slice(0, 10);\nconst todayMs = new Date(todayStr).getTime();\n\nconst enriched = items.map(item => {\n  const lead = item.json;\n  const fDate = lead.nextFollowUpDate || todayStr;\n  const fMs = new Date(fDate).getTime();\n  const diffDays = Math.floor((todayMs - fMs) / (1000 * 60 * 60 * 24));\n  \n  let urgencyLabel = 'DUE TODAY';\n  if (diffDays > 0) {\n    urgencyLabel = `OVERDUE (${diffDays} day${diffDays > 1 ? 's' : ''})`;\n  }\n  \n  return {\n    ...lead,\n    daysOverdue: Math.max(0, diffDays),\n    urgencyLabel\n  };\n});\n\n// Sort oldest overdue first, then by deal value descending\nenriched.sort((a, b) => (b.daysOverdue - a.daysOverdue) || (b.estimatedValue - a.estimatedValue));\n\nreturn enriched.map(item => ({ json: item }));"
+      },
+      "id": "e4b1c201-1111-4000-8000-000000000004",
+      "name": "Sort & Compute Urgency",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node B.5: Safe Digest Generator with Human-in-the-Loop WhatsApp Link\n// CRITICAL: NEVER executes network requests or sends automated messages.\n// Generates pre-formatted wa.me link for Founder 1-click review only.\n\nconst items = $input.all();\nconst todayStr = new Date().toISOString().slice(0, 10);\n\nif (items.length === 0) {\n  return [{\n    json: {\n      reportDate: todayStr,\n      totalDue: 0,\n      overdueCount: 0,\n      summaryHtml: '<p><strong>All clear!</strong> No follow-ups are due today or overdue.</p>',\n      leads: []\n    }\n  }];\n}\n\nlet overdueCount = 0;\nconst leadCards = items.map(item => {\n  const l = item.json;\n  if (l.daysOverdue > 0) overdueCount++;\n  \n  // Sanitize phone to Indian standard (+91)\n  const cleanPhone = (l.phone || '').replace(/[^0-9]/g, '');\n  const waPhone = cleanPhone.startsWith('91') ? cleanPhone : ('91' + cleanPhone);\n  \n  // Pre-fill courteous inquiry draft in English/Assam context\n  const draftText = `Hello ${l.contactPerson || l.name}, following up regarding your enquiry with MaxEco Energy & Tech for ${l.service}. Please let us know if you have any questions.`;\n  const safeWaUrl = `https://wa.me/${waPhone}?text=${encodeURIComponent(draftText)}`;\n  \n  return {\n    id: l.id,\n    name: l.name,\n    contactPerson: l.contactPerson,\n    phone: l.phone,\n    service: l.service,\n    urgency: l.urgencyLabel,\n    nextAction: l.nextAction,\n    estimatedValue: l.estimatedValue,\n    draftReviewUrl: safeWaUrl\n  };\n});\n\nreturn [{\n  json: {\n    reportDate: todayStr,\n    totalDue: items.length,\n    overdueCount,\n    generatedAt: new Date().toISOString(),\n    leads: leadCards\n  }\n}];"
+      },
+      "id": "e4b1c201-1111-4000-8000-000000000005",
+      "name": "Build Action Digest",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node B.6: Save Local Human-in-the-Loop HTML Report & Audit Log\nconst fs = require('fs');\nconst path = require('path');\n\nconst payload = $input.first().json;\nconst outDir = path.resolve(process.cwd(), 'docs/reports');\nif (!fs.existsSync(outDir)) {\n  fs.mkdirSync(outDir, { recursive: true });\n}\n\nconst htmlContent = `<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>MaxEco Daily Follow-Up Digest - ${payload.reportDate}</title>\n  <style>\n    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; }\n    .container { max-width: 800px; margin: 0 auto; }\n    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }\n    .overdue { background: #ef4444; color: white; }\n    .duetoday { background: #f59e0b; color: black; }\n    .card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 12px; }\n    .btn { display: inline-block; background: #25d366; color: white; padding: 8px 14px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 12px; margin-top: 8px; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <h2>MaxEco Energy & Tech - Daily Follow-Up Digest</h2>\n    <p>Date: <strong>${payload.reportDate}</strong> | Total Follow-ups Due: <strong>${payload.totalDue}</strong> (Overdue: <strong>${payload.overdueCount}</strong>)</p>\n    <p><em>Security Notice: Zero automated messages sent. Review each lead manually before contacting.</em></p>\n    ${payload.leads.map(l => `\n      <div class=\"card\">\n        <div style=\"display:flex; justify-content:space-between;\">\n          <strong>${l.name}</strong>\n          <span class=\"badge ${l.urgency.includes('OVERDUE') ? 'overdue' : 'duetoday'}\">${l.urgency}</span>\n        </div>\n        <div style=\"font-size:13px; color:#94a3b8; margin: 4px 0;\">Service: ${l.service} | Value: ₹${(l.estimatedValue || 0).toLocaleString('en-IN')}</div>\n        <div style=\"font-size:13px; margin-top: 6px;\"><strong>Next Action:</strong> ${l.nextAction || 'Follow up'}</div>\n        <a href=\"${l.draftReviewUrl}\" target=\"_blank\" class=\"btn\">Open WhatsApp Review Draft</a>\n      </div>\n    `).join('')}\n  </div>\n</body>\n</html>`;\n\nconst reportFilePath = path.join(outDir, `daily-digest-${payload.reportDate}.html`);\nfs.writeFileSync(reportFilePath, htmlContent, 'utf8');\n\n// Audit Log (scrubbed, zero customer personal data)\nreturn [{\n  json: {\n    status: 'SUCCESS',\n    reportDate: payload.reportDate,\n    totalDue: payload.totalDue,\n    overdueCount: payload.overdueCount,\n    reportPath: reportFilePath,\n    completedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "e4b1c201-1111-4000-8000-000000000006",
+      "name": "Save Local Digest & Audit Log",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    }
+  ],
+  "connections": {
+    "Daily Schedule Trigger (8:30 AM IST)": {
+      "main": [
+        [
+          {
+            "node": "Load Leads Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Leads Store": {
+      "main": [
+        [
+          {
+            "node": "Filter Overdue & Due Today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Overdue & Due Today": {
+      "main": [
+        [
+          {
+            "node": "Sort & Compute Urgency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort & Compute Urgency": {
+      "main": [
+        [
+          {
+            "node": "Build Action Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Action Digest": {
+      "main": [
+        [
+          {
+            "node": "Save Local Digest & Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

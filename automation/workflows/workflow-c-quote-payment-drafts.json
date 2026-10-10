@@ -1,0 +1,90 @@
+{
+  "name": "MaxEco - Workflow C: Quotation & Payment Follow-Up Drafts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 10 * * *"
+            }
+          ]
+        }
+      },
+      "id": "e4b1c201-4444-4000-8000-000000000001",
+      "name": "Daily Follow-up Schedule (10:00 AM IST)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node C.2: Load Quotations and Unpaid Invoices\nconst fs = require('fs');\nconst path = require('path');\n\nconst testDataPath = path.resolve(process.cwd(), 'automation/data/dummy-finance-registers.json');\nlet data = {};\nif (fs.existsSync(testDataPath)) {\n  data = JSON.parse(fs.readFileSync(testDataPath, 'utf8'));\n}\n\nreturn [{ json: data }];"
+      },
+      "id": "e4b1c201-4444-4000-8000-000000000002",
+      "name": "Load Quotes & Invoices",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node C.3: Detect Expiring Quotes & Due Invoices (Within 3 Days or Overdue)\nconst data = $input.first().json;\nconst quotes = data.quotations || [];\nconst invoices = data.invoices || [];\n\nconst now = new Date();\nconst todayStr = now.toISOString().slice(0, 10);\nconst threeDaysAhead = new Date(now.getTime() + 3 * 86400000).toISOString().slice(0, 10);\n\nconst drafts = [];\n\n// 1. Check Unpaid & Overdue Invoices\ninvoices.forEach(inv => {\n  const uncollected = (Number(inv.amountBilled) || 0) - (Number(inv.amountCollected) || 0);\n  if (uncollected > 0 && inv.dueDate <= threeDaysAhead) {\n    const isOverdue = inv.dueDate < todayStr;\n    const draftText = `Dear ${inv.clientName}, greeting from MaxEco Energy & Tech. This is a gentle reminder regarding invoice ${inv.id} for ₹${uncollected.toLocaleString('en-IN')}, which was due on ${inv.dueDate}. Please let us know if you need any clarification or the bank payment details. Thank you.`;\n    \n    drafts.push({\n      type: 'INVOICE_PAYMENT_REMINDER',\n      id: inv.id,\n      clientName: inv.clientName,\n      amountDue: uncollected,\n      dueDate: inv.dueDate,\n      isOverdue,\n      humanReviewAction: 'Founder must verify bank statement before marking paid.',\n      suggestedDraft: draftText\n    });\n  }\n});\n\n// 2. Check Expiring Quotes\nquotes.forEach(q => {\n  if (q.status === 'Sent' && q.validUntil && q.validUntil <= threeDaysAhead) {\n    const draftText = `Dear ${q.clientName}, following up on quotation ${q.id} for ${q.service} (₹${(q.totalAmount || 0).toLocaleString('en-IN')}). The current pricing validity is until ${q.validUntil}. We would be glad to address any queries you or your team might have.`;\n    \n    drafts.push({\n      type: 'QUOTATION_EXPIRY_REMINDER',\n      id: q.id,\n      clientName: q.clientName,\n      totalAmount: q.totalAmount,\n      validUntil: q.validUntil,\n      suggestedDraft: draftText\n    });\n  }\n});\n\nreturn drafts.map(d => ({ json: d }));"
+      },
+      "id": "e4b1c201-4444-4000-8000-000000000003",
+      "name": "Generate Draft Reminders",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// MaxEco Node C.4: Render Human-in-the-Loop Review Draft File (Zero Auto-Messaging)\nconst fs = require('fs');\nconst path = require('path');\n\nconst items = $input.all().map(i => i.json);\nconst outDir = path.resolve(process.cwd(), 'docs/reports');\nif (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });\n\nconst todayStr = new Date().toISOString().slice(0, 10);\nlet md = `# MaxEco Follow-Up Review Queue — ${todayStr}\\n\\n`;\nmd += `> **MANDATORY POLICY**: No messages are sent automatically. These drafts are generated for founder review only.\\n\\n`;\n\nitems.forEach((item, index) => {\n  md += `### ${index + 1}. [${item.type}] ${item.clientName} (${item.id})\\n`;\n  if (item.amountDue) md += `* **Amount Due**: ₹${item.amountDue.toLocaleString('en-IN')} (Due: ${item.dueDate})\\n`;\n  if (item.validUntil) md += `* **Quote Expiry**: ${item.validUntil}\\n`;\n  md += `* **Draft Text**:\\n> \"${item.suggestedDraft}\"\\n\\n`;\n});\n\nconst outFilePath = path.join(outDir, `followup-drafts-${todayStr}.md`);\nfs.writeFileSync(outFilePath, md, 'utf8');\n\nreturn [{\n  json: {\n    status: 'DRAFTS_READY_FOR_FOUNDER_REVIEW',\n    totalDrafts: items.length,\n    reviewFile: outFilePath,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "id": "e4b1c201-4444-4000-8000-000000000004",
+      "name": "Save Founder Review Queue",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 300]
+    }
+  ],
+  "connections": {
+    "Daily Follow-up Schedule (10:00 AM IST)": {
+      "main": [
+        [
+          {
+            "node": "Load Quotes & Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Quotes & Invoices": {
+      "main": [
+        [
+          {
+            "node": "Generate Draft Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Draft Reminders": {
+      "main": [
+        [
+          {
+            "node": "Save Founder Review Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
