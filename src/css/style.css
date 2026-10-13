@@ -781,10 +781,11 @@ textarea.form-control {
   body * {
     visibility: hidden;
   }
-  #invoice-printable-area, #invoice-printable-area * {
+  #invoice-printable-area, #invoice-printable-area *,
+  #quotation-printable-area, #quotation-printable-area * {
     visibility: visible;
   }
-  #invoice-printable-area {
+  #invoice-printable-area, #quotation-printable-area {
     position: absolute;
     left: 0;
     top: 0;

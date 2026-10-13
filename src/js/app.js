@@ -349,6 +349,7 @@ class AppController {
           <td><span class="badge ${q.status === 'Accepted' ? 'badge-won' : 'badge-proposal'}">${q.status}</span></td>
           <td>
             <div class="flex gap-2">
+              <button class="btn btn-secondary btn-sm" onclick="app.viewQuotationFormat('${q.id}')" title="View & Print Official Proposal Format">📄 Proposal</button>
               <button class="btn btn-secondary btn-sm" onclick="app.convertQuoteToInvoice('${q.id}')">Convert to Invoice</button>
               <button class="btn btn-secondary btn-sm" onclick="app.openEditQuotationModal('${q.id}')">✏️ Edit</button>
               <button class="btn btn-danger btn-sm" onclick="app.deleteQuotation('${q.id}')">✕</button>
@@ -1149,6 +1150,53 @@ class AppController {
       return;
     }
     this.viewInvoiceFormat(invoices[0].id);
+  }
+
+  // --- QUOTATION & PROPOSAL FORMAT CONTROLS (MAXECO) ---
+  viewQuotationFormat(quoteId) {
+    if (window.invoiceController && typeof window.invoiceController.openQuotationFormatModal === 'function') {
+      window.invoiceController.openQuotationFormatModal(quoteId);
+    } else {
+      showToast('Quotation format controller loading...', 'info');
+    }
+  }
+
+  printActiveQuotation() {
+    if (window.invoiceController) {
+      window.invoiceController.printQuotation();
+    }
+  }
+
+  shareActiveQuotationWhatsApp() {
+    const activeId = document.getElementById('quotation-active-view-id')?.value;
+    if (activeId && window.invoiceController) {
+      window.invoiceController.shareQuotationWhatsApp(activeId);
+    }
+  }
+
+  copyActiveQuotationText() {
+    const activeId = document.getElementById('quotation-active-view-id')?.value;
+    if (activeId && window.invoiceController) {
+      window.invoiceController.copyQuotationText(activeId);
+    }
+  }
+
+  openQuotationFormatSelector() {
+    const quotations = window.storage.getQuotations();
+    if (!quotations || quotations.length === 0) {
+      showToast('No quotations recorded yet. Please generate a quotation first.', 'info');
+      this.openAddQuotationModal();
+      return;
+    }
+    this.viewQuotationFormat(quotations[0].id);
+  }
+
+  convertActiveQuotationToInvoice() {
+    const activeId = document.getElementById('quotation-active-view-id')?.value;
+    if (activeId) {
+      this.closeAllModals();
+      this.convertQuoteToInvoice(activeId);
+    }
   }
 
   // --- PROJECT CONTROLS ---

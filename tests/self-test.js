@@ -246,6 +246,31 @@ assert(invoiceHtml.includes('Rupees Fourteen Lakh Fifty Thousand Only'), 'Invoic
 assert(invoiceHtml.includes('9954493909@upi'), 'Invoice contains bank remittance UPI ID');
 assert(invoiceHtml.includes('State Bank of India (SBI)'), 'Invoice contains bank name');
 
+// TEST SUITE 7: CUSTOMER QUOTATION GENERATION & PROPOSAL ENGINE
+console.log('\n--- TEST SUITE 7: Customer Quotation Generation & Proposal Engine ---');
+const sampleQuote = {
+  id: 'QUO-2026-TEST',
+  clientName: 'Northeast Logistics Hub',
+  clientAddress: 'Beltola, Guwahati, Assam',
+  clientPhone: '9864012345',
+  service: 'Turnkey Solar EPC Coordination (20 kWp Commercial Rooftop)',
+  amount: 850000,
+  estimatedCost: 680000,
+  validUntil: '2026-11-15',
+  terms: '15% advance, 45% upon delivery, 25% on structural erection, 15% on net-meter synchronization',
+  status: 'Sent'
+};
+
+const quoteHtml = window.invoiceController.generateQuotationHTML(sampleQuote);
+assert(quoteHtml.includes('MaxEco Energy &amp; Tech') || quoteHtml.includes('MaxEco Energy & Tech'), 'Quotation contains company name');
+assert(quoteHtml.includes('Maligaon, Guwahati, Assam, Pin - 781011'), 'Quotation contains official registered address');
+assert(quoteHtml.includes('+91 99544 93909'), 'Quotation contains official contact phone');
+assert(quoteHtml.includes('QUO-2026-TEST'), 'Quotation contains quotation reference number');
+assert(quoteHtml.includes('Northeast Logistics Hub'), 'Quotation contains customer client name');
+assert(quoteHtml.includes('Rupees Eight Lakh Fifty Thousand Only'), 'Quotation contains amount in words');
+assert(quoteHtml.includes('20 kWp Commercial Rooftop'), 'Quotation contains project service scope');
+assert(quoteHtml.includes('15% advance'), 'Quotation contains commercial payment milestones');
+
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');

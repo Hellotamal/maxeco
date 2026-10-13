@@ -380,6 +380,271 @@ class InvoiceController {
       });
     }
   }
+
+  // --- CUSTOMER QUOTATION GENERATION & FORMATTING (MAXECO) ---
+  generateQuotationHTML(quotation, options = {}) {
+    if (!quotation) return '<p>No quotation found.</p>';
+
+    const total = Number(quotation.totalAmount !== undefined ? quotation.totalAmount : (quotation.amount !== undefined ? quotation.amount : quotation.estimatedValue)) || 0;
+    const directCost = Number(quotation.directCostEstimate !== undefined ? quotation.directCostEstimate : (quotation.estimatedCost !== undefined ? quotation.estimatedCost : quotation.directCost)) || 0;
+    const margin = Number(quotation.projectedMargin) || (total - directCost);
+    const words = this.numberToWordsINR(total);
+    const hsnInfo = this.detectHsnSac(quotation.service);
+    const isSolar = (quotation.service || '').toLowerCase().includes('solar');
+
+    let statusPillColor = '#3b82f6';
+    let statusPillText = 'PROPOSAL SUBMITTED';
+    if (quotation.status === 'Accepted') {
+      statusPillColor = '#10b981';
+      statusPillText = 'PROPOSAL ACCEPTED';
+    } else if (quotation.status === 'Declined') {
+      statusPillColor = '#ef4444';
+      statusPillText = 'DECLINED';
+    }
+
+    const scopeBullets = isSolar ? [
+      'Preliminary site survey, rooftop structural analysis & orientation geometry check',
+      'APDCL Net-Metering NOC liaison, SLD (Single Line Diagram) & CEIG compliance planning',
+      'Tier-1 Solar PV modules & grid-interactive inverter technical specification & procurement coordination',
+      'Civil mounting structures, DC/AC cabling, earthing pits & lightning protection installation audit',
+      'Final grid synchronization, bidirectional net-meter testing, and handover documentation'
+    ] : [
+      'Full-stack website design, mobile responsiveness, fast loading & Northeast India local SEO optimization',
+      'Integration of WhatsApp direct customer enquiry buttons and lead routing',
+      'Contact forms, Google Maps embed, SSL security configuration and domain linkage',
+      'Content staging, doctor/product schedules, or e-commerce catalog showcase',
+      '30 days post-launch technical warranty & maintenance support'
+    ];
+
+    return `
+      <div class="maxeco-invoice-sheet maxeco-quotation-sheet" id="quotation-printable-area">
+        <!-- HEADER -->
+        <div class="inv-header">
+          <div class="inv-brand">
+            <div class="inv-logo-box">
+              <span class="inv-logo-char">M</span>
+            </div>
+            <div class="inv-company-meta">
+              <h1 class="inv-company-name">${this.companyProfile.name}</h1>
+              <p class="inv-tagline">${this.companyProfile.tagline}</p>
+              <p class="inv-address">${this.companyProfile.address}</p>
+              <p class="inv-contact">
+                <strong>Phone:</strong> ${this.companyProfile.phone} &nbsp;|&nbsp; 
+                <strong>Email:</strong> ${this.companyProfile.email}
+              </p>
+              <p class="inv-state"><strong>State:</strong> ${this.companyProfile.state} &nbsp;|&nbsp; <strong>State Code:</strong> ${this.companyProfile.stateCode}</p>
+            </div>
+          </div>
+          <div class="inv-title-box">
+            <div class="inv-doc-title" style="color: #0284c7;">FORMAL QUOTATION</div>
+            <div class="inv-status-pill" style="background: ${statusPillColor}20; color: ${statusPillColor}; border-color: ${statusPillColor};">
+              ● ${statusPillText}
+            </div>
+          </div>
+        </div>
+
+        <hr class="inv-divider">
+
+        <!-- CLIENT & QUOTE META -->
+        <div class="inv-meta-grid">
+          <div class="inv-bill-to">
+            <div class="inv-section-label">PREPARED FOR (PROSPECT / CLIENT):</div>
+            <h3 class="inv-client-name">${quotation.clientName || 'Valued Client'}</h3>
+            <p class="inv-client-address">${quotation.clientLocation || quotation.clientAddress || 'Guwahati, Assam, India'}</p>
+            <p><strong>Service Requested:</strong> ${quotation.service}</p>
+          </div>
+
+          <div class="inv-doc-details">
+            <table class="inv-details-table">
+              <tr>
+                <td><strong>Quotation Ref:</strong></td>
+                <td class="font-mono inv-highlight" style="color: #0284c7;">${quotation.id}</td>
+              </tr>
+              <tr>
+                <td><strong>Proposal Date:</strong></td>
+                <td>${this.formatDateIndian(quotation.date)}</td>
+              </tr>
+              <tr>
+                <td><strong>Price Validity:</strong></td>
+                <td><strong>${this.formatDateIndian(quotation.validUntil)}</strong> (Firm Fixed Price)</td>
+              </tr>
+              <tr>
+                <td><strong>Service Category:</strong></td>
+                <td>${hsnInfo.label}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- SCOPE OF DELIVERABLES -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; margin-bottom: 20px;">
+          <div class="inv-section-label" style="color: #0f172a; font-size: 11px;">SCOPE OF WORK & DELIVERABLES:</div>
+          <p style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">${quotation.service}</p>
+          <ul style="font-size: 12px; color: #334155; padding-left: 18px; line-height: 1.6;">
+            ${scopeBullets.map(b => `<li>${b}</li>`).join('')}
+          </ul>
+        </div>
+
+        <!-- COMMERCIAL SCHEDULE TABLE -->
+        <table class="inv-items-table">
+          <thead>
+            <tr>
+              <th style="width: 5%; text-align: center;">#</th>
+              <th style="width: 55%;">Deliverable Package / Scope Item</th>
+              <th style="width: 15%; text-align: center;">HSN / SAC</th>
+              <th style="width: 10%; text-align: center;">Qty</th>
+              <th style="width: 15%; text-align: right;">Quoted Amount (INR)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="text-align: center; vertical-align: top;">1</td>
+              <td>
+                <div class="inv-item-title"><strong>${quotation.service}</strong></div>
+                <div class="inv-item-desc">${isSolar ? 'Solar engineering, advisory & complete vendor execution coordination.' : 'Full-lifecycle SMB website design, deployment and maintenance setup.'}</div>
+              </td>
+              <td style="text-align: center; vertical-align: top;" class="font-mono">${hsnInfo.code}</td>
+              <td style="text-align: center; vertical-align: top;">1 Turnkey Job</td>
+              <td style="text-align: right; vertical-align: top;" class="font-mono"><strong>${this.formatCurrency(total)}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- TOTALS & AMOUNT IN WORDS -->
+        <div class="inv-summary-grid">
+          <div class="inv-words-block">
+            <div class="inv-words-label">TOTAL AMOUNT IN WORDS:</div>
+            <div class="inv-words-val" style="color: #0284c7;"><em>${words}</em></div>
+            
+            <div style="font-size: 11px; color: #475569; margin-top: 6px;">
+              <strong>Payment Terms:</strong> ${quotation.terms || '20% with Work Order, 60% upon delivery/erection, 20% on testing & signoff'}
+            </div>
+          </div>
+
+          <div class="inv-totals-block">
+            <table class="inv-totals-table">
+              <tr class="inv-grand-total-row">
+                <td style="color: #0284c7 !important;"><strong>TOTAL QUOTED VALUE:</strong></td>
+                <td class="font-mono" style="color: #0284c7 !important; font-size: 16px;"><strong>${this.formatCurrency(total)}</strong></td>
+              </tr>
+              <tr>
+                <td style="font-size: 11px; color: #64748b;">Pricing Structure:</td>
+                <td style="font-size: 11px; color: #64748b;">All Inclusive / Net Payable</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- CLIENT ACCEPTANCE & SIGNATURE BLOCK -->
+        <div class="inv-footer-grid" style="margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+          <div style="border-right: 1px dashed #cbd5e1; padding-right: 20px;">
+            <div class="inv-terms-label" style="color: #0f172a;">CLIENT WORK ORDER ACCEPTANCE:</div>
+            <p style="font-size: 11px; color: #64748b; margin: 4px 0 16px 0;">We confirm and accept the above proposal scope, pricing, and milestone schedule.</p>
+            <div style="border-top: 1px dashed #94a3b8; width: 180px; margin-top: 36px;"></div>
+            <p style="font-size: 11px; font-weight: 700; color: #334155; margin-top: 2px;">Authorized Client Representative</p>
+            <p style="font-size: 10px; color: #64748b;">Signature, Seal &amp; Date</p>
+          </div>
+
+          <div class="inv-sign-box">
+            <p style="font-size: 11px; color: #475569;">Issued for <strong>${this.companyProfile.name}</strong></p>
+            <div class="inv-stamp-zone">
+              <span class="inv-stamp-tag" style="border-color: #0284c7; color: #0284c7;">[ Formal Quotation Issued ]</span>
+            </div>
+            <div class="inv-sign-line"></div>
+            <p style="font-weight: 700; font-size: 12px; margin-top: 4px;">Founder &amp; Principal Consultant</p>
+            <p style="font-size: 10px; color: #64748b;">MaxEco Energy &amp; Tech, Guwahati</p>
+          </div>
+        </div>
+
+        <div class="inv-bottom-note">
+          This quotation is issued by MaxEco Energy & Tech Business Operating System. Validity expires on ${this.formatDateIndian(quotation.validUntil)}.
+        </div>
+      </div>
+    `;
+  }
+
+  // Open the Quotation Format Viewer Modal
+  openQuotationFormatModal(quoteId) {
+    const quotations = (window.storage && window.storage.getQuotations) ? window.storage.getQuotations() : [];
+    const quote = quotations.find(q => q.id === quoteId) || quotations[0];
+    if (!quote) {
+      if (typeof showToast === 'function') showToast('No quotation found to preview.', 'error');
+      return;
+    }
+
+    const container = document.getElementById('quotation-format-preview-container');
+    if (container) {
+      container.innerHTML = this.generateQuotationHTML(quote);
+    }
+
+    const activeIdEl = document.getElementById('quotation-active-view-id');
+    if (activeIdEl) activeIdEl.value = quote.id;
+
+    const modal = document.getElementById('modal-quotation-format-viewer');
+    if (modal) {
+      modal.classList.remove('hidden');
+    }
+  }
+
+  printQuotation() {
+    window.print();
+  }
+
+  shareQuotationWhatsApp(quoteId) {
+    const quotations = (window.storage && window.storage.getQuotations) ? window.storage.getQuotations() : [];
+    const q = quotations.find(item => item.id === quoteId);
+    if (!q) return;
+
+    const text = `*FORMAL PROPOSAL FROM MAXECO ENERGY & TECH*\n` +
+      `Quotation Ref: ${q.id}\n` +
+      `Client: ${q.clientName}\n` +
+      `Service: ${q.service}\n` +
+      `Total Quoted Value: ${this.formatCurrency(q.totalAmount)}\n` +
+      `Validity: Until ${this.formatDateIndian(q.validUntil)}\n` +
+      `Terms: ${q.terms}\n\n` +
+      `We look forward to partnering with you.\n` +
+      `MaxEco Energy & Tech | Maligaon, Guwahati, Assam | +91 99544 93909`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }
+
+  copyQuotationText(quoteId) {
+    const quotations = (window.storage && window.storage.getQuotations) ? window.storage.getQuotations() : [];
+    const q = quotations.find(item => item.id === quoteId);
+    if (!q) return;
+
+    const text = `====================================================\n` +
+      `MAXECO ENERGY & TECH — FORMAL QUOTATION\n` +
+      `Maligaon, Guwahati, Assam, Pin - 781011 | +91 99544 93909\n` +
+      `====================================================\n` +
+      `Quotation Ref: ${q.id} | Date: ${this.formatDateIndian(q.date)}\n` +
+      `Valid Until: ${this.formatDateIndian(q.validUntil)}\n` +
+      `Client: ${q.clientName}\n` +
+      `Service: ${q.service}\n` +
+      `Total Quoted Value: ${this.formatCurrency(q.totalAmount)} (${this.numberToWordsINR(q.totalAmount)})\n` +
+      `Terms: ${q.terms}\n` +
+      `====================================================\n`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        if (typeof showToast === 'function') showToast('Quotation text copied to clipboard.', 'success');
+      });
+    }
+  }
+
+  convertQuoteToInvoiceAndOpen(quoteId) {
+    if (window.app && typeof window.app.convertQuoteToInvoice === 'function') {
+      window.app.convertQuoteToInvoice(quoteId);
+      // Find the newly created invoice for this client
+      const invoices = window.storage.getInvoices();
+      const quote = window.storage.getQuotations().find(q => q.id === quoteId);
+      const matchedInv = invoices.find(inv => inv.clientName === quote?.clientName);
+      if (matchedInv) {
+        this.openInvoiceFormatModal(matchedInv.id);
+      }
+    }
+  }
 }
 
 // Global initialization

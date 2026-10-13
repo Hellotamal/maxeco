@@ -493,8 +493,8 @@
             <div id="menu-dropdown-add" class="menu-dropdown hidden" style="position: absolute; right: 0; top: 100%; margin-top: 6px;">
               <div class="dropdown-header">Quick Creation Menu</div>
               <button class="dropdown-item" onclick="app.openAddLeadModal(); app.closeMenuDropdowns();">👥 Add Customer Lead</button>
-              <button class="dropdown-item" onclick="app.openAddQuotationModal(); app.closeMenuDropdowns();">📄 Add Quotation</button>
-              <button class="dropdown-item" onclick="app.openAddInvoiceModal(); app.closeMenuDropdowns();">🧾 Add Direct Invoice</button>
+              <button class="dropdown-item" onclick="app.openAddQuotationModal(); app.closeMenuDropdowns();">📄 Generate Customer Quotation (MaxEco)</button>
+              <button class="dropdown-item" onclick="app.openAddInvoiceModal(); app.closeMenuDropdowns();">🧾 Generate Customer Invoice (MaxEco)</button>
               <button class="dropdown-item" onclick="app.openAddExpenseModal(); app.closeMenuDropdowns();">💸 Add Business Expense</button>
               <button class="dropdown-item" onclick="app.openAddDrawingModal(); app.closeMenuDropdowns();">🏦 Log Personal Withdrawal</button>
               <button class="dropdown-item" onclick="app.openAddProjectModal('solar'); app.closeMenuDropdowns();">☀️ Add Solar Project</button>
@@ -511,8 +511,9 @@
               <div class="dropdown-header">Record Modification Menu</div>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('lead'); app.closeMenuDropdowns();">👥 Modify Customer Lead</button>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('quotation'); app.closeMenuDropdowns();">📄 Modify Quotation</button>
+              <button class="dropdown-item" onclick="app.openQuotationFormatSelector(); app.closeMenuDropdowns();">📄 View / Print Customer Quotation</button>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('invoice'); app.closeMenuDropdowns();">🧾 Modify Invoice & Status</button>
-              <button class="dropdown-item" onclick="app.openInvoiceFormatSelector(); app.closeMenuDropdowns();">📄 View / Print Invoice Format</button>
+              <button class="dropdown-item" onclick="app.openInvoiceFormatSelector(); app.closeMenuDropdowns();">🧾 View / Print Customer Invoice</button>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('expense'); app.closeMenuDropdowns();">💸 Modify Business Expense</button>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('drawing'); app.closeMenuDropdowns();">🏦 Modify Withdrawal</button>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('solar'); app.closeMenuDropdowns();">☀️ Modify Solar Project</button>
@@ -680,12 +681,40 @@
 
       <!-- TAB 3: QUOTES & INVOICES REGISTER -->
       <section id="tab-quotes-invoices" class="dashboard-tab hidden">
+        <!-- MaxEco Document Generation Quick Bar -->
+        <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(245, 158, 11, 0.12)); border: 1px solid rgba(245, 158, 11, 0.3);">
+          <div class="flex justify-between items-center flex-wrap gap-3">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: #fff;">
+                📑 MaxEco Official Document Generation
+              </div>
+              <div style="font-size: 12px; color: var(--text-secondary);">
+                Generate, format, print, or share commercial proposals and tax invoices under <strong>MaxEco Energy &amp; Tech</strong> (Guwahati, Assam).
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-primary btn-sm" onclick="app.openAddQuotationModal()" style="background: #0284c7; border-color: #0284c7;">
+                📄 + Generate Quotation
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="app.openAddInvoiceModal()">
+                🧾 + Generate Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-4" style="margin-bottom: 24px;">
           <!-- Quotations Register -->
           <div class="card">
             <div class="flex justify-between items-center" style="margin-bottom: 12px;">
-              <h3 class="card-title">Quotations Register</h3>
-              <button class="btn btn-primary btn-sm" onclick="app.openAddQuotationModal()">+ New Quotation</button>
+              <div>
+                <h3 class="card-title">Quotations Register</h3>
+                <small class="text-muted">Customer proposals in name of MaxEco</small>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.openQuotationFormatSelector()">📄 View Proposal Format</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddQuotationModal()">+ Generate Quote</button>
+              </div>
             </div>
             <div class="table-container">
               <table class="data-table">
@@ -1664,6 +1693,53 @@
         <div class="flex gap-2">
           <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">Close</button>
           <button class="btn btn-primary btn-sm" onclick="app.printActiveInvoice()">🖨️ Print Invoice</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Official Customer Quotation Format Viewer & Print Console (MaxEco) -->
+  <div id="modal-quotation-format-viewer" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 900px; max-height: 94vh; display: flex; flex-direction: column;">
+      <div class="modal-header flex justify-between items-center" style="background: #0f172a; padding: 12px 20px; border-bottom: 1px solid var(--border-color);">
+        <div class="flex items-center gap-2">
+          <span style="font-size: 18px;">📄</span>
+          <div>
+            <h3 style="font-size: 15px; margin: 0; color: #f8fafc;">Official Customer Quotation & Proposal</h3>
+            <small style="color: #94a3b8;">MaxEco Energy &amp; Tech | Maligaon, Guwahati, Assam</small>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="hidden" id="quotation-active-view-id">
+          <button class="btn btn-secondary btn-sm" onclick="app.printActiveQuotation()" title="Print on A4 or Save as PDF">
+            🖨️ Print / Save PDF
+          </button>
+          <button class="btn btn-whatsapp btn-sm" onclick="app.shareActiveQuotationWhatsApp()" title="Share Proposal on WhatsApp">
+            💬 WhatsApp
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="app.convertActiveQuotationToInvoice()" style="background: #0284c7; color: white;" title="Convert this quote to official invoice">
+            🔄 Convert to Invoice
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="app.copyActiveQuotationText()" title="Copy proposal text">
+            📋 Copy
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+        </div>
+      </div>
+      
+      <div class="modal-body" style="overflow-y: auto; background: #0b1120; padding: 20px;">
+        <div id="quotation-format-preview-container">
+          <!-- Rendered dynamically by window.invoiceController.openQuotationFormatModal -->
+        </div>
+      </div>
+
+      <div class="modal-footer flex justify-between items-center" style="background: #0f172a; padding: 10px 20px; border-top: 1px solid var(--border-color);">
+        <div style="font-size: 11px; color: #94a3b8;">
+          💡 <strong>Proposal Tip:</strong> Use <em>Print / Save PDF</em> to generate an official commercial proposal with client acceptance signoff.
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">Close</button>
+          <button class="btn btn-primary btn-sm" onclick="app.printActiveQuotation()">🖨️ Print Quotation</button>
         </div>
       </div>
     </div>
