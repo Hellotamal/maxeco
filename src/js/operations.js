@@ -283,7 +283,7 @@ class OperationsController {
             <div style="display: flex; align-items: center; justify-content: flex-end; margin-top: 4px;">
               <span style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3); font-size: 8px; padding: 1px 5px; font-weight: 700; border-radius: 4px; display: inline-block;">DIGITALLY VERIFIED SIGNATURE</span>
             </div>
-            <div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-top: 3px;">Tamal Roy • Founder & Authorised Signatory</div>
+            <div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-top: 3px;">Tamal Roy • Authorised Signatory</div>
             <div style="font-size: 10px; color: #64748b;">For MaxEco Energy & Tech</div>
           </div>
         </div>

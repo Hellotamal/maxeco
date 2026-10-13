@@ -21,7 +21,7 @@ class InvoiceController {
       upiId: "9954493909@upi",
       qrCodeImage: (typeof window !== 'undefined' && window.PAYMENT_QR_DATA_URI) ? window.PAYMENT_QR_DATA_URI : "assets/payment-qr.png",
       authorisedSignatory: "Tamal Roy",
-      designation: "Founder & Authorised Signatory",
+      designation: "Authorised Signatory",
       signatureImage: (typeof window !== 'undefined' && window.AUTHORISED_SIGNATURE_DATA_URI) ? window.AUTHORISED_SIGNATURE_DATA_URI : "assets/signature.png",
       logoImage: (typeof window !== 'undefined' && window.LOGO_EMBLEM_DATA_URI) || (typeof global !== 'undefined' && global.LOGO_EMBLEM_DATA_URI) || "assets/logo-emblem.png",
       logoWordmark: (typeof window !== 'undefined' && window.LOGO_WORDMARK_DATA_URI) || (typeof global !== 'undefined' && global.LOGO_WORDMARK_DATA_URI) || "assets/logo-wordmark.png",
@@ -844,7 +844,7 @@ class InvoiceController {
               <div style="border-bottom: 1.5px solid #0f172a; width: 175px;"></div>
             </div>
             <div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-top: 4px;">Tamal Roy</div>
-            <div style="font-size: 10px; color: #64748b;">Founder &amp; Authorised Signatory</div>
+            <div style="font-size: 10px; color: #64748b;">Authorised Signatory</div>
           </div>
         </div>
       </div>

@@ -506,7 +506,7 @@ assert(fs.existsSync('./public/assets/signature.png'), 'Physical transparent sig
 
 assert(multiInvoiceHtml.includes('Tamal Roy'), 'Invoice renders Tamal Roy as Authorised Signatory');
 assert(multiInvoiceHtml.includes('DIGITALLY VERIFIED SIGNATURE'), 'Invoice renders DIGITALLY VERIFIED SIGNATURE security badge');
-assert(multiInvoiceHtml.includes('Founder &amp; Authorised Signatory') || multiInvoiceHtml.includes('Founder & Authorised Signatory'), 'Invoice renders signatory designation');
+assert(multiInvoiceHtml.includes('Authorised Signatory'), 'Invoice renders Authorised Signatory designation');
 
 assert(multiQuoteHtml.includes('Tamal Roy'), 'Quotation renders Tamal Roy as Authorised Signatory');
 assert(multiQuoteHtml.includes('DIGITALLY VERIFIED PROPOSAL'), 'Quotation renders DIGITALLY VERIFIED PROPOSAL badge');
