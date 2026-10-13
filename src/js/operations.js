@@ -9,7 +9,8 @@ class OperationsController {
       address: "Maligaon, Guwahati, Assam, Pin - 781011",
       phone: "+91 99544 93909",
       email: "maxecoenergyit@gmail.com",
-      discom: "APDCL (Assam Power Distribution Company Limited)"
+      discom: "APDCL (Assam Power Distribution Company Limited)",
+      logoImage: (typeof window !== 'undefined' && window.LOGO_EMBLEM_DATA_URI) || (typeof global !== 'undefined' && global.LOGO_EMBLEM_DATA_URI) || "assets/logo-emblem.png"
     };
   }
 
@@ -190,8 +191,8 @@ class OperationsController {
         <!-- HEADER -->
         <div class="inv-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
           <div class="inv-brand" style="display: flex; gap: 14px; align-items: center;">
-            <div style="width: 44px; height: 44px; border-radius: 8px; background: linear-gradient(135deg, #f59e0b, #0284c7); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 20px;">
-              M
+            <div style="width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <img src="${this.companyProfile.logoImage}" alt="MaxEco Logo" style="max-height: 50px; max-width: 50px; object-fit: contain;" onerror="if(typeof window !== 'undefined' && window.LOGO_EMBLEM_DATA_URI) this.src=window.LOGO_EMBLEM_DATA_URI" />
             </div>
             <div>
               <h1 style="font-size: 18px; margin: 0; color: #0f172a; font-weight: 800;">${this.companyProfile.name}</h1>

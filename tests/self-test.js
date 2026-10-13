@@ -53,6 +53,7 @@ global.URL = {
 require('../src/data/initial-data.js');
 require('../src/data/payment-qr-data.js');
 require('../src/data/signature-data.js');
+require('../src/data/logo-data.js');
 require('../src/js/storage.js');
 require('../src/js/calculator.js');
 require('../src/js/crm.js');
@@ -527,6 +528,19 @@ const sampleWorkOrder = {
 const woHtml = window.operationsController.generateWorkOrderSlipHTML(sampleWorkOrder);
 assert(woHtml.includes('Tamal Roy'), 'Work order slip renders Tamal Roy as Authorised Signatory');
 assert(woHtml.includes('DIGITALLY VERIFIED SIGNATURE'), 'Work order slip renders DIGITALLY VERIFIED SIGNATURE badge');
+
+// --- MAXECO ENERGY LOGO BRAND INTEGRATION TESTS ---
+console.log('\n--- VERIFYING MAXECO ENERGY LOGO BRAND ASSETS ---');
+assert(typeof global.LOGO_EMBLEM_DATA_URI === 'string' && global.LOGO_EMBLEM_DATA_URI.startsWith('data:image/png;base64,'), 'LOGO_EMBLEM_DATA_URI is valid base64 PNG data URI');
+assert(typeof global.LOGO_WORDMARK_DATA_URI === 'string' && global.LOGO_WORDMARK_DATA_URI.startsWith('data:image/png;base64,'), 'LOGO_WORDMARK_DATA_URI is valid base64 PNG data URI');
+assert(fs.existsSync('./public/assets/logo-emblem.png'), 'Physical logo emblem exists at public/assets/logo-emblem.png');
+assert(fs.existsSync('./public/assets/logo-wordmark.png'), 'Physical logo wordmark exists at public/assets/logo-wordmark.png');
+assert(fs.existsSync('./public/assets/logo.png'), 'Default logo exists at public/assets/logo.png');
+
+assert(multiInvoiceHtml.includes('alt="MaxEco Logo"'), 'Invoice format embeds official MaxEco Logo emblem in document header');
+assert(multiQuoteHtml.includes('alt="MaxEco Logo"'), 'Quotation format embeds official MaxEco Logo emblem in document header');
+assert(testReceiptHtml.includes('alt="MaxEco Logo"'), 'Payment receipt voucher embeds official MaxEco Logo emblem in document header');
+assert(woHtml.includes('alt="MaxEco Logo"'), 'Field work order slip embeds official MaxEco Logo emblem in document header');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);

@@ -23,6 +23,8 @@ class InvoiceController {
       authorisedSignatory: "Tamal Roy",
       designation: "Founder & Authorised Signatory",
       signatureImage: (typeof window !== 'undefined' && window.AUTHORISED_SIGNATURE_DATA_URI) ? window.AUTHORISED_SIGNATURE_DATA_URI : "assets/signature.png",
+      logoImage: (typeof window !== 'undefined' && window.LOGO_EMBLEM_DATA_URI) || (typeof global !== 'undefined' && global.LOGO_EMBLEM_DATA_URI) || "assets/logo-emblem.png",
+      logoWordmark: (typeof window !== 'undefined' && window.LOGO_WORDMARK_DATA_URI) || (typeof global !== 'undefined' && global.LOGO_WORDMARK_DATA_URI) || "assets/logo-wordmark.png",
       jurisdiction: "Guwahati, Assam"
     };
   }
@@ -139,11 +141,13 @@ class InvoiceController {
         <!-- INVOICE HEADER -->
         <div class="inv-header">
           <div class="inv-brand">
-            <div class="inv-logo-box">
-              <span class="inv-logo-char">M</span>
+            <div class="inv-logo-box" style="width: 58px; height: 58px; background: transparent; box-shadow: none; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <img src="${this.companyProfile.logoImage}" alt="MaxEco Logo" style="max-height: 56px; max-width: 56px; object-fit: contain;" onerror="if(typeof window !== 'undefined' && window.LOGO_EMBLEM_DATA_URI) this.src=window.LOGO_EMBLEM_DATA_URI" />
             </div>
             <div class="inv-company-meta">
-              <h1 class="inv-company-name">${this.companyProfile.name}</h1>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h1 class="inv-company-name" style="margin-bottom: 2px;">${this.companyProfile.name}</h1>
+              </div>
               <p class="inv-tagline">${this.companyProfile.tagline}</p>
               <p class="inv-address">${this.companyProfile.address}</p>
               <p class="inv-contact">
@@ -467,8 +471,8 @@ class InvoiceController {
         <!-- HEADER -->
         <div class="inv-header">
           <div class="inv-brand">
-            <div class="inv-logo-box">
-              <span class="inv-logo-char">M</span>
+            <div class="inv-logo-box" style="width: 58px; height: 58px; background: transparent; box-shadow: none; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <img src="${this.companyProfile.logoImage}" alt="MaxEco Logo" style="max-height: 56px; max-width: 56px; object-fit: contain;" onerror="if(typeof window !== 'undefined' && window.LOGO_EMBLEM_DATA_URI) this.src=window.LOGO_EMBLEM_DATA_URI" />
             </div>
             <div class="inv-company-meta">
               <h1 class="inv-company-name">${this.companyProfile.name}</h1>
@@ -738,8 +742,8 @@ class InvoiceController {
         <!-- HEADER -->
         <div class="inv-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
           <div class="inv-brand" style="display: flex; gap: 14px; align-items: center;">
-            <div style="width: 44px; height: 44px; border-radius: 8px; background: linear-gradient(135deg, #10b981, #0284c7); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 20px;">
-              M
+            <div style="width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <img src="${this.companyProfile.logoImage}" alt="MaxEco Logo" style="max-height: 50px; max-width: 50px; object-fit: contain;" onerror="if(typeof window !== 'undefined' && window.LOGO_EMBLEM_DATA_URI) this.src=window.LOGO_EMBLEM_DATA_URI" />
             </div>
             <div>
               <h1 style="font-size: 18px; margin: 0; color: #0f172a; font-weight: 800;">${this.companyProfile.name}</h1>
