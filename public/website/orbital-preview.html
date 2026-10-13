@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MaxEco Energy & Tech | 3D Orbital Presentation & Clean Energy Portal</title>
+<meta name="description" content="MaxEco Energy & Tech 3D holographic portal for solar rooftop EPC advisory, APDCL net metering, and IT infrastructure support in Guwahati, Assam.">
+
+<link rel="icon" type="image/png" href="../assets/logo-emblem.png">
+<link rel="apple-touch-icon" href="../assets/logo-emblem.png">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================================
+   MAXECO ORBITAL 3D HOLOGRAPHIC THEME
+   Adapted from 2167_orbital for MaxEco Energy & Tech
+   ========================================================================== */
+
+:root {
+  --void: #060b14;
+  --void-deep: #03060a;
+  --card-bg: rgba(15, 23, 42, 0.75);
+  --solar-amber: #f59e0b;
+  --solar-amber-glow: rgba(245, 158, 11, 0.6);
+  --eco-green: #10b981;
+  --eco-green-glow: rgba(16, 185, 129, 0.6);
+  --tech-cyan: #38bdf8;
+  --tech-cyan-glow: rgba(56, 189, 248, 0.6);
+  --white: #ffffff;
+  --dim: rgba(255, 255, 255, 0.65);
+  --faint: rgba(255, 255, 255, 0.35);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ring-radius: 380px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--void);
+  color: var(--white);
+  font-family: 'Space Grotesk', -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Cosmic Void Background & Ambient Stars */
+.aura {
+  position: fixed;
+  inset: -25%;
+  background: radial-gradient(circle at 50% 40%, rgba(245, 158, 11, 0.12), rgba(16, 185, 129, 0.08) 35%, transparent 65%);
+  z-index: 0;
+  pointer-events: none;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 22%, rgba(245, 158, 11, 0.8), transparent),
+    radial-gradient(1px 1px at 78% 14%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1.5px 1.5px at 34% 68%, rgba(16, 185, 129, 0.7), transparent),
+    radial-gradient(1px 1px at 64% 82%, rgba(56, 189, 248, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 88% 54%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 22% 88%, rgba(245, 158, 11, 0.5), transparent),
+    radial-gradient(1.5px 1.5px at 50% 32%, rgba(16, 185, 129, 0.5), transparent);
+}
+
+@keyframes drift {
+  from { transform: translate3d(-2%, -1%, 0) scale(1); }
+  to { transform: translate3d(2%, 3%, 0) scale(1.15); }
+}
+
+/* Holographic Navigation */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px clamp(20px, 4vw, 56px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(6, 11, 20, 0.82);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo-img {
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--white);
+}
+
+.logo-text span {
+  color: var(--solar-amber);
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+  align-items: center;
+}
+
+.nav-links a {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--faint);
+  text-transform: uppercase;
+  transition: all 0.3s var(--ease);
+  position: relative;
+}
+
+.nav-links a:hover {
+  color: var(--white);
+  text-shadow: 0 0 10px var(--solar-amber-glow);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-nav-erp {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--solar-amber), #d97706);
+  color: #060b14;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+  transition: all 0.3s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-nav-erp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+}
+
+/* 3D Hero Stage */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 80px;
+  z-index: 10;
+  perspective: 1200px;
+}
+
+.stage {
+  width: 100%;
+  height: 600px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.stage:active {
+  cursor: grabbing;
+}
+
+.parallax {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+}
+
+.ring-tilt {
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+}
+
+.ring {
+  position: relative;
+  width: 0; height: 0;
+  transform-style: preserve-3d;
+}
+
+/* Glassmorphism 3D Orbital Panels */
+.panel {
+  position: absolute;
+  top: -150px; left: -110px;
+  width: 220px; height: 300px;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--ry)) translateZ(var(--tz)) rotateZ(var(--rz));
+  transition: transform 0.6s var(--ease), filter 0.4s var(--ease);
+  will-change: transform;
+}
+
+.panel-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px;
+  transition: opacity 0.5s var(--ease), border-color 0.4s var(--ease), box-shadow 0.4s var(--ease);
+}
+
+.panel:hover .panel-face {
+  border-color: var(--solar-amber);
+  box-shadow: 0 0 25px var(--solar-amber-glow), inset 0 0 15px rgba(245, 158, 11, 0.2);
+}
+
+.p-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--solar-amber);
+  font-weight: 700;
+}
+
+.p-label {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--white);
+  line-height: 1.2;
+}
+
+.p-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--eco-green);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.panel-face--image img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.65;
+  transition: opacity 0.4s var(--ease), transform 0.6s var(--ease);
+}
+
+.panel:hover .panel-face--image img {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.panel-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 11, 20, 0.2) 0%, rgba(6, 11, 20, 0.85) 100%);
+  pointer-events: none;
+}
+
+.panel-cap {
+  position: relative;
+  z-index: 2;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Toggle Views (Visuals On / Off) */
+body.visuals-on .panel-face--text { opacity: 0; pointer-events: none; }
+body.visuals-on .panel-face--image { opacity: 1; pointer-events: auto; }
+body:not(.visuals-on) .panel-face--text { opacity: 1; pointer-events: auto; }
+body:not(.visuals-on) .panel-face--image { opacity: 0; pointer-events: none; }
+
+/* Hero Center Headings */
+.hero-text {
+  position: absolute;
+  z-index: 5;
+  text-align: center;
+  pointer-events: none;
+  max-width: 680px;
+  padding: 0 20px;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--solar-amber);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.hero-text h1 {
+  font-size: clamp(34px, 5.5vw, 56px);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  text-shadow: 0 0 35px rgba(0, 0, 0, 0.9);
+}
+
+.hero-text h1 span.amber { color: var(--solar-amber); }
+.hero-text h1 span.green { color: var(--eco-green); }
+
+.hero-text p {
+  font-size: 15px;
+  color: var(--dim);
+  line-height: 1.6;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+}
+
+/* Holographic Stage Controls */
+.hero-controls {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 10px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(10px);
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctrl-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--faint);
+}
+
+.switch {
+  width: 36px; height: 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  position: relative;
+  outline: none;
+}
+
+.switch .knob {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--white);
+  position: absolute;
+  top: 2px; left: 3px;
+  transition: transform 0.3s var(--ease), background 0.3s var(--ease);
+}
+
+.switch[aria-checked="true"] {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: var(--solar-amber);
+}
+
+.switch[aria-checked="true"] .knob {
+  transform: translateX(15px);
+  background: var(--solar-amber);
+  box-shadow: 0 0 8px var(--solar-amber-glow);
+}
+
+.spacing {
+  display: flex;
+  gap: 4px;
+}
+
+.spacing-step {
+  width: 24px; height: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spacing-step i {
+  width: 4px; height: 8px;
+  background: var(--faint);
+  border-radius: 1px;
+}
+
+.spacing-step.is-active {
+  border-color: var(--eco-green);
+  background: rgba(16, 185, 129, 0.2);
+}
+
+.spacing-step.is-active i {
+  background: var(--eco-green);
+  box-shadow: 0 0 6px var(--eco-green-glow);
+}
+
+/* Content Sections */
+.section {
+  position: relative;
+  z-index: 10;
+  padding: 90px clamp(20px, 6vw, 80px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.section-head {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 56px auto;
+}
+
+.section-head h2 {
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+}
+
+.section-head p {
+  color: var(--dim);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 3-Column Glassmorphic Feature Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 32px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s var(--ease);
+}
+
+.feature-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.2);
+}
+
+.f-index {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--solar-amber);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.feature-card h3 {
+  font-size: 21px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  font-size: 14px;
+  color: var(--dim);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.feature-bullets {
+  list-style: none;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.feature-bullets li {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feature-bullets li::before {
+  content: "⚡";
+  color: var(--solar-amber);
+  font-size: 11px;
+}
+
+/* Interactive Calculator Glassmorphic */
+.calc-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 40px;
+  backdrop-filter: blur(14px);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.calc-input-group label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+
+.calc-select, .calc-num {
+  width: 100%;
+  background: rgba(6, 11, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 18px;
+}
+
+.calc-select:focus, .calc-num:focus {
+  border-color: var(--solar-amber);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+}
+
+.calc-results-panel {
+  background: rgba(6, 11, 20, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+.calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+}
+
+.calc-row:last-child { border-bottom: none; }
+
+.calc-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Verified Settlement Block */
+.settlement-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 32px;
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 36px;
+  backdrop-filter: blur(14px);
+}
+
+.bank-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+  margin-top: 14px;
+}
+
+.bank-table td {
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.qr-box-inner {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-box-inner img {
+  width: 165px; height: 165px;
+  object-fit: contain;
+}
+
+/* Footer */
+.footer {
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 48px clamp(20px, 5vw, 64px);
+  background: var(--void-deep);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+/* Responsiveness */
+@media (max-width: 900px) {
+  .calc-wrapper, .settlement-grid {
+    grid-template-columns: 1fr;
+  }
+  .nav-links { display: none; }
+  :root { --ring-radius: 260px; }
+  .panel { width: 170px; height: 230px; top: -115px; left: -85px; }
+}
+</style>
+</head>
+<body class="visuals-on">
+
+<div class="aura"></div>
+<div class="stars"></div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="brand-wrapper">
+    <img src="../assets/logo-emblem.png" alt="MaxEco Logo" class="brand-logo-img" onerror="this.style.display='none'">
+    <a href="#" class="logo-text">MAXECO <span>// ORBITAL</span></a>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#orbital-system">3D Systems</a></li>
+    <li><a href="#capabilities">Engineering</a></li>
+    <li><a href="#calculator">Solar ROI</a></li>
+    <li><a href="#settlement">Verification</a></li>
+    <li><a href="../index.html">ERP OS</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="tel:+919954493909" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--dim); margin-right: 6px;">📞 +91 99544 93909</a>
+    <a href="../index.html" class="btn-nav-erp">🚀 LAUNCH ERP OS</a>
+  </div>
+</nav>
+
+<!-- 3D Hero Carousel Header -->
+<header class="hero">
+  <div class="stage">
+    <div class="parallax">
+      <div class="ring-tilt">
+        <div class="ring" id="ring">
+
+          <!-- 10 MaxEco Capability Panels orbiting in 3D Space -->
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">01</div>
+              <div>
+                <div class="p-label">SOLAR EPC</div>
+                <div class="p-meta">ROOFTOP ADVISORY</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-01.jpg" alt="Solar EPC" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">01 // EPC</span>SOLAR ADVISORY</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">02</div>
+              <div>
+                <div class="p-label">APDCL NET-METER</div>
+                <div class="p-meta">GRID SYNC</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-02.jpg" alt="APDCL Net Metering" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">02 // GRID</span>APDCL NET-METER</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">03</div>
+              <div>
+                <div class="p-label">CEIG SAFETY</div>
+                <div class="p-meta">INSPECTION SIGN-OFF</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-03.jpg" alt="CEIG Safety" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">03 // CEIG</span>ELECTRICAL SAFETY</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">04</div>
+              <div>
+                <div class="p-label">PVGIS MODELING</div>
+                <div class="p-meta">EUROPEAN DATA</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-04.jpg" alt="PVGIS Modeling" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">04 // PVGIS</span>SHADOW SIMULATION</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">05</div>
+              <div>
+                <div class="p-label">IT INFRA SALES</div>
+                <div class="p-meta">SAC 998713</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-05.jpg" alt="IT Infra Sales" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">05 // IT INFRA</span>ENTERPRISE HARDWARE</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">06</div>
+              <div>
+                <div class="p-label">STRUCTURED CABLE</div>
+                <div class="p-meta">CAT6 / FIBER</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-06.jpg" alt="Structured Cabling" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">06 // FIBER</span>NETWORK RACKS</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">07</div>
+              <div>
+                <div class="p-label">ZERO-OVERHEAD ERP</div>
+                <div class="p-meta">FOUNDER OS</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-07.jpg" alt="Founder ERP OS" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">07 // ERP</span>OPERATING SYSTEM</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">08</div>
+              <div>
+                <div class="p-label">4.8 YR PAYBACK</div>
+                <div class="p-meta">HIGH ROI YIELD</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-08.jpg" alt="High ROI" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">08 // ROI</span>FAST PAYBACK</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">09</div>
+              <div>
+                <div class="p-label">PNB SETTLEMENT</div>
+                <div class="p-meta">DIGITAL UPI QR</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-09.jpg" alt="Digital Banking" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">09 // BANKING</span>INSTANT UPI SETTLEMENT</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-face panel-face--text">
+              <div class="p-num">10</div>
+              <div>
+                <div class="p-label">GUWAHATI HUB</div>
+                <div class="p-meta">REGIONAL ROOTS</div>
+              </div>
+            </div>
+            <div class="panel-face panel-face--image">
+              <img src="images/image-10.jpg" alt="Guwahati Hub" loading="lazy">
+              <div class="panel-scrim"></div>
+              <div class="panel-cap"><span class="p-num">10 // ASSAM</span>GUWAHATI HUB</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Center Holographic Text -->
+      <div class="hero-text">
+        <div class="eyebrow">// MAXECO ENERGY &amp; TECH SYSTEM //</div>
+        <h1>POWERING <span class="amber">SOLAR EPC</span> &amp; <span class="green">IT INFRA</span></h1>
+        <p>A next-generation holographic interface for clean energy engineering and enterprise technology across Assam and Northeast India.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Controls Bar -->
+  <div class="hero-controls">
+    <div class="ctrl">
+      <span class="ctrl-label">VISUALS</span>
+      <button class="switch" id="visualsSwitch" role="switch" aria-checked="true" aria-label="Toggle visuals mode">
+        <span class="knob"></span>
+      </button>
+    </div>
+    <div class="ctrl">
+      <span class="ctrl-label">ZOOM</span>
+      <button class="switch" id="zoomSwitch" role="switch" aria-checked="false" aria-label="Zoom 3D ring">
+        <span class="knob"></span>
+      </button>
+    </div>
+    <div class="ctrl">
+      <span class="ctrl-label">SPACING</span>
+      <div class="spacing" role="group" aria-label="Orbital spacing">
+        <button class="spacing-step" data-space="0" aria-label="Tight spacing"><i></i></button>
+        <button class="spacing-step is-active" data-space="1" aria-label="Default spacing"><i></i></button>
+        <button class="spacing-step" data-space="2" aria-label="Wide spacing"><i></i></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- System Capabilities Section -->
+<section class="section" id="capabilities">
+  <div class="section-head">
+    <div class="eyebrow">// ENTERPRISE CAPABILITIES</div>
+    <h2>Grounded Local Execution in Assam</h2>
+    <p>We combine European Commission irradiance modeling with hands-on APDCL liaison and enterprise hardware support.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="f-index">01 // SOLAR EPC ADVISORY</div>
+      <h3>Commercial &amp; Residential Rooftop Solar</h3>
+      <p>Custom rooftop engineering tailored to Northeast India's seasonal solar irradiation profile.</p>
+      <ul class="feature-bullets">
+        <li>Tier-1 Mono PERC solar modules</li>
+        <li>On-grid string inverters with remote cloud monitoring</li>
+        <li>Subdivision feasibility documentation</li>
+        <li>Lightning arrester &amp; safety earthing</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="f-index">02 // APDCL &amp; CEIG COMPLIANCE</div>
+      <h3>Bi-Directional Net-Metering Approvals</h3>
+      <p>Direct coordination with APDCL subdivisions and Chief Electrical Inspectorate (CEIG).</p>
+      <ul class="feature-bullets">
+        <li>Net-meter requisition &amp; sanction letters</li>
+        <li>CEIG electrical drawing submissions</li>
+        <li>Grid synchronization &amp; testing sign-offs</li>
+        <li>Zero middleman bureaucracy</li>
+      </ul>
+    </div>
+
+    <div class="feature-card">
+      <div class="f-index">03 // IT INFRA &amp; TECH (SAC 998713)</div>
+      <h3>Enterprise Hardware &amp; Network Support</h3>
+      <p>Procurement, workstation provisioning, and reliable structured network cabling.</p>
+      <ul class="feature-bullets">
+        <li>Workstations, servers &amp; rack installations</li>
+        <li>Cat6 / Optical fiber network termination</li>
+        <li>On-site SLA support across Guwahati</li>
+        <li>Business OS &amp; automated invoicing tools</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Live Solar ROI Calculator -->
+<section class="section" id="calculator" style="background: rgba(3, 6, 10, 0.5);">
+  <div class="section-head">
+    <div class="eyebrow">// INSTANT ROI SIMULATION</div>
+    <h2>Calculate Your Solar Yield &amp; Payback</h2>
+    <p>Interactive engineering estimator tuned for Guwahati commercial and residential APDCL electricity tariffs.</p>
+  </div>
+
+  <div class="calc-wrapper">
+    <div>
+      <div class="calc-input-group">
+        <label for="calc-bill">MONTHLY ELECTRICITY BILL (INR)</label>
+        <select id="calc-bill" class="calc-select" onchange="runCalculator()">
+          <option value="3000">₹3,000 / month (Residential Small)</option>
+          <option value="6000" selected>₹6,000 / month (Residential Medium / Small Commercial)</option>
+          <option value="15000">₹15,000 / month (Commercial Clinic / Office)</option>
+          <option value="35000">₹35,000 / month (Industrial Warehouse / School)</option>
+          <option value="75000">₹75,000 / month (Commercial Cold Storage / EPC Plant)</option>
+        </select>
+      </div>
+
+      <div class="calc-input-group">
+        <label for="calc-roof">SHADOW-FREE ROOFTOP AREA (SQ. FT)</label>
+        <input type="number" id="calc-roof" class="calc-num" value="650" oninput="runCalculator()">
+      </div>
+
+      <div style="font-size: 12px; color: var(--dim); line-height: 1.5;">
+        ℹ️ <strong>Guwahati Benchmark:</strong> Average solar yield factor ~1,300 kWh/kWp/year with APDCL net-metering synchronization.
+      </div>
+    </div>
+
+    <div class="calc-results-panel">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px; color: var(--solar-amber); margin-bottom: 12px;">ESTIMATED FEASIBILITY</div>
+      <div class="calc-row">
+        <span>Recommended Plant Size:</span>
+        <span class="calc-val" id="res-kw">5.0 kWp</span>
+      </div>
+      <div class="calc-row">
+        <span>Monthly Generation:</span>
+        <span class="calc-val" id="res-gen">550 Units (kWh)</span>
+      </div>
+      <div class="calc-row">
+        <span>Annual Savings:</span>
+        <span class="calc-val" style="color: var(--eco-green);" id="res-savings">₹52,800</span>
+      </div>
+      <div class="calc-row">
+        <span>Typical Payback Horizon:</span>
+        <span class="calc-val" style="color: var(--solar-amber);" id="res-payback">4.6 Years</span>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <a href="../index.html" class="btn-nav-erp" style="width: 100%; justify-content: center;">
+          OPEN DETAILED PROPOSAL IN ERP 🚀
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Official Banking & Digital Verification -->
+<section class="section" id="settlement">
+  <div class="section-head">
+    <div class="eyebrow">// DIRECT VERIFIED SETTLEMENT</div>
+    <h2>Official Remittance &amp; Authorised Signatory</h2>
+    <p>Zero-middleman banking settlement details and UPI digital verification.</p>
+  </div>
+
+  <div class="settlement-grid">
+    <div>
+      <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Punjab National Bank Settlement</h3>
+      <p style="font-size: 14px; color: var(--dim);">Direct electronic settlement account for all procurement and advisory contracts:</p>
+      
+      <table class="bank-table">
+        <tr><td style="color: var(--dim);">Beneficiary:</td><td><strong>Tamal Roy</strong></td></tr>
+        <tr><td style="color: var(--dim);">Bank:</td><td><strong>Punjab National Bank</strong></td></tr>
+        <tr><td style="color: var(--dim);">Account No:</td><td><strong style="font-family: 'JetBrains Mono', monospace; color: var(--solar-amber);">4589000100072219</strong></td></tr>
+        <tr><td style="color: var(--dim);">IFSC Code:</td><td><strong style="font-family: 'JetBrains Mono', monospace;">PUNB0458900</strong></td></tr>
+        <tr><td style="color: var(--dim);">Branch:</td><td>Maligaon, Guwahati, Assam</td></tr>
+        <tr><td style="color: var(--dim);">UPI ID:</td><td><strong style="color: var(--eco-green); font-family: 'JetBrains Mono', monospace;">9954493909@upi</strong></td></tr>
+        <tr><td style="color: var(--dim);">Signatory:</td><td><strong>Tamal Roy</strong> (Authorised Signatory)</td></tr>
+      </table>
+
+      <div style="margin-top: 16px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 11px; color: var(--dim);">Authorised Digital Signature:</span>
+        <img src="../assets/signature.png" alt="Authorised Signature" style="height: 34px; max-width: 110px; object-fit: contain; background: #fff; padding: 2px 6px; border-radius: 4px;" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <div class="qr-box-inner">
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; color: #060b14; letter-spacing: 1px; margin-bottom: 8px;">
+        SCAN &amp; PAY VIA UPI
+      </div>
+      <img src="../assets/payment-qr.png" alt="Payment QR Code" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=9954493909@upi&pn=Tamal%20Roy'">
+      <div style="font-size: 11px; font-weight: 700; color: #334155; margin-top: 8px;">
+        GPay • PhonePe • Paytm • BHIM
+      </div>
+      <div style="font-size: 10px; color: #64748b; margin-top: 2px;">
+        Maligaon Hub, Guwahati
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <img src="../assets/logo-emblem.png" alt="MaxEco Logo" style="height: 32px; width: 32px;" onerror="this.style.display='none'">
+    <div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;">MAXECO ENERGY &amp; TECH</div>
+      <div style="font-size: 11px; color: var(--faint);">Maligaon, Guwahati, Assam 781011 | ESTD 2024</div>
+    </div>
+  </div>
+
+  <div style="font-size: 12px; color: var(--dim);">
+    👤 <strong>Authorised Signatory:</strong> Tamal Roy
+  </div>
+
+  <div>
+    <a href="../index.html" class="btn-nav-erp" style="font-size: 10px; padding: 6px 14px;">ENTER FOUNDER OS 🔒</a>
+  </div>
+</footer>
+
+<!-- 3D Orbital Engine Script (From 2167_orbital) -->
+<script>
+(function () {
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 1. Position the orbital ring panels */
+  var ring = document.getElementById('ring');
+  if (!ring) return;
+  var panels = ring.querySelectorAll('.panel');
+  var count = panels.length;
+
+  var spacingLevels = [0.75, 0.95, 1.15];   /* tight, default, wide */
+  var spacingIndex = 1;
+
+  function baseRadius() {
+    var raw = getComputedStyle(document.documentElement).getPropertyValue('--ring-radius');
+    return parseFloat(raw) || 380;
+  }
+  function effectiveRadius() {
+    return baseRadius() * spacingLevels[spacingIndex];
+  }
+
+  function positionPanels() {
+    var r = effectiveRadius();
+    panels.forEach(function (panel, i) {
+      var angle = (360 / count) * i;
+      var tilt = Math.sin((i / count) * Math.PI * 2) * 8;
+      panel.style.setProperty('--ry', angle + 'deg');
+      panel.style.setProperty('--tz', r + 'px');
+      panel.style.setProperty('--rz', tilt.toFixed(2) + 'deg');
+      panel.style.setProperty('--i', i);
+    });
+  }
+  positionPanels();
+
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(positionPanels, 200);
+  });
+
+  /* 2. Ring Spacing Controls */
+  var spacingSteps = document.querySelectorAll('.spacing-step');
+  function setSpacing(idx) {
+    spacingIndex = idx;
+    var r = effectiveRadius();
+    ring.querySelectorAll('.panel').forEach(function (p) {
+      p.style.setProperty('--tz', r + 'px');
+    });
+    spacingSteps.forEach(function (b) {
+      b.classList.toggle('is-active', parseInt(b.getAttribute('data-space'), 10) === idx);
+    });
+  }
+  spacingSteps.forEach(function (b) {
+    b.addEventListener('click', function () {
+      setSpacing(parseInt(b.getAttribute('data-space'), 10));
+    });
+  });
+
+  /* 3. Ring Rotation driven by drag and momentum */
+  var stage = document.querySelector('.stage');
+  var rotation = 0;
+  var velocity = 0;
+  var baseDrift = reduceMotion ? 0 : 0.12;   /* gentle auto rotation per frame */
+  var friction = 0.94;
+  var MAX_VELOCITY = 7;
+  var DRAG_SENS = 0.32;
+  var dragging = false;
+  var lastX = 0;
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  /* 4. Mouse Parallax Tilt */
+  var targetX = 0, targetY = 0, currentX = 0, currentY = 0;
+  var rangeY = 26;   /* horizontal pan */
+  var rangeX = 28;   /* vertical tilt swing */
+  var biasX = 8;
+  if (!reduceMotion) {
+    window.addEventListener('mousemove', function (e) {
+      var mx = (e.clientX / window.innerWidth) - 0.5;
+      var my = (e.clientY / window.innerHeight) - 0.5;
+      targetY = mx * rangeY;
+      targetX = (-my * rangeX) + biasX;
+    });
+  }
+
+  if (stage) {
+    stage.addEventListener('pointerdown', function (e) {
+      dragging = true;
+      lastX = e.clientX;
+      velocity = 0;
+      stage.setPointerCapture(e.pointerId);
+    });
+    stage.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - lastX;
+      lastX = e.clientX;
+      velocity = clamp(dx * DRAG_SENS, -MAX_VELOCITY, MAX_VELOCITY);
+      rotation += dx * DRAG_SENS;
+    });
+    function endDrag() { dragging = false; }
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+  }
+
+  /* 5. Main 60fps Animation Loop */
+  var ringTilt = document.querySelector('.ring-tilt');
+  function tick() {
+    if (!dragging) {
+      velocity *= friction;
+      if (Math.abs(velocity) < 0.001) velocity = 0;
+      rotation += baseDrift + velocity;
+    }
+    if (ring) {
+      ring.style.transform = 'rotateY(' + rotation.toFixed(2) + 'deg)';
+    }
+
+    if (ringTilt && !reduceMotion) {
+      currentX += (targetX - currentX) * 0.08;
+      currentY += (targetY - currentY) * 0.08;
+      ringTilt.style.transform = 'rotateX(' + currentX.toFixed(2) + 'deg) rotateY(' + currentY.toFixed(2) + 'deg)';
+    }
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  /* 6. Visuals & Zoom Switches */
+  var visualsSwitch = document.getElementById('visualsSwitch');
+  if (visualsSwitch) {
+    visualsSwitch.addEventListener('click', function () {
+      var on = document.body.classList.toggle('visuals-on');
+      visualsSwitch.setAttribute('aria-checked', on ? 'true' : 'false');
+    });
+  }
+
+  var zoomSwitch = document.getElementById('zoomSwitch');
+  if (zoomSwitch) {
+    zoomSwitch.addEventListener('click', function () {
+      var active = zoomSwitch.getAttribute('aria-checked') === 'true';
+      zoomSwitch.setAttribute('aria-checked', active ? 'false' : 'true');
+      document.documentElement.style.setProperty('--ring-radius', active ? '380px' : '460px');
+      positionPanels();
+    });
+  }
+})();
+
+/* Solar ROI Calculator */
+function runCalculator() {
+  var bill = Number(document.getElementById('calc-bill').value) || 6000;
+  var roof = Number(document.getElementById('calc-roof').value) || 650;
+  var unitsNeeded = bill / 8;
+  var estimatedKw = Math.max(1, Math.round((unitsNeeded / 110) * 10) / 10);
+  var monthlyUnits = Math.round(estimatedKw * 110);
+  var annualSavings = Math.round(monthlyUnits * 12 * 8);
+  var approxCost = estimatedKw * 55000;
+  var payback = Math.max(3.2, Math.round((approxCost / annualSavings) * 10) / 10);
+
+  document.getElementById('res-kw').textContent = estimatedKw.toFixed(1) + ' kWp';
+  document.getElementById('res-gen').textContent = monthlyUnits + ' Units (kWh)';
+  document.getElementById('res-savings').textContent = '₹' + annualSavings.toLocaleString('en-IN');
+  document.getElementById('res-payback').textContent = payback.toFixed(1) + ' Years';
+}
+window.addEventListener('DOMContentLoaded', runCalculator);
+</script>
+
+</body>
+</html>
