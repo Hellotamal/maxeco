@@ -600,6 +600,526 @@ class AppController {
     }
   }
 
+  // --- ERP OPERATIONS & FIELD EXECUTION TRACKER CONTROLS ---
+  renderOperationsDashboard() {
+    if (!window.operationsController) return;
+    const summary = window.operationsController.getOperationalSummary();
+
+    // 1. Populate Operations KPI Cards
+    const elSolarCap = document.getElementById('op-kpi-solar-capacity');
+    if (elSolarCap) elSolarCap.textContent = `${summary.totalSolarKwp} kWp`;
+    const elSolarCount = document.getElementById('op-kpi-solar-count');
+    if (elSolarCount) elSolarCount.textContent = `${summary.solarProjectsCount} active site(s) under execution`;
+
+    const elBomSpend = document.getElementById('op-kpi-bom-spend');
+    if (elBomSpend) elBomSpend.textContent = formatINR(summary.bomActualTotal || summary.bomEstTotal);
+    const elBomStatus = document.getElementById('op-kpi-bom-status');
+    if (elBomStatus) elBomStatus.textContent = `${summary.bomDeliveredCount}/${summary.totalBOMItems} delivered to site`;
+
+    const elWoCount = document.getElementById('op-kpi-wo-count');
+    if (elWoCount) elWoCount.textContent = `${summary.woActiveCount} Active`;
+    const elWoFees = document.getElementById('op-kpi-wo-fees');
+    if (elWoFees) elWoFees.textContent = `${formatINR(summary.woFeesTotal)} contractor fees`;
+
+    const elApdcl = document.getElementById('op-kpi-apdcl-status');
+    if (elApdcl) {
+      elApdcl.textContent = summary.apdclUnderReview > 0 ? `${summary.apdclUnderReview} In Review` : 'All Approved';
+    }
+
+    // 2. Render Sub-Tables
+    this.renderBOMTable();
+    this.renderWorkOrdersTable();
+    this.renderApdclTable();
+  }
+
+  switchOpSubTab(subTab) {
+    const tabs = ['deliverables', 'bom', 'workorders', 'apdcl'];
+    tabs.forEach(t => {
+      const viewEl = document.getElementById(`op-view-${t}`);
+      const btnEl = document.getElementById(`btn-subtab-${t}`);
+      if (viewEl) viewEl.classList.toggle('hidden', t !== subTab);
+      if (btnEl) {
+        if (t === subTab) {
+          btnEl.classList.add('active');
+          btnEl.style.borderColor = 'var(--solar-amber)';
+          btnEl.style.color = 'var(--solar-amber)';
+        } else {
+          btnEl.classList.remove('active');
+          btnEl.style.borderColor = 'var(--border-color)';
+          btnEl.style.color = 'var(--text-secondary)';
+        }
+      }
+    });
+
+    if (subTab === 'bom') this.renderBOMTable();
+    else if (subTab === 'workorders') this.renderWorkOrdersTable();
+    else if (subTab === 'apdcl') this.renderApdclTable();
+  }
+
+  // --- BOM & PROCUREMENTS TABLE ---
+  filterBOMTable(filterVal) {
+    this.renderBOMTable(filterVal);
+  }
+
+  renderBOMTable(filterVal = 'all') {
+    const tableBody = document.getElementById('op-bom-table-body');
+    if (!tableBody) return;
+
+    const list = window.operationsController ? window.operationsController.getProcurements(filterVal) : (window.storage.getProcurements() || []);
+    if (list.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="10" class="text-center text-muted" style="padding: 24px;">No material requisitions found matching filter. Click "+ Add Requisition (BOM)" to log components.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = list.map(item => {
+      const isDelivered = item.status === 'Delivered at Site' || item.status === 'Quality Inspected';
+      const statusColor = isDelivered ? '#10b981' : (item.status === 'In Transit' ? '#0284c7' : '#f59e0b');
+
+      return `
+        <tr>
+          <td><span class="font-mono text-xs" style="color: var(--solar-amber); font-weight: 700;">${item.id}</span></td>
+          <td><span class="font-mono text-xs">${item.projectId || 'General'}</span></td>
+          <td><span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.06);">${item.itemCategory}</span></td>
+          <td>
+            <strong>${item.itemName}</strong>
+            ${item.notes ? `<div style="font-size: 10px; color: var(--text-muted);">${item.notes}</div>` : ''}
+          </td>
+          <td>${item.supplierName || '—'}</td>
+          <td><span class="font-mono">${item.quantity || '1 Set'}</span></td>
+          <td>
+            <div class="font-mono font-bold">${formatINR(item.actualCost || item.estimatedCost)}</div>
+            ${item.actualCost && item.estimatedCost && item.actualCost !== item.estimatedCost ? 
+              `<div style="font-size: 10px; color: var(--text-muted);">Est: ${formatINR(item.estimatedCost)}</div>` : ''}
+          </td>
+          <td>${formatDate(item.targetDeliveryDate)}</td>
+          <td>
+            <select class="form-control" style="width: auto; padding: 2px 6px; font-size: 11px; color: ${statusColor}; font-weight: 700;" onchange="app.updateProcurementStatus('${item.id}', this.value)">
+              <option value="Requisitioned" ${item.status === 'Requisitioned' ? 'selected' : ''}>Requisitioned</option>
+              <option value="PO Issued" ${item.status === 'PO Issued' ? 'selected' : ''}>PO Issued</option>
+              <option value="In Transit" ${item.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+              <option value="Delivered at Site" ${item.status === 'Delivered at Site' ? 'selected' : ''}>Delivered at Site</option>
+              <option value="Quality Inspected" ${item.status === 'Quality Inspected' ? 'selected' : ''}>Quality Inspected</option>
+            </select>
+          </td>
+          <td style="text-align: right;">
+            <div class="flex gap-1" style="justify-content: flex-end;">
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditProcurementModal('${item.id}')" title="Edit Requisition">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteProcurement('${item.id}')" title="Delete">✕</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // --- FIELD WORK ORDERS TABLE ---
+  filterWorkOrdersTable(filterVal) {
+    this.renderWorkOrdersTable(filterVal);
+  }
+
+  renderWorkOrdersTable(filterVal = 'all') {
+    const tableBody = document.getElementById('op-wo-table-body');
+    if (!tableBody) return;
+
+    const list = window.operationsController ? window.operationsController.getWorkOrders(filterVal) : (window.storage.getWorkOrders() || []);
+    if (list.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted" style="padding: 24px;">No field work orders found matching filter. Click "+ Dispatch Work Order" to assign tasks.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = list.map(wo => {
+      const isDone = wo.status === 'Completed' || wo.status === 'Completed & Signed Off';
+      const statusColor = isDone ? '#10b981' : (wo.status === 'In Progress' ? '#0284c7' : '#f59e0b');
+
+      return `
+        <tr>
+          <td><span class="font-mono text-xs" style="color: #a78bfa; font-weight: 700;">${wo.id}</span></td>
+          <td><span class="font-mono text-xs">${wo.projectId || 'General'}</span></td>
+          <td>
+            <strong>${wo.title}</strong>
+            ${wo.safetyCompliance ? `<div style="font-size: 10px; color: var(--solar-amber); margin-top: 2px;">⚠️ ${wo.safetyCompliance}</div>` : ''}
+          </td>
+          <td>
+            <div><strong>${wo.assignedTo}</strong></div>
+            ${wo.contactPhone ? `<div style="font-size: 11px; color: var(--text-muted);">${wo.contactPhone}</div>` : ''}
+          </td>
+          <td><span style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.06);">${wo.workType}</span></td>
+          <td>${formatDate(wo.scheduledDate)}</td>
+          <td><span class="font-mono font-bold">${formatINR(wo.contractorFee)}</span></td>
+          <td>
+            <select class="form-control" style="width: auto; padding: 2px 6px; font-size: 11px; color: ${statusColor}; font-weight: 700;" onchange="app.updateWorkOrderStatus('${wo.id}', this.value)">
+              <option value="Scheduled" ${wo.status === 'Scheduled' ? 'selected' : ''}>Scheduled</option>
+              <option value="Dispatched" ${wo.status === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
+              <option value="In Progress" ${wo.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option value="Under Inspection" ${wo.status === 'Under Inspection' ? 'selected' : ''}>Under Inspection</option>
+              <option value="Completed & Signed Off" ${wo.status === 'Completed & Signed Off' || wo.status === 'Completed' ? 'selected' : ''}>Completed & Signed Off</option>
+            </select>
+          </td>
+          <td style="text-align: right;">
+            <div class="flex gap-1" style="justify-content: flex-end;">
+              <button class="btn btn-secondary btn-sm" onclick="app.viewWorkOrderSlip('${wo.id}')" title="Print Work Order Slip" style="color: var(--solar-amber); font-weight: 700;">📋 Slip</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditWorkOrderModal('${wo.id}')" title="Edit">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteWorkOrder('${wo.id}')" title="Delete">✕</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // --- APDCL STATUTORY COMPLIANCE TABLE ---
+  renderApdclTable() {
+    const tableBody = document.getElementById('op-apdcl-table-body');
+    if (!tableBody) return;
+
+    const solarProjects = window.storage.getSolarProjects() || [];
+    if (solarProjects.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="11" class="text-center text-muted" style="padding: 24px;">No active solar projects requiring DISCOM net-metering. Add a solar project to track APDCL liaison.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = solarProjects.map(proj => {
+      const nocStatus = proj.feasibilityNocStatus || 'In Progress';
+      const ceigStatus = proj.ceigStatus || 'Pending';
+      const netMeterStatus = proj.netMeterStatus || 'Pending';
+
+      return `
+        <tr>
+          <td><span class="font-mono text-xs font-bold" style="color: var(--solar-amber);">${proj.id}</span></td>
+          <td>
+            <strong>${proj.clientName}</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">${proj.siteLocation || 'Guwahati'}</div>
+          </td>
+          <td><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--solar-amber);">${proj.discom || 'APDCL'}</span></td>
+          <td><span class="font-mono">${proj.consumerNo || '—'}</span></td>
+          <td><span class="font-mono font-bold">${proj.sanctionedLoadKw || '—'} kW</span></td>
+          <td><span class="font-mono font-bold text-amber">${proj.systemCapacityKwp || '—'} kWp</span></td>
+          <td><span class="font-mono text-xs">${proj.applicationNo || 'APDCL-PORTAL-TBD'}</span></td>
+          <td><span class="font-mono text-xs">${proj.dtrCode || 'DTR-LOC-TBD'}</span></td>
+          <td>
+            <select class="form-control" style="width: auto; padding: 2px 6px; font-size: 11px; font-weight: 700; color: ${nocStatus === 'Approved' ? '#10b981' : '#f59e0b'};" onchange="app.updateApdclField('${proj.id}', 'feasibilityNocStatus', this.value)">
+              <option value="Pending" ${nocStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="In Progress" ${nocStatus === 'In Progress' ? 'selected' : ''}>In Progress</option>
+              <option value="Approved" ${nocStatus === 'Approved' ? 'selected' : ''}>Approved</option>
+              <option value="Rejected" ${nocStatus === 'Rejected' ? 'selected' : ''}>Rejected</option>
+            </select>
+          </td>
+          <td>
+            <select class="form-control" style="width: auto; padding: 2px 6px; font-size: 11px; font-weight: 700; color: ${ceigStatus === 'Approved' ? '#10b981' : '#f59e0b'};" onchange="app.updateApdclField('${proj.id}', 'ceigStatus', this.value)">
+              <option value="Pending" ${ceigStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Under Inspection" ${ceigStatus === 'Under Inspection' ? 'selected' : ''}>Under Inspection</option>
+              <option value="Approved" ${ceigStatus === 'Approved' ? 'selected' : ''}>Approved</option>
+            </select>
+          </td>
+          <td>
+            <select class="form-control" style="width: auto; padding: 2px 6px; font-size: 11px; font-weight: 700; color: ${netMeterStatus === 'Synchronized' || netMeterStatus === 'Completed' ? '#10b981' : '#f59e0b'};" onchange="app.updateApdclField('${proj.id}', 'netMeterStatus', this.value)">
+              <option value="Pending" ${netMeterStatus === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Meter Issued" ${netMeterStatus === 'Meter Issued' ? 'selected' : ''}>Meter Issued</option>
+              <option value="Installed" ${netMeterStatus === 'Installed' ? 'selected' : ''}>Installed</option>
+              <option value="Synchronized" ${netMeterStatus === 'Synchronized' || netMeterStatus === 'Completed' ? 'selected' : ''}>Synchronized</option>
+            </select>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  updateApdclField(projId, fieldName, value) {
+    const store = window.storage.getStore();
+    const proj = (store.solarProjects || []).find(p => p.id === projId);
+    if (proj) {
+      proj[fieldName] = value;
+      window.storage.saveStore(store);
+      showToast(`APDCL status updated: ${fieldName} -> ${value}`, 'success');
+      this.renderOperationsDashboard();
+    }
+  }
+
+  // --- MATERIAL PROCUREMENTS (BOM) MODAL CONTROLS ---
+  populateProjectSelect(selectId, selectedVal = '') {
+    const selectEl = document.getElementById(selectId);
+    if (!selectEl) return;
+    const solarList = window.storage.getSolarProjects() || [];
+    const itList = window.storage.getItProjects() || [];
+
+    let options = '<option value="">(Unassigned / General Inventory)</option>';
+    solarList.forEach(p => {
+      options += `<option value="${p.id}" ${p.id === selectedVal ? 'selected' : ''}>[Solar] ${p.id} — ${p.clientName} (${p.systemCapacityKwp} kWp)</option>`;
+    });
+    itList.forEach(p => {
+      options += `<option value="${p.id}" ${p.id === selectedVal ? 'selected' : ''}>[IT] ${p.id} — ${p.clientName}</option>`;
+    });
+    selectEl.innerHTML = options;
+  }
+
+  openAddProcurementModal(editProc = null) {
+    this.populateProjectSelect('procurement-project', editProc ? editProc.projectId : '');
+    const titleEl = document.getElementById('procurement-modal-title');
+
+    if (editProc) {
+      if (titleEl) titleEl.textContent = `Edit Component Requisition: ${editProc.id}`;
+      document.getElementById('procurement-id').value = editProc.id;
+      document.getElementById('procurement-category').value = editProc.itemCategory || 'Solar Modules';
+      document.getElementById('procurement-item-name').value = editProc.itemName || '';
+      document.getElementById('procurement-supplier').value = editProc.supplierName || '';
+      document.getElementById('procurement-quantity').value = editProc.quantity || '';
+      document.getElementById('procurement-est-cost').value = editProc.estimatedCost || '';
+      document.getElementById('procurement-actual-cost').value = editProc.actualCost || '';
+      document.getElementById('procurement-order-date').value = editProc.orderDate || new Date().toISOString().slice(0, 10);
+      document.getElementById('procurement-target-date').value = editProc.targetDeliveryDate || '';
+      document.getElementById('procurement-status').value = editProc.status || 'Requisitioned';
+      document.getElementById('procurement-ref').value = editProc.invoiceRef || '';
+      document.getElementById('procurement-notes').value = editProc.notes || '';
+    } else {
+      if (titleEl) titleEl.textContent = '📦 New Material Requisition & BOM Procurement';
+      document.getElementById('procurement-id').value = '';
+      document.getElementById('procurement-category').value = 'Solar Modules';
+      document.getElementById('procurement-item-name').value = '';
+      document.getElementById('procurement-supplier').value = '';
+      document.getElementById('procurement-quantity').value = '1 Job';
+      document.getElementById('procurement-est-cost').value = '';
+      document.getElementById('procurement-actual-cost').value = '';
+      document.getElementById('procurement-order-date').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('procurement-target-date').value = '';
+      document.getElementById('procurement-status').value = 'Requisitioned';
+      document.getElementById('procurement-ref').value = '';
+      document.getElementById('procurement-notes').value = '';
+    }
+    document.getElementById('modal-add-procurement').classList.remove('hidden');
+  }
+
+  openEditProcurementModal(id) {
+    const list = window.storage.getProcurements() || [];
+    const item = list.find(p => p.id === id);
+    if (item) this.openAddProcurementModal(item);
+  }
+
+  saveProcurementFromModal() {
+    const id = document.getElementById('procurement-id').value;
+    const projectId = document.getElementById('procurement-project').value;
+    const itemCategory = document.getElementById('procurement-category').value;
+    const itemName = document.getElementById('procurement-item-name').value.trim();
+    const supplierName = document.getElementById('procurement-supplier').value.trim();
+    const quantity = document.getElementById('procurement-quantity').value.trim();
+    const estimatedCost = Number(document.getElementById('procurement-est-cost').value) || 0;
+    const actualCost = Number(document.getElementById('procurement-actual-cost').value) || estimatedCost;
+    const orderDate = document.getElementById('procurement-order-date').value;
+    const targetDeliveryDate = document.getElementById('procurement-target-date').value;
+    const status = document.getElementById('procurement-status').value;
+    const invoiceRef = document.getElementById('procurement-ref').value.trim();
+    const notes = document.getElementById('procurement-notes').value.trim();
+
+    if (!itemName || !estimatedCost) {
+      showToast('Please enter component specification and estimated cost.', 'error');
+      return;
+    }
+
+    const saved = window.storage.saveProcurement({
+      id: id || undefined,
+      projectId,
+      itemCategory,
+      itemName,
+      supplierName,
+      quantity,
+      estimatedCost,
+      actualCost,
+      orderDate,
+      targetDeliveryDate,
+      status,
+      invoiceRef,
+      notes
+    });
+
+    this.closeAllModals();
+    showToast(`BOM Component Requisition saved: ${saved.id}`, 'success');
+    this.renderOperationsDashboard();
+  }
+
+  updateProcurementStatus(id, newStatus) {
+    window.storage.updateProcurementStatus(id, newStatus);
+    showToast(`Material status updated: ${newStatus}`, 'info');
+    this.renderOperationsDashboard();
+  }
+
+  deleteProcurement(id) {
+    if (confirm('Are you sure you want to delete this material requisition?')) {
+      window.storage.deleteProcurement(id);
+      showToast('Material requisition removed.', 'info');
+      this.renderOperationsDashboard();
+    }
+  }
+
+  // --- FIELD WORK ORDERS MODAL CONTROLS ---
+  openAddWorkOrderModal(editWo = null) {
+    this.populateProjectSelect('workorder-project', editWo ? editWo.projectId : '');
+    const titleEl = document.getElementById('workorder-modal-title');
+
+    if (editWo) {
+      if (titleEl) titleEl.textContent = `Edit Work Order: ${editWo.id}`;
+      document.getElementById('workorder-id').value = editWo.id;
+      document.getElementById('workorder-type').value = editWo.workType || 'Civil & Structural Fabrication';
+      document.getElementById('workorder-title').value = editWo.title || '';
+      document.getElementById('workorder-assigned').value = editWo.assignedTo || '';
+      document.getElementById('workorder-phone').value = editWo.contactPhone || '';
+      document.getElementById('workorder-scheduled-date').value = editWo.scheduledDate || new Date().toISOString().slice(0, 10);
+      document.getElementById('workorder-target-date').value = editWo.targetCompletionDate || '';
+      document.getElementById('workorder-fee').value = editWo.contractorFee || '';
+      document.getElementById('workorder-safety').value = editWo.safetyCompliance || '';
+      document.getElementById('workorder-status').value = editWo.status || 'Scheduled';
+      document.getElementById('workorder-notes').value = editWo.notes || '';
+    } else {
+      if (titleEl) titleEl.textContent = '👷 Dispatch New Field Work Order';
+      document.getElementById('workorder-id').value = '';
+      document.getElementById('workorder-type').value = 'Civil & Structural Fabrication';
+      document.getElementById('workorder-title').value = '';
+      document.getElementById('workorder-assigned').value = '';
+      document.getElementById('workorder-phone').value = '';
+      document.getElementById('workorder-scheduled-date').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('workorder-target-date').value = '';
+      document.getElementById('workorder-fee').value = '';
+      document.getElementById('workorder-safety').value = 'Full fall-arrest harness, hard hats, safety boots & CEIG earthing resistance verified';
+      document.getElementById('workorder-status').value = 'Scheduled';
+      document.getElementById('workorder-notes').value = '';
+    }
+    document.getElementById('modal-add-work-order').classList.remove('hidden');
+  }
+
+  openEditWorkOrderModal(id) {
+    const list = window.storage.getWorkOrders() || [];
+    const item = list.find(w => w.id === id);
+    if (item) this.openAddWorkOrderModal(item);
+  }
+
+  saveWorkOrderFromModal() {
+    const id = document.getElementById('workorder-id').value;
+    const projectId = document.getElementById('workorder-project').value;
+    const workType = document.getElementById('workorder-type').value;
+    const title = document.getElementById('workorder-title').value.trim();
+    const assignedTo = document.getElementById('workorder-assigned').value.trim();
+    const contactPhone = document.getElementById('workorder-phone').value.trim();
+    const scheduledDate = document.getElementById('workorder-scheduled-date').value;
+    const targetCompletionDate = document.getElementById('workorder-target-date').value;
+    const contractorFee = Number(document.getElementById('workorder-fee').value) || 0;
+    const safetyCompliance = document.getElementById('workorder-safety').value.trim();
+    const status = document.getElementById('workorder-status').value;
+    const notes = document.getElementById('workorder-notes').value.trim();
+
+    if (!title || !assignedTo || !scheduledDate) {
+      showToast('Please provide work order title, contractor name, and scheduled date.', 'error');
+      return;
+    }
+
+    const saved = window.storage.saveWorkOrder({
+      id: id || undefined,
+      projectId,
+      workType,
+      title,
+      assignedTo,
+      contactPhone,
+      scheduledDate,
+      targetCompletionDate,
+      contractorFee,
+      safetyCompliance,
+      status,
+      notes
+    });
+
+    this.closeAllModals();
+    showToast(`Work Order Dispatched: ${saved.id}`, 'success');
+    this.renderOperationsDashboard();
+  }
+
+  updateWorkOrderStatus(id, newStatus) {
+    window.storage.updateWorkOrderStatus(id, newStatus);
+    showToast(`Work order status updated: ${newStatus}`, 'info');
+    this.renderOperationsDashboard();
+  }
+
+  deleteWorkOrder(id) {
+    if (confirm('Are you sure you want to delete this field work order?')) {
+      window.storage.deleteWorkOrder(id);
+      showToast('Work order deleted.', 'info');
+      this.renderOperationsDashboard();
+    }
+  }
+
+  // --- WORK ORDER PRINTABLE SLIP ---
+  viewWorkOrderSlip(woId) {
+    const list = window.storage.getWorkOrders() || [];
+    const wo = list.find(w => w.id === woId);
+    if (!wo || !window.operationsController) {
+      showToast('Work order not found.', 'error');
+      return;
+    }
+
+    const html = window.operationsController.generateWorkOrderSlipHTML(wo);
+    const contentEl = document.getElementById('workorder-slip-view-content');
+    if (contentEl) contentEl.innerHTML = html;
+    const activeIdEl = document.getElementById('workorder-active-view-id');
+    if (activeIdEl) activeIdEl.value = wo.id;
+
+    document.getElementById('modal-workorder-slip').classList.remove('hidden');
+  }
+
+  printWorkOrderSlip() {
+    window.print();
+  }
+
+  shareWorkOrderWhatsApp() {
+    const activeId = document.getElementById('workorder-active-view-id')?.value;
+    const list = window.storage.getWorkOrders() || [];
+    const wo = list.find(w => w.id === activeId);
+    if (!wo) return;
+
+    const phone = (wo.contactPhone || '').replace(/\D/g, '') || '919954493909';
+    const text = encodeURIComponent(
+      `*MAXECO ENERGY & TECH — FIELD WORK ORDER [${wo.id}]*\n\n` +
+      `• *Task:* ${wo.title}\n` +
+      `• *Assigned Lead:* ${wo.assignedTo}\n` +
+      `• *Scheduled Date:* ${wo.scheduledDate}\n` +
+      `• *Target Handover:* ${wo.targetCompletionDate || 'Immediate'}\n` +
+      `• *Agreed Fee:* ₹${(wo.contractorFee || 0).toLocaleString('en-IN')}\n` +
+      `• *Safety Protocol:* ${wo.safetyCompliance || 'Standard CEIG PPE mandated'}\n\n` +
+      `Please confirm receipt and dispatch arrival to MaxEco Project Lead.`
+    );
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+  }
+
+  copyWorkOrderSlipText() {
+    const activeId = document.getElementById('workorder-active-view-id')?.value;
+    const list = window.storage.getWorkOrders() || [];
+    const wo = list.find(w => w.id === activeId);
+    if (!wo) return;
+
+    const text = `MAXECO ENERGY & TECH — FIELD WORK ORDER [${wo.id}]\nTask: ${wo.title}\nAssigned: ${wo.assignedTo} (${wo.contactPhone || ''})\nCategory: ${wo.workType}\nScheduled: ${wo.scheduledDate}\nFee: ₹${(wo.contractorFee || 0).toLocaleString('en-IN')}\nSafety: ${wo.safetyCompliance || ''}`;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast('Work order details copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Could not copy to clipboard.', 'error');
+    });
+  }
+
+  // --- DAILY STANDUP BRIEF & EXPORT ---
+  copyOperationsStandupBrief() {
+    if (!window.operationsController) return;
+    const brief = window.operationsController.generateOperationalStandupDigest();
+    navigator.clipboard.writeText(brief).then(() => {
+      showToast('Daily Operations Standup Brief copied to clipboard!', 'success');
+    }).catch(() => {
+      showToast('Could not copy to clipboard.', 'error');
+    });
+  }
+
+  exportOperationsCsv() {
+    const okPO = window.storage.exportCsv('procurements');
+    const okWO = window.storage.exportCsv('workOrders');
+    if (okPO && okWO) {
+      showToast('BOM Procurements & Work Orders CSV exports generated!', 'success');
+    } else {
+      showToast('Failed to export operations CSV.', 'error');
+    }
+  }
+
   renderSettingsTab() {
     const settings = window.storage.getSettings();
     document.getElementById('setting-company-name').value = settings.companyName || '';
@@ -1375,6 +1895,10 @@ class AppController {
       items = window.storage.getSolarProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} (${p.systemCapacityKwp} kWp) — ${formatINR(p.totalContractValue)}` }));
     } else if (type === 'it') {
       items = window.storage.getItProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} — ${formatINR(p.contractValue)}` }));
+    } else if (type === 'procurement') {
+      items = (window.storage.getProcurements() || []).map(p => ({ id: p.id, label: `[${p.id}] ${p.itemName} — ${formatINR(p.actualCost || p.estimatedCost)} (${p.status})` }));
+    } else if (type === 'workorder') {
+      items = (window.storage.getWorkOrders() || []).map(w => ({ id: w.id, label: `[${w.id}] ${w.title} — ${w.assignedTo} (${w.status})` }));
     }
 
     if (items.length === 0) {
@@ -1416,6 +1940,12 @@ class AppController {
     } else if (type === 'it') {
       const it = window.storage.getItProjects().find(x => x.id === id);
       if (it) details = `<strong>${it.clientName}</strong> • Scope: ${it.serviceScope} • Contract: <strong>${formatINR(it.contractValue)}</strong>`;
+    } else if (type === 'procurement') {
+      const p = (window.storage.getProcurements() || []).find(x => x.id === id);
+      if (p) details = `<strong>${p.itemName}</strong> • Cat: ${p.itemCategory} • Supplier: ${p.supplierName || '—'} • Cost: <strong>${formatINR(p.actualCost || p.estimatedCost)}</strong> • Status: ${p.status}`;
+    } else if (type === 'workorder') {
+      const w = (window.storage.getWorkOrders() || []).find(x => x.id === id);
+      if (w) details = `<strong>${w.title}</strong> • Assigned: ${w.assignedTo} (${w.contactPhone || ''}) • Fee: <strong>${formatINR(w.contractorFee)}</strong> • Status: ${w.status}`;
     }
     previewEl.innerHTML = details || '<span class="text-muted">Record details loaded. Click below to modify.</span>';
   }
@@ -1443,6 +1973,10 @@ class AppController {
       this.openEditSolarProjectModal(id);
     } else if (type === 'it') {
       this.openEditItProjectModal(id);
+    } else if (type === 'procurement') {
+      this.openEditProcurementModal(id);
+    } else if (type === 'workorder') {
+      this.openEditWorkOrderModal(id);
     }
   }
 
@@ -1541,6 +2075,10 @@ class AppController {
       items = window.storage.getSolarProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} (${p.systemCapacityKwp} kWp) — ${formatINR(p.totalContractValue)}` }));
     } else if (type === 'it') {
       items = window.storage.getItProjects().map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} — ${formatINR(p.contractValue)}` }));
+    } else if (type === 'procurement') {
+      items = (window.storage.getProcurements() || []).map(p => ({ id: p.id, label: `[${p.id}] ${p.itemName} — ${formatINR(p.actualCost || p.estimatedCost)} (${p.status})` }));
+    } else if (type === 'workorder') {
+      items = (window.storage.getWorkOrders() || []).map(w => ({ id: w.id, label: `[${w.id}] ${w.title} — ${w.assignedTo} (${w.status})` }));
     }
 
     if (items.length === 0) {
@@ -1582,6 +2120,12 @@ class AppController {
     } else if (type === 'it') {
       const it = window.storage.getItProjects().find(x => x.id === id);
       if (it) details = `<strong style="color: var(--accent-rose);">[IT Project] ${it.clientName}</strong> • Scope: ${it.serviceScope} • Contract: ${formatINR(it.contractValue)}`;
+    } else if (type === 'procurement') {
+      const p = (window.storage.getProcurements() || []).find(x => x.id === id);
+      if (p) details = `<strong style="color: var(--accent-rose);">[BOM Item] ${p.itemName}</strong> • Cat: ${p.itemCategory} • Supplier: ${p.supplierName} • Cost: ${formatINR(p.actualCost || p.estimatedCost)} • Status: ${p.status}`;
+    } else if (type === 'workorder') {
+      const w = (window.storage.getWorkOrders() || []).find(x => x.id === id);
+      if (w) details = `<strong style="color: var(--accent-rose);">[Work Order] ${w.title}</strong> • Assigned: ${w.assignedTo} • Fee: ${formatINR(w.contractorFee)} • Status: ${w.status}`;
     }
     previewEl.innerHTML = details || '<span class="text-muted">Record details loaded.</span>';
   }
@@ -1609,6 +2153,10 @@ class AppController {
       this.deleteSolarProject(id);
     } else if (type === 'it') {
       this.deleteItProject(id);
+    } else if (type === 'procurement') {
+      this.deleteProcurement(id);
+    } else if (type === 'workorder') {
+      this.deleteWorkOrder(id);
     }
   }
 

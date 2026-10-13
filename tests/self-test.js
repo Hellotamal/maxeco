@@ -57,6 +57,7 @@ require('../src/js/crm.js');
 require('../src/js/finance.js');
 require('../src/js/invoice.js');
 require('../src/js/projects.js');
+require('../src/js/operations.js');
 
 let passedTests = 0;
 let totalTests = 0;
@@ -270,6 +271,84 @@ assert(quoteHtml.includes('Northeast Logistics Hub'), 'Quotation contains custom
 assert(quoteHtml.includes('Rupees Eight Lakh Fifty Thousand Only'), 'Quotation contains amount in words');
 assert(quoteHtml.includes('20 kWp Commercial Rooftop'), 'Quotation contains project service scope');
 assert(quoteHtml.includes('15% advance'), 'Quotation contains commercial payment milestones');
+
+// TEST SUITE 8: ERP OPERATIONS & FIELD EXECUTION TRACKER ENGINE
+console.log('\n--- TEST SUITE 8: ERP Operations & Field Execution Tracker Engine ---');
+assert(typeof window.operationsController !== 'undefined', 'OperationsController initialized on window');
+
+// 1. Initial BOM and Work Orders loading
+const initialBOM = window.storage.getProcurements();
+assert(initialBOM.length >= 4, `Initial BOM requisitions loaded (found ${initialBOM.length}, expected >= 4)`);
+
+const initialWO = window.storage.getWorkOrders();
+assert(initialWO.length >= 3, `Initial contractor work orders loaded (found ${initialWO.length}, expected >= 3)`);
+
+// 2. Operational Summary KPIs
+const opSummary = window.operationsController.getOperationalSummary();
+assert(opSummary.totalSolarKwp === 35, `Solar execution capacity calculated (${opSummary.totalSolarKwp} kWp)`);
+assert(opSummary.bomActualTotal > 500000, `BOM procurement total spend calculated (₹${opSummary.bomActualTotal})`);
+assert(opSummary.woActiveCount >= 1, `Active field work orders tracked (${opSummary.woActiveCount} active)`);
+assert(opSummary.apdclUnderReview >= 1, `APDCL regulatory pipeline tracked (${opSummary.apdclUnderReview} in review)`);
+
+// 3. New Material Requisition (BOM) persistence
+const newProc = window.storage.saveProcurement({
+  projectId: 'SOL-2026-001',
+  itemCategory: 'Inverter & Electrical',
+  itemName: 'ACDB & DCDB Surge Protection Device Box (1000V DC / 415V AC)',
+  supplierName: 'Kamrup Electricals, Paltan Bazar',
+  quantity: '2 Units',
+  estimatedCost: 28000,
+  actualCost: 26500,
+  status: 'Requisitioned',
+  targetDeliveryDate: '2026-10-20'
+});
+assert(Boolean(newProc.id), `New BOM requisition assigned ID: ${newProc.id}`);
+const bomAfterAdd = window.storage.getProcurements();
+assert(bomAfterAdd.length === initialBOM.length + 1, 'BOM requisition persisted to storage');
+
+// 4. Update procurement status
+const updatedProc = window.storage.updateProcurementStatus(newProc.id, 'Delivered at Site');
+assert(updatedProc.status === 'Delivered at Site', 'Procurement status transition verified (Delivered at Site)');
+
+// 5. New Field Work Order persistence
+const newWO = window.storage.saveWorkOrder({
+  projectId: 'SOL-2026-001',
+  workType: 'Electrical Installation & Earthing',
+  title: 'APDCL Bidirectional Net-Meter SLD Inspection & Joint Testing',
+  assignedTo: 'Guwahati Certified Meter Testing Team',
+  contactPhone: '+91 94350 11223',
+  scheduledDate: '2026-11-02',
+  contractorFee: 15000,
+  safetyCompliance: 'Class 0 Electrical insulating gloves & calibrated testing multi-meter',
+  status: 'Scheduled'
+});
+assert(Boolean(newWO.id), `New Field Work Order assigned ID: ${newWO.id}`);
+const woAfterAdd = window.storage.getWorkOrders();
+assert(woAfterAdd.length === initialWO.length + 1, 'Field Work Order persisted to storage');
+
+// 6. Update work order status
+const updatedWO = window.storage.updateWorkOrderStatus(newWO.id, 'Completed & Signed Off');
+assert(updatedWO.status === 'Completed & Signed Off', 'Work order status transition verified (Completed & Signed Off)');
+
+// 7. Printable Field Work Order Slip HTML generation
+const woSlipHtml = window.operationsController.generateWorkOrderSlipHTML(newWO);
+assert(woSlipHtml.includes('FIELD WORK ORDER'), 'Work Order slip contains title header');
+assert(woSlipHtml.includes('MaxEco Energy &amp; Tech') || woSlipHtml.includes('MaxEco Energy & Tech'), 'Work Order slip contains company branding');
+assert(woSlipHtml.includes('Guwahati Certified Meter Testing Team'), 'Work Order slip contains assigned contractor name');
+assert(woSlipHtml.includes('SAFETY &amp; STATUTORY CEIG') || woSlipHtml.includes('SAFETY & STATUTORY CEIG'), 'Work Order slip contains safety & CEIG compliance section');
+
+// 8. Daily Operational Standup Brief generation
+const standupBrief = window.operationsController.generateOperationalStandupDigest();
+assert(standupBrief.includes('DAILY OPERATIONS BRIEF'), 'Operational brief generated for morning founder standup');
+assert(standupBrief.includes('kWp Active'), 'Operational brief includes solar execution capacity');
+assert(standupBrief.includes('SAFETY & COMPLIANCE MANDATE'), 'Operational brief includes field safety mandate');
+
+// 9. Operations CSV Exports
+const csvProcOk = window.storage.exportCsv('procurements');
+assert(csvProcOk === true, 'BOM Procurements CSV export generated for supply chain audit');
+
+const csvWoOk = window.storage.exportCsv('workOrders');
+assert(csvWoOk === true, 'Field Work Orders CSV export generated for contractor accounting');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);

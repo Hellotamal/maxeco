@@ -195,6 +195,11 @@ const initialSeedData = {
       collectedAmount: 0,
       costCommitted: 650,
       status: "Site Feasibility Completed",
+      applicationNo: "APDCL-SR-2026-00412",
+      dtrCode: "DTR-AMN-11KV-04",
+      feasibilityNocStatus: "In Progress",
+      ceigStatus: "Pending",
+      netMeterStatus: "Pending",
       milestones: [
         { name: "Site Audit & Structural Feasibility", status: "Completed", date: "2026-10-03" },
         { name: "APDCL Net-Metering NOC Submission", status: "In Progress", date: "2026-10-15" },
@@ -223,6 +228,124 @@ const initialSeedData = {
         { name: "Client Preview & Handover", status: "Pending", date: "2026-10-15" }
       ],
       vaultNotes: "Client WordPress admin and WhatsApp Business account credentials stored securely in local vault."
+    }
+  ],
+
+  // --- ERP OPERATIONS: BILL OF MATERIALS (BOM) & MATERIAL PROCUREMENTS ---
+  procurements: [
+    {
+      id: "PO-2026-001",
+      projectId: "SOL-2026-001",
+      projectType: "solar",
+      clientName: "Brahmaputra Packaging & Logistics",
+      itemCategory: "Solar Modules",
+      itemName: "Tier-1 550W Mono PERC Solar Panels (64 Modules = 35.2 kWp)",
+      supplierName: "Waaree Certified Distributor (Guwahati Branch)",
+      quantity: "64 Modules",
+      estimatedCost: 680000,
+      actualCost: 675000,
+      orderDate: "2026-10-06",
+      targetDeliveryDate: "2026-10-22",
+      status: "PO Issued",
+      invoiceRef: "PO-MAX-2026-041",
+      notes: "Advance payment approved. Logistics coordinated with Amingaon factory yard."
+    },
+    {
+      id: "PO-2026-002",
+      projectId: "SOL-2026-001",
+      projectType: "solar",
+      clientName: "Brahmaputra Packaging & Logistics",
+      itemCategory: "Inverter & Electrical",
+      itemName: "30kW Three-Phase On-Grid Solar Inverter with Dual MPPT & Remote Wi-Fi Logger",
+      supplierName: "Growatt / Sungrow Regional Partner",
+      quantity: "1 Unit",
+      estimatedCost: 210000,
+      actualCost: 205000,
+      orderDate: "2026-10-07",
+      targetDeliveryDate: "2026-10-24",
+      status: "Requisitioned",
+      invoiceRef: "REQ-MAX-INV-02",
+      notes: "Awaiting DISCOM Net-Metering technical clearance confirmation."
+    },
+    {
+      id: "PO-2026-003",
+      projectId: "SOL-2026-001",
+      projectType: "solar",
+      clientName: "Brahmaputra Packaging & Logistics",
+      itemCategory: "Mounting Structures",
+      itemName: "HDG (Hot Dip Galvanized) 80 Micron Elevated Module Mounting Structure",
+      supplierName: "Assam Structural Steel Fabricators, Paltan Bazar",
+      quantity: "1 Complete Set (35 kWp)",
+      estimatedCost: 140000,
+      actualCost: 138000,
+      orderDate: "2026-10-05",
+      targetDeliveryDate: "2026-10-18",
+      status: "In Transit",
+      invoiceRef: "DC-ASSAM-9912",
+      notes: "Dispatched by truck. Expected on site Wednesday."
+    },
+    {
+      id: "PO-2026-004",
+      projectId: "IT-2026-001",
+      projectType: "it",
+      clientName: "Assam Craft & Loom Traders",
+      itemCategory: "Cloud & Software",
+      itemName: "Managed VPS Hosting & WhatsApp Cloud API Enterprise Gateway",
+      supplierName: "Hostinger / Meta Cloud Service",
+      quantity: "Annual Retainer",
+      estimatedCost: 3500,
+      actualCost: 3500,
+      orderDate: "2026-09-29",
+      targetDeliveryDate: "2026-09-29",
+      status: "Delivered at Site",
+      invoiceRef: "INV-HST-881902",
+      notes: "Server provisioned and secured with SSL."
+    }
+  ],
+
+  // --- ERP OPERATIONS: FIELD CONTRACTOR WORK ORDERS & DISPATCH ---
+  workOrders: [
+    {
+      id: "WO-2026-001",
+      projectId: "SOL-2026-001",
+      title: "35 kWp Elevated GI Structure Erection & Civil Chemical Anchor Fastening",
+      workType: "Civil & Structural Fabrication",
+      assignedTo: "Kamrup Solar Structural Fabricators (Lead: Romen Kalita)",
+      contactPhone: "+91 94351 22334",
+      scheduledDate: "2026-10-19",
+      targetCompletionDate: "2026-10-25",
+      contractorFee: 45000,
+      safetyCompliance: "Full fall-arrest harness, hard hats, steel-toe boots & lifeline ropes verified",
+      status: "Dispatched",
+      notes: "Strict safety guidelines on Amingaon industrial RCC roof. No drilling into beam joints."
+    },
+    {
+      id: "WO-2026-002",
+      projectId: "SOL-2026-001",
+      title: "DC/AC Cabling, Inverter Placement, 4x Chemical Earthing Pits & Lightning Arrester",
+      workType: "Electrical Installation & Earthing",
+      assignedTo: "Brahmaputra Electrical Contractors (Supervisor: Bikash Das)",
+      contactPhone: "+91 98642 55667",
+      scheduledDate: "2026-10-26",
+      targetCompletionDate: "2026-11-05",
+      contractorFee: 55000,
+      safetyCompliance: "Earthing resistance < 2 ohms benchmark required by CEIG inspection",
+      status: "Scheduled",
+      notes: "Maintain dedicated copper bonded earth electrodes for solar arrays, inverter and LA."
+    },
+    {
+      id: "WO-2026-003",
+      projectId: "IT-2026-001",
+      title: "Product Photography Upload, Mobile UX Audit & Direct WhatsApp Checkout Linking",
+      workType: "Software & Digital Integration",
+      assignedTo: "MaxEco Digital Lab (In-house Developer: Debajit Sarma)",
+      contactPhone: "+91 99544 93909",
+      scheduledDate: "2026-10-09",
+      targetCompletionDate: "2026-10-14",
+      contractorFee: 3500,
+      safetyCompliance: "Encrypted credential storage & clean code standards",
+      status: "In Progress",
+      notes: "Verify mobile checkout response time across Airtel and Jio Northeast networks."
     }
   ]
 };

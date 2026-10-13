@@ -479,7 +479,7 @@
           <button class="btn btn-secondary btn-sm" onclick="app.showView('quotes-invoices', true)">📄 Quotes & Invoices</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('finance', true)">💰 Cash Flow</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('solar-feasibility', true)">☀️ Solar Engine</button>
-          <button class="btn btn-secondary btn-sm" onclick="app.showView('projects', true)">🚀 Projects</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('projects', true)">🏗️ Operations & ERP</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('settings', true)">⚙️ Settings</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('home', false)">🌐 View Public Site</button>
 
@@ -499,6 +499,8 @@
               <button class="dropdown-item" onclick="app.openAddDrawingModal(); app.closeMenuDropdowns();">🏦 Log Personal Withdrawal</button>
               <button class="dropdown-item" onclick="app.openAddProjectModal('solar'); app.closeMenuDropdowns();">☀️ Add Solar Project</button>
               <button class="dropdown-item" onclick="app.openAddProjectModal('it'); app.closeMenuDropdowns();">💻 Add IT / Web Project</button>
+              <button class="dropdown-item" onclick="app.openAddProcurementModal(); app.closeMenuDropdowns();">📦 Add Requisition (BOM)</button>
+              <button class="dropdown-item" onclick="app.openAddWorkOrderModal(); app.closeMenuDropdowns();">👷 Dispatch Field Work Order</button>
             </div>
           </div>
 
@@ -518,6 +520,8 @@
               <button class="dropdown-item" onclick="app.openModifySelectorModal('drawing'); app.closeMenuDropdowns();">🏦 Modify Withdrawal</button>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('solar'); app.closeMenuDropdowns();">☀️ Modify Solar Project</button>
               <button class="dropdown-item" onclick="app.openModifySelectorModal('it'); app.closeMenuDropdowns();">💻 Modify IT / Web Project</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('procurement'); app.closeMenuDropdowns();">📦 Modify Requisition (BOM)</button>
+              <button class="dropdown-item" onclick="app.openModifySelectorModal('workorder'); app.closeMenuDropdowns();">👷 Modify Field Work Order</button>
               <button class="dropdown-item" onclick="app.showView('settings', true); app.closeMenuDropdowns();">⚙️ Modify Business Settings</button>
             </div>
           </div>
@@ -536,6 +540,8 @@
               <button class="dropdown-item" onclick="app.openDeleteSelectorModal('drawing'); app.closeMenuDropdowns();">🏦 Delete Withdrawal</button>
               <button class="dropdown-item" onclick="app.openDeleteSelectorModal('solar'); app.closeMenuDropdowns();">☀️ Delete Solar Project</button>
               <button class="dropdown-item" onclick="app.openDeleteSelectorModal('it'); app.closeMenuDropdowns();">💻 Delete IT / Web Project</button>
+              <button class="dropdown-item" onclick="app.openDeleteSelectorModal('procurement'); app.closeMenuDropdowns();">📦 Delete Requisition (BOM)</button>
+              <button class="dropdown-item" onclick="app.openDeleteSelectorModal('workorder'); app.closeMenuDropdowns();">👷 Delete Field Work Order</button>
             </div>
           </div>
         </div>
@@ -1111,35 +1117,221 @@
         </div>
       </section>
 
-      <!-- TAB 5: PROJECTS TRACKER -->
+      <!-- TAB 5: ERP OPERATIONS & FIELD EXECUTION TRACKER -->
       <section id="tab-projects" class="dashboard-tab hidden">
-        <div class="flex justify-between items-center" style="margin-bottom: 16px;">
+        <!-- Operations Header & Action Bar -->
+        <div class="flex justify-between items-center" style="margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
           <div>
-            <h2 style="font-size: 20px;">Client Project Execution Trackers</h2>
-            <p style="font-size: 12px; color: var(--text-muted);">Monitor delivery milestones, contractor coordination, and local credentials</p>
+            <h2 style="font-size: 20px; display: flex; align-items: center; gap: 8px;">
+              <span>🏗️ ERP Operations & Field Execution Tracker</span>
+            </h2>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              Integrated execution control: Client Deliverables, Bill of Materials (BOM), Contractor Work Orders & APDCL Statutory Liaison
+            </p>
+          </div>
+          <div class="flex items-center gap-2" style="flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="app.openAddProcurementModal()">📦 + Add Requisition (BOM)</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.openAddWorkOrderModal()" style="border-color: var(--solar-amber); color: var(--solar-amber);">👷 + Dispatch Work Order</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.copyOperationsStandupBrief()">📋 Copy Standup Brief</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportOperationsCsv()">📥 Export CSV</button>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Solar EPC Projects -->
-          <div>
-            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
-              <h3 style="font-size: 15px; color: var(--solar-amber);">☀️ Solar Rooftop & Advisory Projects</h3>
-              <button class="btn btn-primary btn-sm" onclick="app.openAddProjectModal('solar')">+ Add Solar Project</button>
-            </div>
-            <div id="solar-projects-container">
-              <!-- Rendered dynamically -->
-            </div>
+        <!-- Operations KPI Metrics Grid -->
+        <div class="grid grid-cols-4 gap-3" style="margin-bottom: 20px;">
+          <div class="card" style="padding: 14px; border-left: 3px solid var(--solar-amber);">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Solar EPC Pipeline</div>
+            <div id="op-kpi-solar-capacity" class="font-mono text-amber" style="font-size: 22px; font-weight: 800; margin: 4px 0;">35 kWp</div>
+            <div style="font-size: 11px; color: var(--text-secondary);" id="op-kpi-solar-count">1 active site under execution</div>
           </div>
 
-          <!-- IT & Web Projects -->
-          <div>
-            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
-              <h3 style="font-size: 15px; color: var(--tech-cyan);">💻 IT & Web Retainer Engagements</h3>
-              <button class="btn btn-primary btn-sm" onclick="app.openAddProjectModal('it')">+ Add IT Project</button>
+          <div class="card" style="padding: 14px; border-left: 3px solid var(--tech-cyan);">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">BOM Material Spend</div>
+            <div id="op-kpi-bom-spend" class="font-mono text-cyan" style="font-size: 22px; font-weight: 800; margin: 4px 0;">₹10,21,500</div>
+            <div style="font-size: 11px; color: var(--text-secondary);" id="op-kpi-bom-status">1/4 delivered to site</div>
+          </div>
+
+          <div class="card" style="padding: 14px; border-left: 3px solid #8b5cf6;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Field Work Orders</div>
+            <div id="op-kpi-wo-count" class="font-mono" style="font-size: 22px; font-weight: 800; color: #a78bfa; margin: 4px 0;">3 Active</div>
+            <div style="font-size: 11px; color: var(--text-secondary);" id="op-kpi-wo-fees">₹1,03,500 contractor fees</div>
+          </div>
+
+          <div class="card" style="padding: 14px; border-left: 3px solid #10b981;">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">APDCL & CEIG Statutory</div>
+            <div id="op-kpi-apdcl-status" class="font-mono text-emerald" style="font-size: 22px; font-weight: 800; margin: 4px 0;">1 Under Review</div>
+            <div style="font-size: 11px; color: var(--text-secondary);">Feasibility NOC liaison ongoing</div>
+          </div>
+        </div>
+
+        <!-- Operations Sub-Tabs Navigation Bar -->
+        <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 18px; flex-wrap: wrap;">
+          <button id="btn-subtab-deliverables" class="btn btn-secondary btn-sm active" onclick="app.switchOpSubTab('deliverables')" style="font-weight: 700;">
+            🚀 Client Deliverables (Solar & IT)
+          </button>
+          <button id="btn-subtab-bom" class="btn btn-secondary btn-sm" onclick="app.switchOpSubTab('bom')" style="font-weight: 700;">
+            📦 BOM & Material Procurements
+          </button>
+          <button id="btn-subtab-workorders" class="btn btn-secondary btn-sm" onclick="app.switchOpSubTab('workorders')" style="font-weight: 700;">
+            👷 Field Work Orders & Contractors
+          </button>
+          <button id="btn-subtab-apdcl" class="btn btn-secondary btn-sm" onclick="app.switchOpSubTab('apdcl')" style="font-weight: 700;">
+            🏛️ APDCL & Statutory NOC Hub
+          </button>
+        </div>
+
+        <!-- SUB-VIEW 1: CLIENT DELIVERABLES -->
+        <div id="op-view-deliverables">
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Solar EPC Projects -->
+            <div>
+              <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+                <h3 style="font-size: 15px; color: var(--solar-amber);">☀️ Solar Rooftop & Advisory Projects</h3>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddProjectModal('solar')">+ Add Solar Project</button>
+              </div>
+              <div id="solar-projects-container">
+                <!-- Rendered dynamically -->
+              </div>
             </div>
-            <div id="it-projects-container">
-              <!-- Rendered dynamically -->
+
+            <!-- IT & Web Projects -->
+            <div>
+              <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+                <h3 style="font-size: 15px; color: var(--tech-cyan);">💻 IT & Web Retainer Engagements</h3>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddProjectModal('it')">+ Add IT Project</button>
+              </div>
+              <div id="it-projects-container">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 2: BOM & MATERIAL PROCUREMENTS -->
+        <div id="op-view-bom" class="hidden">
+          <div class="card" style="margin-bottom: 16px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 style="font-size: 15px;">📦 Bill of Materials (BOM) & Material Procurements Register</h3>
+                <span class="text-muted" style="font-size: 12px;">Track Tier-1 solar panels, inverters, mounting structures, cabling, and software requisitions</span>
+              </div>
+              <div class="flex gap-2">
+                <select id="op-bom-filter" class="form-control" style="width: auto; font-size: 12px;" onchange="app.filterBOMTable(this.value)">
+                  <option value="all">Filter: All Components</option>
+                  <option value="pending">Pending Delivery / In Transit</option>
+                  <option value="delivered">Delivered / Inspected</option>
+                  <option value="Solar Modules">Solar Modules</option>
+                  <option value="Inverter & Electrical">Inverters & Electrical</option>
+                  <option value="Mounting Structures">Mounting Structures</option>
+                  <option value="Cloud & Software">Cloud & Software</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddProcurementModal()">+ Add Component Requisition</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>PO Ref</th>
+                    <th>Linked Project</th>
+                    <th>Category</th>
+                    <th>Component & Description</th>
+                    <th>Supplier / Distributor</th>
+                    <th>Qty</th>
+                    <th>Actual / Est. Cost</th>
+                    <th>Target Date</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="op-bom-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 3: FIELD WORK ORDERS & CONTRACTOR DISPATCH -->
+        <div id="op-view-workorders" class="hidden">
+          <div class="card" style="margin-bottom: 16px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 style="font-size: 15px;">👷 Field Work Orders & Contractor Execution Register</h3>
+                <span class="text-muted" style="font-size: 12px;">Dispatch work orders for structural erection, wiring, safety audits, and IT sprints with printable slips</span>
+              </div>
+              <div class="flex gap-2">
+                <select id="op-wo-filter" class="form-control" style="width: auto; font-size: 12px;" onchange="app.filterWorkOrdersTable(this.value)">
+                  <option value="all">Filter: All Work Orders</option>
+                  <option value="active">Active (Scheduled / In Progress / Dispatched)</option>
+                  <option value="completed">Completed / Signed Off</option>
+                  <option value="Civil & Structural">Civil & Structural Fabrication</option>
+                  <option value="Electrical">Electrical Cabling & Earthing</option>
+                  <option value="Software">Software & Digital</option>
+                </select>
+                <button class="btn btn-secondary btn-sm" onclick="app.openAddWorkOrderModal()" style="border-color: var(--solar-amber); color: var(--solar-amber);">+ Dispatch New Work Order</button>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>WO Ref</th>
+                    <th>Linked Project</th>
+                    <th>Work Order Scope Title</th>
+                    <th>Assigned Contractor / Lead</th>
+                    <th>Category</th>
+                    <th>Scheduled Date</th>
+                    <th>Fee (INR)</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Field Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="op-wo-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 4: APDCL & STATUTORY COMPLIANCE HUB -->
+        <div id="op-view-apdcl" class="hidden">
+          <div class="card" style="margin-bottom: 16px;">
+            <div class="flex justify-between items-center" style="margin-bottom: 14px;">
+              <div>
+                <h3 style="font-size: 15px; color: var(--solar-amber);">🏛️ APDCL & Statutory Regulatory Compliance Tracker</h3>
+                <span class="text-muted" style="font-size: 12px;">Monitor Assam Power Distribution Co. Ltd. (APDCL) Solar Portal applications, DTR transformer margins, and CEIG clearances</span>
+              </div>
+            </div>
+
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Project ID</th>
+                    <th>Client & Site Location</th>
+                    <th>DISCOM</th>
+                    <th>Consumer No.</th>
+                    <th>Sanctioned (kW)</th>
+                    <th>Capacity (kWp)</th>
+                    <th>Application Ref</th>
+                    <th>DTR Code</th>
+                    <th>Feasibility NOC</th>
+                    <th>CEIG Safety</th>
+                    <th>Net-Meter Sync</th>
+                  </tr>
+                </thead>
+                <tbody id="op-apdcl-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid var(--solar-amber); padding: 12px; border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); margin-top: 16px;">
+              <strong>ℹ️ APDCL Regulatory Invariant:</strong> In Assam, solar rooftop systems cannot exceed the sanctioned load of the consumer installation. Net-metering approval is contingent upon the local 11kV/415V Distribution Transformer (DTR) retaining $\ge 15\%$ reverse power capacity margin. CEIG electrical safety inspection is mandatory for systems $> 10$ kW.
             </div>
           </div>
         </div>
@@ -1834,6 +2026,8 @@
             <option value="drawing">🏦 Personal Withdrawals</option>
             <option value="solar">☀️ Solar Projects</option>
             <option value="it">💻 IT & Web Projects</option>
+            <option value="procurement">📦 Material Requisitions (BOM)</option>
+            <option value="workorder">👷 Field Work Orders</option>
           </select>
         </div>
 
@@ -1873,6 +2067,8 @@
             <option value="drawing">🏦 Personal Withdrawals</option>
             <option value="solar">☀️ Solar Projects</option>
             <option value="it">💻 IT & Web Projects</option>
+            <option value="procurement">📦 Material Requisitions (BOM)</option>
+            <option value="workorder">👷 Field Work Orders</option>
           </select>
         </div>
 
@@ -1898,6 +2094,215 @@
     </div>
   </div>
 
+  <!-- Add / Edit Material Procurement (BOM) Modal -->
+  <div id="modal-add-procurement" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 id="procurement-modal-title" style="font-size: 16px;">📦 Material Requisition & BOM Procurement</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="procurement-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Linked Client Project *</label>
+            <select id="procurement-project" class="form-control">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Item Category *</label>
+            <select id="procurement-category" class="form-control">
+              <option value="Solar Modules">Solar Modules (Tier-1 PV)</option>
+              <option value="Inverter & Electrical">Inverters & Electrical / ACDB</option>
+              <option value="Mounting Structures">Mounting Structures (HDG GI)</option>
+              <option value="Cables & Earthing">Solar DC Cables & Earthing Pits</option>
+              <option value="APDCL Net-Meter">APDCL Bidirectional Net-Meter</option>
+              <option value="Cloud & Software">Cloud, Server & Software Subscriptions</option>
+              <option value="General Hardware">General Hardware & Consumables</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Component Name & Technical Specification *</label>
+          <input type="text" id="procurement-item-name" class="form-control" required placeholder="e.g. 550W Mono PERC Solar Panels (Waaree/Goldi)">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Supplier / Distributor Name</label>
+            <input type="text" id="procurement-supplier" class="form-control" placeholder="e.g. Waaree Certified Distributor, Guwahati">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Quantity & Units</label>
+            <input type="text" id="procurement-quantity" class="form-control" placeholder="e.g. 64 Panels / 1 Job">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Estimated Cost (₹) *</label>
+            <input type="number" id="procurement-est-cost" class="form-control" required placeholder="e.g. 680000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Actual Invoiced Cost (₹)</label>
+            <input type="number" id="procurement-actual-cost" class="form-control" placeholder="e.g. 675000">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Order / Requisition Date</label>
+            <input type="date" id="procurement-order-date" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Site Delivery Date</label>
+            <input type="date" id="procurement-target-date" class="form-control">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Procurement Status *</label>
+            <select id="procurement-status" class="form-control">
+              <option value="Requisitioned">Requisitioned (Draft)</option>
+              <option value="PO Issued">PO Issued to Supplier</option>
+              <option value="In Transit">In Transit / Dispatched</option>
+              <option value="Delivered at Site">Delivered at Site</option>
+              <option value="Quality Inspected">Quality Inspected & Approved</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Supplier Invoice / PO Ref</label>
+            <input type="text" id="procurement-ref" class="form-control" placeholder="e.g. PO-MAX-2026-041">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Delivery Notes / Site Inspection Remarks</label>
+          <textarea id="procurement-notes" class="form-control" rows="2" placeholder="e.g. Delivery crane coordinated at Amingaon yard. Unloading scheduled..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveProcurementFromModal()">Save Component Requisition</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Field Work Order Modal -->
+  <div id="modal-add-work-order" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 id="workorder-modal-title" style="font-size: 16px;">👷 Dispatch Field Work Order & Contractor Task</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="workorder-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Linked Client Project *</label>
+            <select id="workorder-project" class="form-control">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Work Order Category *</label>
+            <select id="workorder-type" class="form-control">
+              <option value="Civil & Structural Fabrication">Civil & Structural Fabrication</option>
+              <option value="Electrical Installation & Earthing">Electrical Cabling & Earthing</option>
+              <option value="APDCL Net-Metering Liaison">APDCL Net-Metering Liaison</option>
+              <option value="Site Audit & Drone Survey">Site Audit & Drone Survey</option>
+              <option value="Software & Digital Integration">Software & Digital Integration</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Work Order Scope Title *</label>
+          <input type="text" id="workorder-title" class="form-control" required placeholder="e.g. 35 kWp Elevated GI Structure Erection & Anchoring">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Assigned Contractor / Team Lead *</label>
+            <input type="text" id="workorder-assigned" class="form-control" required placeholder="e.g. Kamrup Solar Structural Fabricators">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contractor Contact Phone</label>
+            <input type="tel" id="workorder-phone" class="form-control" placeholder="e.g. +91 94351 22334">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="form-group">
+            <label class="form-label">Scheduled Date *</label>
+            <input type="date" id="workorder-scheduled-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Completion</label>
+            <input type="date" id="workorder-target-date" class="form-control">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Agreed Fee (₹)</label>
+            <input type="number" id="workorder-fee" class="form-control" placeholder="e.g. 45000">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Safety Mandate & Technical Compliance</label>
+          <input type="text" id="workorder-safety" class="form-control" value="Full fall-arrest harness, hard hats, safety boots & CEIG earthing resistance verified" placeholder="Safety precautions...">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Execution Status *</label>
+            <select id="workorder-status" class="form-control">
+              <option value="Scheduled">Scheduled</option>
+              <option value="Dispatched">Dispatched to Contractor</option>
+              <option value="In Progress">In Progress on Site</option>
+              <option value="Under Inspection">Under Inspection</option>
+              <option value="Completed & Signed Off">Completed & Signed Off</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Special Site Instructions</label>
+            <input type="text" id="workorder-notes" class="form-control" placeholder="e.g. No drilling into beam joints; clean site daily">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveWorkOrderFromModal()">Dispatch Field Work Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Printable Field Work Order Slip Modal -->
+  <div id="modal-workorder-slip" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 820px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header" style="position: sticky; top: 0; background: var(--bg-surface); z-index: 10; border-bottom: 1px solid var(--border-color);">
+        <div class="flex items-center gap-2">
+          <span style="font-size: 18px;">📋</span>
+          <h3 style="font-size: 16px; margin: 0;">Official Field Work Order Slip</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="btn btn-primary btn-sm" onclick="app.printWorkOrderSlip()">🖨️ Print Slip (A4)</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.shareWorkOrderWhatsApp()">💬 Share WhatsApp</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.copyWorkOrderSlipText()">📋 Copy Text</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕ Close</button>
+        </div>
+      </div>
+      <div class="modal-body" style="padding: 24px; background: #e2e8f0;">
+        <input type="hidden" id="workorder-active-view-id">
+        <div id="workorder-slip-view-content">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Fixed Toast Notification Container -->
   <div id="toast-container"></div>
 
@@ -1909,6 +2314,7 @@
   <script src="../src/js/finance.js"></script>
   <script src="../src/js/invoice.js"></script>
   <script src="../src/js/projects.js"></script>
+  <script src="../src/js/operations.js"></script>
   <script src="../src/js/app.js"></script>
 </body>
 </html>

@@ -37,18 +37,39 @@ class StorageController {
           expenses: [],
           drawings: [],
           solarProjects: [],
-          itProjects: []
+          itProjects: [],
+          procurements: [],
+          workOrders: []
         });
       }
     } else {
-      // Automatic update if previously cached with placeholder contacts
+      // Automatic update if previously cached with placeholder contacts or missing ERP modules
       try {
+        const seed = (typeof initialSeedData !== 'undefined') ? initialSeedData : 
+                     ((typeof window !== 'undefined' && window.initialSeedData) ? window.initialSeedData : 
+                     ((typeof global !== 'undefined' && global.initialSeedData) ? global.initialSeedData : null));
         const parsed = JSON.parse(existing);
+        let updated = false;
+
         if (parsed && parsed.settings && (parsed.settings.contactEmail === 'contact@maxeco.in' || parsed.settings.contactPhone === '+91 98765 43210')) {
           parsed.settings.location = "Maligaon, Guwahati, Assam, Pin - 781011";
           parsed.settings.contactPhone = "+91 99544 93909";
           parsed.settings.contactEmail = "maxecoenergyit@gmail.com";
           parsed.settings.whatsappNumber = "919954493909";
+          updated = true;
+        }
+
+        // Migrate ERP Operations tables if absent
+        if (parsed && (!parsed.procurements || parsed.procurements.length === 0)) {
+          parsed.procurements = (seed && seed.procurements) ? JSON.parse(JSON.stringify(seed.procurements)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.workOrders || parsed.workOrders.length === 0)) {
+          parsed.workOrders = (seed && seed.workOrders) ? JSON.parse(JSON.stringify(seed.workOrders)) : [];
+          updated = true;
+        }
+
+        if (updated) {
           this.saveStore(parsed);
         }
       } catch (e) {
@@ -356,6 +377,94 @@ class StorageController {
     this.saveStore(store);
   }
 
+  // --- ERP OPERATIONS: MATERIAL PROCUREMENTS (BOM) ---
+  getProcurements() {
+    const store = this.getStore();
+    return store && store.procurements ? store.procurements : [];
+  }
+
+  saveProcurement(proc) {
+    const store = this.getStore();
+    if (!store.procurements) store.procurements = [];
+    if (!proc.id) {
+      const year = new Date().getFullYear();
+      const count = (store.procurements.length + 1).toString().padStart(3, '0');
+      proc.id = `PO-${year}-${count}`;
+      proc.orderDate = proc.orderDate || new Date().toISOString().slice(0, 10);
+      store.procurements.unshift(proc);
+    } else {
+      const idx = store.procurements.findIndex(p => p.id === proc.id);
+      if (idx !== -1) {
+        store.procurements[idx] = { ...store.procurements[idx], ...proc };
+      } else {
+        store.procurements.unshift(proc);
+      }
+    }
+    this.saveStore(store);
+    return proc;
+  }
+
+  updateProcurementStatus(id, newStatus) {
+    const store = this.getStore();
+    const item = (store.procurements || []).find(p => p.id === id);
+    if (item) {
+      item.status = newStatus;
+      this.saveStore(store);
+      return item;
+    }
+    return null;
+  }
+
+  deleteProcurement(id) {
+    const store = this.getStore();
+    store.procurements = (store.procurements || []).filter(p => p.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- ERP OPERATIONS: FIELD WORK ORDERS & CONTRACTOR DISPATCH ---
+  getWorkOrders() {
+    const store = this.getStore();
+    return store && store.workOrders ? store.workOrders : [];
+  }
+
+  saveWorkOrder(wo) {
+    const store = this.getStore();
+    if (!store.workOrders) store.workOrders = [];
+    if (!wo.id) {
+      const year = new Date().getFullYear();
+      const count = (store.workOrders.length + 1).toString().padStart(3, '0');
+      wo.id = `WO-${year}-${count}`;
+      wo.scheduledDate = wo.scheduledDate || new Date().toISOString().slice(0, 10);
+      store.workOrders.unshift(wo);
+    } else {
+      const idx = store.workOrders.findIndex(w => w.id === wo.id);
+      if (idx !== -1) {
+        store.workOrders[idx] = { ...store.workOrders[idx], ...wo };
+      } else {
+        store.workOrders.unshift(wo);
+      }
+    }
+    this.saveStore(store);
+    return wo;
+  }
+
+  updateWorkOrderStatus(id, newStatus) {
+    const store = this.getStore();
+    const wo = (store.workOrders || []).find(w => w.id === id);
+    if (wo) {
+      wo.status = newStatus;
+      this.saveStore(store);
+      return wo;
+    }
+    return null;
+  }
+
+  deleteWorkOrder(id) {
+    const store = this.getStore();
+    store.workOrders = (store.workOrders || []).filter(w => w.id !== id);
+    this.saveStore(store);
+  }
+
   // --- BACKUP & RESTORE ---
   exportJsonBackup() {
     const data = this.getStore();
@@ -393,7 +502,7 @@ class StorageController {
     return false;
   }
 
-  // --- CSV EXPORT FOR CA / ACCOUNTS ---
+  // --- CSV EXPORT FOR CA / ACCOUNTS / OPERATIONS ---
   exportCsv(entityType) {
     const store = this.getStore();
     let csvContent = "";
@@ -413,6 +522,16 @@ class StorageController {
       csvContent = "Lead ID,Name,Contact Person,Phone,Email,Location,Customer Type,Service,Source,Estimated Value (INR),Stage,Last Contact,Next Follow Up,Next Action\n";
       (store.leads || []).forEach(l => {
         csvContent += `"${l.id}","${l.name}","${l.contactPerson || ''}","${l.phone}","${l.email || ''}","${l.location || ''}","${l.customerType || ''}","${l.service}","${l.source || ''}",${l.estimatedValue || 0},"${l.stage}","${l.lastContactDate || ''}","${l.nextFollowUpDate || ''}","${(l.nextAction || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'procurements') {
+      csvContent = "PO ID,Project ID,Category,Item Name,Supplier,Quantity,Estimated Cost (INR),Actual Cost (INR),Order Date,Target Delivery,Status,Invoice Ref,Notes\n";
+      (store.procurements || []).forEach(p => {
+        csvContent += `"${p.id}","${p.projectId || ''}","${p.itemCategory}","${(p.itemName || '').replace(/"/g, '""')}","${(p.supplierName || '').replace(/"/g, '""')}","${p.quantity || ''}",${p.estimatedCost || 0},${p.actualCost || 0},"${p.orderDate || ''}","${p.targetDeliveryDate || ''}","${p.status}","${p.invoiceRef || ''}","${(p.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'workOrders') {
+      csvContent = "WO ID,Project ID,Work Title,Work Type,Assigned Contractor,Phone,Scheduled Date,Target Completion,Contractor Fee (INR),Safety Compliance,Status,Notes\n";
+      (store.workOrders || []).forEach(w => {
+        csvContent += `"${w.id}","${w.projectId || ''}","${(w.title || '').replace(/"/g, '""')}","${w.workType || ''}","${(w.assignedTo || '').replace(/"/g, '""')}","${w.contactPhone || ''}","${w.scheduledDate || ''}","${w.targetCompletionDate || ''}",${w.contractorFee || 0},"${(w.safetyCompliance || '').replace(/"/g, '""')}","${w.status}","${(w.notes || '').replace(/"/g, '""')}"\n`;
       });
     } else {
       return false;
