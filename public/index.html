@@ -55,6 +55,9 @@
     .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    }
   </style>
 </head>
 <body>
@@ -82,7 +85,6 @@
         <a href="#sec-solar-assessment" class="nav-link">Solar Assessment</a>
         <a href="#sec-about" class="nav-link">About</a>
         <a href="#sec-contact" class="nav-link">Contact</a>
-        <a href="website/index.html" class="nav-link" style="color: var(--solar-amber); font-weight: 700;">🌐 Parallax Website</a>
       </nav>
 
       <!-- Private Founder Dashboard Links -->
@@ -93,7 +95,6 @@
         <a href="#finance" class="nav-link">Cash Flow</a>
         <a href="#solar-feasibility" class="nav-link">☀️ Solar Engine</a>
         <a href="#projects" class="nav-link">Projects</a>
-        <a href="website/index.html" target="_blank" class="nav-link" style="color: var(--solar-amber); font-weight: 600;">🌐 Live Website</a>
         <a href="hitl-console.html" target="_blank" class="nav-link" style="color: #10b981; font-weight: 600;">🛡️ HITL Console</a>
         <a href="#settings" class="nav-link">Settings & Backup</a>
       </nav>
@@ -134,9 +135,6 @@
           </p>
 
           <div class="flex justify-center items-center gap-4" style="flex-wrap: wrap;">
-            <a href="website/index.html" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px; background: linear-gradient(135deg, var(--solar-amber), #d97706); border: none; color: #0f172a; font-weight: 800;">
-              🌐 View Parallax Website
-            </a>
             <a href="#sec-solar-assessment" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
               ☀️ Request Solar Assessment
             </a>
@@ -242,18 +240,36 @@
     <!-- IT and Digital Services Section -->
     <section id="sec-it-services" style="padding: 60px 0; border-bottom: 1px solid var(--border-color); background: rgba(19, 28, 46, 0.4);">
       <div class="container">
-        <div style="max-width: 600px; margin-bottom: 36px;">
-          <span class="text-cyan" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Digital Solutions Practice</span>
-          <h2 style="font-size: 28px; margin-top: 6px;">Small-Business Websites & Digital Automation</h2>
+        <div style="max-width: 720px; margin-bottom: 36px;">
+          <span class="text-cyan" style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">IT &amp; Digital Solutions Practice</span>
+          <h2 style="font-size: 28px; margin-top: 6px;">IT Infrastructure, Business Websites &amp; Digital Automation</h2>
           <p style="font-size: 14px; color: var(--text-secondary); margin-top: 8px;">
-            Clean, fast, high-converting digital presence and workflow automations for local enterprises, clinics, and professional firms in Assam.
+            Comprehensive technology solutions for Northeast India businesses — from commercial IT hardware procurement, networking, and AMC technical support to high-converting websites and workflow automations.
           </p>
         </div>
 
-        <div class="grid grid-cols-3 gap-6">
+        <div class="grid grid-cols-4 gap-6">
           <div class="service-card">
             <div>
-              <span class="service-tag text-cyan">Web Design & Build</span>
+              <span class="service-tag text-cyan">Hardware &amp; SLA Support</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">IT Infra Sales &amp; Support</h3>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+                End-to-end commercial IT hardware supply, structured networking, server deployment, and dependable on-site SLA technical support for enterprises across Guwahati and Assam.
+              </p>
+              <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
+                <li>Desktops, Laptops, Servers &amp; Workstations</li>
+                <li>LAN / Wi-Fi Structured Cabling &amp; Switching</li>
+                <li>Annual Maintenance Contracts (AMC) &amp; On-Site Care</li>
+              </ul>
+            </div>
+            <div style="margin-top: 20px;">
+              <a href="#sec-contact" class="btn btn-secondary btn-sm" style="width: 100%;">Enquire for IT Infra</a>
+            </div>
+          </div>
+
+          <div class="service-card">
+            <div>
+              <span class="service-tag text-cyan">Web Design &amp; Build</span>
               <h3 style="font-size: 18px; margin-bottom: 10px;">Professional SMB Business Websites</h3>
               <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
                 Custom, ultra-fast websites designed to generate customer enquiries on mobile devices with zero bloat and clean modern styling.
@@ -271,15 +287,15 @@
 
           <div class="service-card">
             <div>
-              <span class="service-tag text-cyan">Retainers & Care</span>
-              <h3 style="font-size: 18px; margin-bottom: 10px;">Website Maintenance & Support Retainers</h3>
+              <span class="service-tag text-cyan">Retainers &amp; Care</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">Website Maintenance &amp; Support Retainers</h3>
               <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
                 Reliable ongoing care ensuring your business website remains online, updated, secure, and accurate without requiring full-time staff.
               </p>
               <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
-                <li>Regular text, product & catalog updates</li>
-                <li>Uptime monitoring & SSL renewal checks</li>
-                <li>Affordable monthly & quarterly retainers</li>
+                <li>Regular text, product &amp; catalog updates</li>
+                <li>Uptime monitoring &amp; SSL renewal checks</li>
+                <li>Affordable monthly &amp; quarterly retainers</li>
               </ul>
             </div>
             <div style="margin-top: 20px;">
@@ -289,15 +305,15 @@
 
           <div class="service-card">
             <div>
-              <span class="service-tag text-cyan">Productivity & AI</span>
-              <h3 style="font-size: 18px; margin-bottom: 10px;">WhatsApp & Basic AI Workflow Automation</h3>
+              <span class="service-tag text-cyan">Productivity &amp; AI</span>
+              <h3 style="font-size: 18px; margin-bottom: 10px;">WhatsApp &amp; Basic AI Workflow Automation</h3>
               <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
                 Connecting simple, low-cost tools to route enquiries automatically, pre-fill quotes, and streamline founder-led customer communications.
               </p>
               <ul style="font-size: 12px; color: var(--text-muted); list-style-position: inside; line-height: 1.8;">
                 <li>Direct WhatsApp lead routing</li>
                 <li>Automated customer intake forms</li>
-                <li>Google Sheets & CRM synchronization</li>
+                <li>Google Sheets &amp; CRM synchronization</li>
               </ul>
             </div>
             <div style="margin-top: 20px;">
@@ -442,9 +458,10 @@
                 <label class="form-label">Service of Interest</label>
                 <select id="contact-service" class="form-control">
                   <option value="Solar EPC Coordination">Solar Rooftop EPC Coordination</option>
-                  <option value="Solar Energy Advisory">Solar Energy & APDCL Feasibility Advisory</option>
+                  <option value="Solar Energy Advisory">Solar Energy &amp; APDCL Feasibility Advisory</option>
+                  <option value="IT Infra Sales & Support">IT Infra Sales &amp; Support (Hardware, AMC &amp; Networking)</option>
                   <option value="SMB Website">Small-Business Website Design</option>
-                  <option value="Web Maintenance & AI Automation">Website Maintenance & AI Automation</option>
+                  <option value="Web Maintenance & AI Automation">Website Maintenance &amp; AI Automation</option>
                 </select>
               </div>
 
@@ -701,8 +718,9 @@
                 <option value="ALL">All Services</option>
                 <option value="Solar EPC Coordination">Solar EPC</option>
                 <option value="Solar Energy Advisory">Solar Advisory</option>
+                <option value="IT Infra Sales & Support">IT Infra Sales &amp; Support</option>
                 <option value="SMB Website">SMB Website</option>
-                <option value="Web Maintenance & AI Automation">Maintenance & AI</option>
+                <option value="Web Maintenance & AI Automation">Maintenance &amp; AI</option>
               </select>
             </div>
             <div class="flex gap-2">
@@ -1796,8 +1814,9 @@
             <select id="lead-service" class="form-control">
               <option value="Solar EPC Coordination">Solar EPC Coordination</option>
               <option value="Solar Energy Advisory">Solar Energy Advisory</option>
+              <option value="IT Infra Sales & Support">IT Infra Sales &amp; Support</option>
               <option value="SMB Website">SMB Website</option>
-              <option value="Web Maintenance & AI Automation">Web Maintenance & AI</option>
+              <option value="Web Maintenance & AI Automation">Web Maintenance &amp; AI</option>
             </select>
           </div>
           <div class="form-group">
@@ -2031,9 +2050,11 @@
               <option value="solar_epc">Solar EPC Coordination — Turnkey Rooftop PV System (Net-Meter Sync)</option>
               <option value="solar_advisory">Solar Technical & Financial Advisory — Feasibility & BOQ Audit</option>
               <option value="solar_amc">Solar O&M & Annual Maintenance Contract (AMC) — Inverter & Array Health</option>
+              <option value="it_infra_sales">IT Infra Sales &amp; Setup — Commercial Workstations, Servers &amp; Gigabit Networking</option>
+              <option value="it_infra_amc">IT Infrastructure Support &amp; Annual Maintenance Contract (AMC)</option>
               <option value="smb_website">Professional SMB Website Design — 5-Page Responsive + WhatsApp Lead Routing</option>
-              <option value="web_retainer">Quarterly Website Maintenance & Support Retainer — Updates & Security</option>
-              <option value="ai_automation">WhatsApp & AI Workflow Automation — Lead Routing & Digital Catalog</option>
+              <option value="web_retainer">Quarterly Website Maintenance &amp; Support Retainer — Updates &amp; Security</option>
+              <option value="ai_automation">WhatsApp &amp; AI Workflow Automation — Lead Routing &amp; Digital Catalog</option>
               <option value="custom">Custom / Other Scope</option>
             </select>
           </div>

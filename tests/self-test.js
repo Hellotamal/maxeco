@@ -542,21 +542,25 @@ assert(multiQuoteHtml.includes('alt="MaxEco Logo"'), 'Quotation format embeds of
 assert(testReceiptHtml.includes('alt="MaxEco Logo"'), 'Payment receipt voucher embeds official MaxEco Logo emblem in document header');
 assert(woHtml.includes('alt="MaxEco Logo"'), 'Field work order slip embeds official MaxEco Logo emblem in document header');
 
-// --- WEBSITE TEMPLATE INTEGRATION TESTS ---
-console.log('\n--- VERIFYING MAXECO PARALLAX WEBSITE TEMPLATE ---');
-assert(fs.existsSync('./public/website/index.html'), 'Website template index.html exists at public/website/index.html');
-assert(fs.existsSync('./public/website/css/tooplate-style.css'), 'Template stylesheet exists at public/website/css/tooplate-style.css');
-assert(fs.existsSync('./public/website/css/bootstrap.min.css'), 'Bootstrap CSS exists at public/website/css/bootstrap.min.css');
-assert(fs.existsSync('./public/website/js/parallax.min.js'), 'Parallax script exists at public/website/js/parallax.min.js');
-assert(fs.existsSync('./public/website/slick/slick.min.js'), 'Slick carousel script exists at public/website/slick/slick.min.js');
-assert(fs.existsSync('./public/website/img/bg-img-01.jpg'), 'Hero background image exists at public/website/img/bg-img-01.jpg');
+// --- IT INFRA SALES & SUPPORT VERIFICATION TESTS ---
+console.log('\n--- VERIFYING IT INFRA SALES & SUPPORT INTEGRATION ---');
+const itInfraHsn = window.invoiceController.detectHsnSac('IT Infra Sales & Support');
+assert(itInfraHsn.code === '998713', 'Auto-detects SAC 998713 for IT Infra Sales & Support services');
 
-const websiteHtml = fs.readFileSync('./public/website/index.html', 'utf8');
-assert(websiteHtml.includes('MaxEco Energy &amp; Tech') || websiteHtml.includes('MaxEco Energy & Tech'), 'Website template contains company branding');
-assert(websiteHtml.includes('Tamal Roy'), 'Website template contains Founder & Authorised Signatory Tamal Roy');
-assert(websiteHtml.includes('9954493909'), 'Website template contains official phone & WhatsApp number');
-assert(websiteHtml.includes('Maligaon, Guwahati, Assam'), 'Website template contains official registered office location');
-assert(websiteHtml.includes('Founder OS'), 'Website template contains direct linkage to Founder ERP OS');
+const itInfraQuote = {
+  id: 'QT-2026-INFRA',
+  clientName: 'Assam Medical Diagnostic Network',
+  date: '2026-10-13',
+  validUntil: '2026-11-13',
+  service: 'IT Infra Sales & Support',
+  totalAmount: 185000
+};
+const itInfraQuoteHtml = window.invoiceController.generateQuotationHTML(itInfraQuote);
+assert(itInfraQuoteHtml.includes('Commercial workstation, server &amp; client IT equipment') || itInfraQuoteHtml.includes('Commercial workstation, server & client IT equipment'), 'IT Infra quotation outputs specialized workstation & server procurement scope');
+assert(itInfraQuoteHtml.includes('Structured Cat6/Fiber cabling') || itInfraQuoteHtml.includes('Structured Cat6/Fiber cabling'), 'IT Infra quotation outputs structured networking deliverables');
+
+const indexHtmlContent = fs.readFileSync('public/index.html', 'utf8');
+assert(indexHtmlContent.includes('IT Infra Sales &amp; Support') || indexHtmlContent.includes('IT Infra Sales & Support'), 'Public index.html displays IT Infra Sales & Support service card in IT & Digital section');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);

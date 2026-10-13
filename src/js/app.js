@@ -1913,6 +1913,14 @@ class AppController {
         scope: "Solar O&M and Annual Maintenance Contract (AMC) — Scheduled Module Cleaning, Electrical Inverter Health Checks, String Testing & Generation Monitoring",
         terms: "Quarterly advance retainer payable at the beginning of each 3-month operational cycle."
       },
+      it_infra_sales: {
+        scope: "IT Infra Sales & Setup — Commercial Workstations, Server Procurement, Structured Networking, Gigabit Switches & UPS Deployment",
+        terms: "50% equipment advance with purchase order, 40% upon site delivery, 10% on installation, network signoff & warranty handover."
+      },
+      it_infra_amc: {
+        scope: "IT Infrastructure Support & Annual Maintenance Contract (AMC) — Comprehensive On-Site Hardware Servicing, OS/Network SLA & Preventive Care",
+        terms: "Quarterly advance for 3-month continuous IT infrastructure AMC coverage."
+      },
       smb_website: {
         scope: "Professional SMB Website Design — 5-Page Responsive Mobile-First Business Website, Fast Hosting Setup, Local SEO & Direct WhatsApp Lead Routing",
         terms: "50% project advance with work order, 50% upon final website testing, client approval & live handover."

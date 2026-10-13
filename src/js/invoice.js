@@ -61,6 +61,9 @@ class InvoiceController {
     if (s.includes('solar') || s.includes('epc') || s.includes('pv') || s.includes('rooftop')) {
       return { code: '995461', label: 'Solar Power Plant Consulting & Project Coordination' };
     }
+    if (s.includes('infra') || s.includes('hardware') || s.includes('amc') || s.includes('networking') || s.includes('cctv') || s.includes('workstation') || s.includes('server')) {
+      return { code: '998713', label: 'IT Infrastructure Sales, AMC & Computer Support Services' };
+    }
     if (s.includes('web') || s.includes('it') || s.includes('software') || s.includes('ai') || s.includes('automation')) {
       return { code: '998313', label: 'IT Consulting, Web Development & Automation Services' };
     }
@@ -452,19 +455,30 @@ class InvoiceController {
       statusPillText = 'DECLINED';
     }
 
+    const isInfra = (quotation.service || '').toLowerCase().includes('infra') || 
+                    (quotation.service || '').toLowerCase().includes('hardware') || 
+                    (quotation.service || '').toLowerCase().includes('network') ||
+                    (quotation.service || '').toLowerCase().includes('amc');
+
     const scopeBullets = isSolar ? [
       'Preliminary site survey, rooftop structural analysis & orientation geometry check',
       'APDCL Net-Metering NOC liaison, SLD (Single Line Diagram) & CEIG compliance planning',
       'Tier-1 Solar PV modules & grid-interactive inverter technical specification & procurement coordination',
       'Civil mounting structures, DC/AC cabling, earthing pits & lightning protection installation audit',
       'Final grid synchronization, bidirectional net-meter testing, and handover documentation'
+    ] : (isInfra ? [
+      'Commercial workstation, server & client IT equipment procurement & quality inspection',
+      'Structured Cat6/Fiber cabling, rack termination, and managed gigabit network switch setup',
+      'Operating system staging, corporate anti-virus deployment & endpoint security hardening',
+      'UPS power backup integration, surge protection & battery health audit',
+      'Service Level Agreement (SLA) on-site AMC support, preventive care & ticket resolution'
     ] : [
       'Full-stack website design, mobile responsiveness, fast loading & Northeast India local SEO optimization',
       'Integration of WhatsApp direct customer enquiry buttons and lead routing',
       'Contact forms, Google Maps embed, SSL security configuration and domain linkage',
       'Content staging, doctor/product schedules, or e-commerce catalog showcase',
       '30 days post-launch technical warranty & maintenance support'
-    ];
+    ]);
 
     return `
       <div class="maxeco-invoice-sheet maxeco-quotation-sheet" id="quotation-printable-area">
