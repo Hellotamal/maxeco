@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>MaxEco Energy & Tech | Solar Advisory & Digital Solutions | Guwahati, Assam</title>
+  <meta name="description" content="MaxEco Energy & Tech provides commercial solar energy advisory, solar rooftop EPC coordination, and small business digital web solutions across Guwahati and Northeast India.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/logo-emblem.png">
+  <link rel="apple-touch-icon" href="../assets/logo-emblem.png">
+
+  <!-- Template Stylesheets -->
+  <link rel="stylesheet" href="font-awesome-4.5.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="slick/slick.css"/>
+  <link rel="stylesheet" type="text/css" href="slick/slick-theme.css"/>
+  <link rel="stylesheet" href="css/tooplate-style.css">
+  <link rel="stylesheet" href="css/magnific-popup.css">
+
+  <style>
+    /* MaxEco Brand Overrides & Navigation Bar */
+    :root {
+      --maxeco-green: #10b981;
+      --maxeco-dark-green: #059669;
+      --maxeco-amber: #f59e0b;
+      --maxeco-navy: #0f172a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* Fixed Modern Brand Header Bar */
+    .maxeco-navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 9999;
+      background: rgba(15, 23, 42, 0.94);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
+    }
+
+    .maxeco-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none !important;
+    }
+
+    .maxeco-nav-brand img {
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+    }
+
+    .maxeco-brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+
+    .maxeco-brand-subtitle {
+      font-size: 10px;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .maxeco-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .maxeco-nav-links a {
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .maxeco-nav-links a:hover {
+      color: var(--maxeco-amber);
+      text-decoration: none;
+    }
+
+    .maxeco-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-maxeco-whatsapp {
+      background: #25d366;
+      color: #ffffff !important;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 6px;
+      text-decoration: none !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .btn-maxeco-whatsapp:hover {
+      background: #1eb954;
+      transform: translateY(-1px);
+    }
+
+    .btn-maxeco-erp {
+      background: linear-gradient(135deg, var(--maxeco-amber), #d97706);
+      color: #0f172a !important;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 7px 14px;
+      border-radius: 6px;
+      text-decoration: none !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-maxeco-erp:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.5);
+    }
+
+    /* Template Enhancements */
+    .parallax-window {
+      padding-top: 70px;
+    }
+
+    .tm-bg-white-transparent {
+      background-color: rgba(255, 255, 255, 0.94) !important;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      color: #1e293b;
+    }
+
+    .tm-bg-white-transparent h2, .tm-bg-white-transparent h3 {
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    .tm-bg-white-transparent p, .tm-bg-white-transparent b {
+      color: #334155;
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .btn-maxeco-green {
+      background: #10b981;
+      border: none;
+      color: #ffffff !important;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 6px;
+      display: inline-block;
+      text-decoration: none !important;
+      transition: background 0.2s ease;
+    }
+
+    .btn-maxeco-green:hover {
+      background: #059669;
+    }
+
+    .btn-maxeco-amber {
+      background: #f59e0b;
+      border: none;
+      color: #0f172a !important;
+      font-weight: 800;
+      padding: 10px 24px;
+      border-radius: 6px;
+      display: inline-block;
+      text-decoration: none !important;
+      transition: background 0.2s ease;
+    }
+
+    .btn-maxeco-amber:hover {
+      background: #d97706;
+    }
+
+    .maxeco-hero-card {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 36px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .maxeco-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .gallery-caption {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      background: rgba(15, 23, 42, 0.85);
+      padding: 6px;
+      margin-top: -4px;
+      border-radius: 0 0 6px 6px;
+    }
+
+    @media (max-width: 991px) {
+      .maxeco-nav-links { display: none; }
+      .maxeco-navbar { padding: 10px 16px; }
+      .btn-maxeco-whatsapp span, .btn-maxeco-erp span { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sticky Modern Brand Navigation Bar -->
+  <header class="maxeco-navbar">
+    <a href="#tm-section-1" class="maxeco-nav-brand">
+      <img src="../assets/logo-emblem.png" alt="MaxEco Renewal Energy Logo">
+      <div>
+        <div class="maxeco-brand-title">MaxEco <span style="color: #f59e0b;">Energy &amp; Tech</span></div>
+        <div class="maxeco-brand-subtitle">Renewal Energy • ESTD 2024 • Guwahati</div>
+      </div>
+    </a>
+
+    <nav>
+      <ul class="maxeco-nav-links">
+        <li><a href="#tm-section-1">Home</a></li>
+        <li><a href="#tm-section-2">Services</a></li>
+        <li><a href="#tm-section-3">Solar Advisory</a></li>
+        <li><a href="#tm-section-4">Why MaxEco</a></li>
+        <li><a href="#tm-section-5">Projects</a></li>
+        <li><a href="#tm-section-6">Contact</a></li>
+      </ul>
+    </nav>
+
+    <div class="maxeco-nav-actions">
+      <a href="https://wa.me/919954493909?text=Hello%20MaxEco,%20I%20would%20like%20to%20enquire%20about%20your%20services." target="_blank" class="btn-maxeco-whatsapp">
+        <i class="fa fa-whatsapp"></i> <span>WhatsApp</span>
+      </a>
+      <a href="../index.html" class="btn-maxeco-erp" title="Launch MaxEco ERP, Invoicing, Billing & Cash Flow Management">
+        <i class="fa fa-tachometer"></i> <span>Founder OS</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 1: HERO PARALLAX BANNER                          -->
+  <!-- ======================================================== -->
+  <div id="tm-section-1" class="parallax-window" data-parallax="scroll" data-image-src="img/bg-img-01.jpg">
+    <section class="container tm-page-1-content">
+      <div class="row">
+        <div class="col-lg-7 col-md-10 ml-auto">
+          <div class="maxeco-hero-card">
+            <div class="maxeco-badge">
+              <i class="fa fa-sun-o"></i> Clean Energy Advisory &amp; Digital Execution
+            </div>
+            <h1 style="font-size: 2.8rem; margin-bottom: 12px; font-weight: 800; line-height: 1.2;">
+              Practical Clean Energy &amp; Digital Growth for Northeast India
+            </h1>
+            <p style="font-size: 15px; color: #cbd5e1; line-height: 1.7; margin-bottom: 24px;">
+              Headquartered in Maligaon, Guwahati. We advise commercial enterprises, industrial facilities, and regional SMBs on high-yield rooftop solar EPC feasibility and engineer high-performance web systems that drive genuine local customer demand.
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+              <a href="#tm-section-2" class="btn-maxeco-amber">Explore Advisory</a>
+              <a href="https://wa.me/919954493909?text=Hello%20MaxEco,%20I%20am%20interested%20in%20a%20solar%20feasibility%20study." target="_blank" class="btn-maxeco-green">
+                <i class="fa fa-whatsapp"></i> Instant WhatsApp Chat
+              </a>
+              <a href="../index.html" class="btn btn-outline-light" style="font-size: 13px; font-weight: 700; padding: 10px 18px; border-radius: 6px;">
+                <i class="fa fa-lock"></i> ERP Login
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 2: CORE PILLARS & SERVICES                       -->
+  <!-- ======================================================== -->
+  <div id="tm-section-2" class="parallax-window" data-parallax="scroll" data-image-src="img/bg-img-02.jpg">
+    <section class="container tm-page-1-content tm-page-2">
+      <div class="row" style="margin-top: 40px;">
+        <!-- Left: Solar EPC -->
+        <article class="col-md-6 tm-article tm-bg-white-transparent">
+          <header>
+            <div style="font-size: 28px; color: #f59e0b; margin-bottom: 8px;"><i class="fa fa-sun-o"></i></div>
+            <h2 style="font-size: 1.6rem; color: #0f172a; margin-bottom: 12px;">Solar Rooftop EPC Coordination</h2>
+          </header>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6;">
+            Turnkey engineering and vendor management for commercial and industrial rooftops across Assam. We coordinate site surveys, structural integrity assessments, APDCL Net-Metering liaison, CEIG statutory safety clearances, Tier-1 PV module procurement, and bi-directional meter synchronization.
+          </p>
+          <ul style="font-size: 13px; color: #475569; padding-left: 18px; margin-bottom: 20px;">
+            <li>APDCL Sanctioned Load feasibility checks</li>
+            <li>DTR $\ge 15\%$ reverse power headroom verification</li>
+            <li>CEIG clearances for installations $> 10\text{ kW}$</li>
+          </ul>
+          <a href="#tm-section-3" class="btn-maxeco-green" style="font-size: 13px; padding: 8px 18px;">
+            Solar Analytics Details...
+          </a>
+        </article>
+
+        <!-- Right: IT & Digital -->
+        <article class="col-md-6 tm-article tm-bg-white-transparent">
+          <header>
+            <div style="font-size: 28px; color: #0284c7; margin-bottom: 8px;"><i class="fa fa-laptop"></i></div>
+            <h2 style="font-size: 1.6rem; color: #0f172a; margin-bottom: 12px;">SMB Digital Solutions &amp; Web</h2>
+          </header>
+          <p style="font-size: 14px; color: #334155; line-height: 1.6;">
+            High-converting digital presence engineered for growing Northeast businesses. Ultra-fast responsive websites, localized Northeast India search engine optimization (SEO), integrated WhatsApp direct lead capture, and zero expensive monthly SaaS lock-ins.
+          </p>
+          <ul style="font-size: 13px; color: #475569; padding-left: 18px; margin-bottom: 20px;">
+            <li>Zero ongoing monthly CMS subscription costs</li>
+            <li>Instant WhatsApp lead routing &amp; booking</li>
+            <li>Google Business &amp; Assam regional SEO integration</li>
+          </ul>
+          <a href="#tm-section-5" class="btn-maxeco-green" style="font-size: 13px; padding: 8px 18px;">
+            View Projects Portfolio...
+          </a>
+        </article>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 3: PRECISION SOLAR ASSESSMENT & PVGIS ANALYTICS  -->
+  <!-- ======================================================== -->
+  <div id="tm-section-3" class="parallax-window" data-parallax="scroll" data-image-src="img/bg-img-03.jpg">
+    <section class="container tm-page-1-content">
+      <div class="row">
+        <div class="col-xl-7 col-md-9 ml-auto">
+          <article class="tm-bg-white-transparent" style="max-width: 100%; padding: 36px;">
+            <header>
+              <div style="color: #f59e0b; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                Verified PVGIS Meteorological Engine
+              </div>
+              <h2 style="font-size: 1.9rem; color: #0f172a; margin-bottom: 14px;">
+                Guwahati Solar Irradiance &amp; Economics
+              </h2>
+            </header>
+            <p style="font-size: 14px; color: #334155; line-height: 1.7; margin-bottom: 16px;">
+              Our assessments leverage the European Commission's PVGIS SARAH-2 satellite solar database (Latitude 26.1445°N, Longitude 91.7362°E). Guwahati achieves a realistic benchmark specific yield of <strong>~1,377 kWh/kWp/year</strong>, delivering substantial reductions in commercial electricity tariffs (APDCL Category 6 &amp; 7).
+            </p>
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 12px 16px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; color: #065f46;">
+              <strong>Typical Payback:</strong> 4.5 to 5.5 Years for commercial facilities. Real-world financial modeling accounting for 14% system loss, monsoon seasonal attenuation, and zero fictitious energy claims.
+            </div>
+            <a href="#tm-section-6" class="btn-maxeco-amber" style="font-size: 13px; padding: 10px 20px;">
+              Request Feasibility Study
+            </a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 4: THREE PILLARS OF MAXECO INTEGRITY             -->
+  <!-- ======================================================== -->
+  <div id="tm-section-4" class="parallax-window" data-parallax="scroll" data-image-src="img/bg-img-04.jpg">
+    <div class="container">
+      <div class="row tm-page-4-content" style="display: flex; flex-wrap: wrap; justify-content: center;">
+        <article class="col-xs-12 col-md-4 tm-bg-white-transparent" style="margin: 15px;">
+          <header>
+            <div style="font-size: 24px; color: #10b981; margin-bottom: 8px;"><i class="fa fa-map-marker"></i></div>
+            <h3 style="font-size: 1.3rem; color: #0f172a;">Regional Focus</h3>
+          </header>
+          <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+            Headquartered in Maligaon, Guwahati. We have real, feet-on-the-ground expertise across Kamrup Metro, Lower Assam, Upper Assam, and neighboring Northeast industrial corridors.
+          </p>
+        </article>
+
+        <article class="col-xs-12 col-md-4 tm-bg-white-transparent" style="margin: 15px;">
+          <header>
+            <div style="font-size: 24px; color: #f59e0b; margin-bottom: 8px;"><i class="fa fa-shield"></i></div>
+            <h3 style="font-size: 1.3rem; color: #0f172a;">Founder-Led Integrity</h3>
+          </header>
+          <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+            Directed by Tamal Roy. No inflated generation claims, no surprise variation orders, and complete transparency in BOM component pricing and vendor coordination.
+          </p>
+        </article>
+
+        <article class="col-xs-12 col-md-4 tm-bg-white-transparent" style="margin: 15px;">
+          <header>
+            <div style="font-size: 24px; color: #0284c7; margin-bottom: 8px;"><i class="fa fa-check-circle"></i></div>
+            <h3 style="font-size: 1.3rem; color: #0f172a;">Rigorous Standards</h3>
+          </header>
+          <p style="font-size: 13px; color: #475569; line-height: 1.6;">
+            Every solar installation follows MNRE technical standards, APDCL grid synchronization safety protocols, CEIG earthing guidelines, and dual-layer quality control.
+          </p>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 5: PROJECT GALLERY & EXECUTIONS (SLICK SLIDER)   -->
+  <!-- ======================================================== -->
+  <div id="tm-section-5" class="parallax-window" data-parallax="scroll" data-image-src="img/bg-img-05.jpg">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-center" style="margin-bottom: 30px;">
+          <h2 style="font-size: 2.2rem; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.7); font-weight: 800;">
+            Featured Project Executions
+          </h2>
+          <p style="color: #e2e8f0; font-size: 15px; text-shadow: 0 1px 4px rgba(0,0,0,0.8);">
+            Solar rooftop installations, industrial power coordination, and digital solutions delivered in Assam
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="tm-img-container mx-auto">
+          <div class="tm-img-slider">
+            <div>
+              <a class="image-link" href="img/gallery-img-01.jpg" title="35kWp Commercial Rooftop Solar EPC - Amingaon">
+                <img src="img/gallery-img-01-tn.jpg" alt="Commercial Solar Installation" class="tm-slider-img">
+                <div class="gallery-caption">35kWp Commercial Solar</div>
+              </a>
+            </div>
+            <div>
+              <a class="image-link" href="img/gallery-img-02.jpg" title="15kWp String Inverter Array - Engineering Facility">
+                <img src="img/gallery-img-02-tn.jpg" alt="Solar Inverter Array" class="tm-slider-img">
+                <div class="gallery-caption">15kWp Grid-Tied Inverter</div>
+              </a>
+            </div>
+            <div>
+              <a class="image-link" href="img/gallery-img-03.jpg" title="10kWp Institutional Solar - Dispur Complex">
+                <img src="img/gallery-img-03-tn.jpg" alt="Institutional Rooftop Solar" class="tm-slider-img">
+                <div class="gallery-caption">10kWp Institutional Solar</div>
+              </a>
+            </div>
+            <div>
+              <a class="image-link" href="img/gallery-img-04.jpg" title="50kWp Agro Processing Cold Storage Solar - Sonapur">
+                <img src="img/gallery-img-04-tn.jpg" alt="Agricultural Cold Storage Solar" class="tm-slider-img">
+                <div class="gallery-caption">50kWp Agro Solar Facility</div>
+              </a>
+            </div>
+            <div>
+              <a class="image-link" href="img/gallery-img-05.jpg" title="Healthcare Specialty Clinic Web Portal">
+                <img src="img/gallery-img-05-tn.jpg" alt="Digital SMB Solution" class="tm-slider-img">
+                <div class="gallery-caption">Healthcare Web Platform</div>
+              </a>
+            </div>
+            <div>
+              <a class="image-link" href="img/gallery-img-06.jpg" title="Regional Manufacturing & Machinery Showcase">
+                <img src="img/gallery-img-06-tn.jpg" alt="Regional Digital Showcase" class="tm-slider-img">
+                <div class="gallery-caption">Regional SMB Portal</div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SECTION 6: CONTACT & CONSULTATION FORM                   -->
+  <!-- ======================================================== -->
+  <div id="tm-section-6" class="parallax-window tm-position-relative tm-form-section" data-parallax="scroll" data-image-src="img/bg-img-06.jpg">
+    <div class="container">
+      <div class="row">
+        <div class="col-12" style="margin-bottom: 24px;">
+          <h2 style="font-size: 2.2rem; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,0.8); font-weight: 800;">
+            Connect with MaxEco Energy &amp; Tech
+          </h2>
+          <p style="color: #e2e8f0; font-size: 15px; text-shadow: 0 1px 4px rgba(0,0,0,0.8);">
+            Discuss your rooftop solar feasibility or digital requirements directly with our team in Guwahati
+          </p>
+        </div>
+      </div>
+
+      <div class="row tm-page-5-content">
+        <!-- Contact Form -->
+        <div class="col-lg-5 col-md-6 col-xs-12">
+          <div class="contact_message" style="background: rgba(15, 23, 42, 0.92); padding: 28px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+            <h4 style="color: #f59e0b; font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">
+              Request Feasibility Study
+            </h4>
+            <form id="maxeco-contact-form" onsubmit="handleWebsiteContactSubmit(event)">
+              <div class="form-group">
+                <input type="text" id="contact_name" class="form-control" placeholder="Your Name / Business Name" required style="border-radius: 6px;">
+              </div>
+              <div class="form-group">
+                <input type="tel" id="contact_phone" class="form-control" placeholder="Phone Number (WhatsApp preferred)" required style="border-radius: 6px;">
+              </div>
+              <div class="form-group">
+                <select id="contact_service" class="form-control" style="border-radius: 6px; font-size: 13px;">
+                  <option value="Solar Rooftop EPC Coordination">Solar Rooftop EPC Coordination</option>
+                  <option value="Solar Energy & APDCL Feasibility">Solar Energy &amp; APDCL Feasibility Advisory</option>
+                  <option value="Small Business Website Solutions">Small Business Website &amp; Digital Solutions</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <textarea id="contact_message_text" class="form-control" rows="4" placeholder="Briefly describe your rooftop area, monthly APDCL bill, or project requirements..." required style="border-radius: 6px;"></textarea>
+              </div>
+              <button type="submit" class="btn-maxeco-amber" style="width: 100%; border-radius: 6px; font-size: 14px; padding: 12px;">
+                <i class="fa fa-whatsapp"></i> Submit &amp; Open WhatsApp
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Official Registered Info & Credentials -->
+        <div class="col-lg-7 col-md-6 col-xs-12">
+          <div class="tm-address-box" style="background: rgba(15, 23, 42, 0.88); padding: 28px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 10px 30px rgba(0,0,0,0.4);">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 18px;">
+              <img src="../assets/logo-emblem.png" alt="MaxEco Logo" style="width: 54px; height: 54px; object-fit: contain;">
+              <div>
+                <h4 style="margin: 0; color: #ffffff; font-weight: 800; font-size: 1.25rem;">MaxEco Energy &amp; Tech</h4>
+                <div style="font-size: 11px; color: #10b981; font-weight: 700;">RENEWAL ENERGY • ESTD 2024</div>
+              </div>
+            </div>
+
+            <p style="font-size: 13px; color: #cbd5e1; line-height: 1.6; margin-bottom: 16px;">
+              Independent clean energy advisory and software solutions firm headquartered in Guwahati, Assam.
+            </p>
+
+            <address style="font-size: 13px; color: #e2e8f0; line-height: 1.8; margin-bottom: 20px;">
+              <strong>📍 Registered Office:</strong> Maligaon, Guwahati, Assam, Pin - 781011<br>
+              <strong>📞 Direct Phone:</strong> <a href="tel:+919954493909" style="color: #f59e0b; text-decoration: none;">+91 99544 93909</a><br>
+              <strong>✉️ Official Email:</strong> <a href="mailto:maxecoenergyit@gmail.com" style="color: #38bdf8; text-decoration: none;">maxecoenergyit@gmail.com</a><br>
+              <strong>👤 Founder &amp; Authorised Signatory:</strong> Tamal Roy
+            </address>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <div style="font-size: 11px; color: #94a3b8;">Banking Settlement Account:</div>
+                <div style="font-size: 12px; font-weight: 700; color: #ffffff;">Punjab National Bank • Maligaon Branch</div>
+                <div style="font-size: 11px; font-family: monospace; color: #f59e0b;">A/C: 4589000100072219 | IFSC: PUNB0458900</div>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <img src="../assets/payment-qr.png" alt="Payment QR" style="width: 48px; height: 48px; background: #fff; padding: 2px; border-radius: 4px;">
+                <img src="../assets/signature.png" alt="Authorised Signature" style="height: 48px; max-width: 100px; object-fit: contain; background: rgba(255,255,255,0.9); padding: 4px; border-radius: 4px;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="row" style="margin-top: 50px;">
+        <div class="col-12 text-center" style="padding: 20px 0; border-top: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; font-size: 12px;">
+          <p style="margin-bottom: 6px;">
+            Copyright &copy; 2026 <strong>MaxEco Energy &amp; Tech</strong>. All Rights Reserved. | Maligaon, Guwahati, Assam
+          </p>
+          <p style="margin: 0;">
+            <a href="#tm-section-1" style="color: #cbd5e1; margin: 0 8px;">Home</a> •
+            <a href="#tm-section-2" style="color: #cbd5e1; margin: 0 8px;">Solar Advisory</a> •
+            <a href="#tm-section-3" style="color: #cbd5e1; margin: 0 8px;">Feasibility</a> •
+            <a href="../index.html" style="color: #f59e0b; font-weight: 700; margin: 0 8px;">Launch MaxEco ERP OS</a> •
+            <a href="https://wa.me/919954493909" target="_blank" style="color: #25d366; margin: 0 8px;">WhatsApp</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load Template JS Libraries -->
+  <script src="js/jquery-1.11.3.min.js"></script>
+  <script src="js/parallax.min.js"></script>
+  <script type="text/javascript" src="slick/slick.min.js"></script>
+  <script src="js/jquery.magnific-popup.min.js"></script>
+
+  <script>
+    function setCarousel() {
+      var slider = $('.tm-img-slider');
+      if (slider.hasClass('slick-initialized')) {
+        slider.slick('destroy');
+      }
+      if ($(window).width() > 991) {
+        slider.slick({
+          dots: true,
+          infinite: true,
+          slidesToShow: 4,
+          slidesToScroll: 1
+        });
+      } else if ($(window).width() > 600) {
+        slider.slick({
+          dots: true,
+          infinite: true,
+          slidesToShow: 2,
+          slidesToScroll: 1
+        });
+      } else {
+        slider.slick({
+          dots: true,
+          infinite: true,
+          slidesToShow: 1,
+          slidesToScroll: 1
+        });
+      }
+    }
+
+    $(document).ready(function() {
+      setCarousel();
+      $('.tm-img-slider').magnificPopup({
+        delegate: 'a',
+        type: 'image',
+        gallery: { enabled: true }
+      });
+      $(window).resize(function() {
+        setCarousel();
+      });
+
+      // Smooth scrolling for navigation links
+      $('a[href^="#tm-section"]').on('click', function(e) {
+        e.preventDefault();
+        var target = $(this.getAttribute('href'));
+        if (target.length) {
+          $('html, body').stop().animate({
+            scrollTop: target.offset().top - 60
+          }, 600);
+        }
+      });
+    });
+
+    // Handle Contact Form Submission via WhatsApp
+    function handleWebsiteContactSubmit(e) {
+      e.preventDefault();
+      var name = document.getElementById('contact_name').value.trim();
+      var phone = document.getElementById('contact_phone').value.trim();
+      var service = document.getElementById('contact_service').value;
+      var message = document.getElementById('contact_message_text').value.trim();
+
+      var text = "Hello MaxEco Energy & Tech,\n\n" +
+        "New Website Enquiry:\n" +
+        "• Name: " + name + "\n" +
+        "• Phone: " + phone + "\n" +
+        "• Service: " + service + "\n" +
+        "• Requirement: " + message + "\n\n" +
+        "Enquiry sent via MaxEco Official Website.";
+
+      var waUrl = "https://wa.me/919954493909?text=" + encodeURIComponent(text);
+      window.open(waUrl, '_blank');
+      alert("Thank you, " + name + "! Your project enquiry has been pre-drafted. Opening WhatsApp to connect with Tamal Roy at MaxEco Energy & Tech.");
+      e.target.reset();
+    }
+  </script>
+</body>
+</html>

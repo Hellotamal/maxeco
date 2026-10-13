@@ -542,6 +542,22 @@ assert(multiQuoteHtml.includes('alt="MaxEco Logo"'), 'Quotation format embeds of
 assert(testReceiptHtml.includes('alt="MaxEco Logo"'), 'Payment receipt voucher embeds official MaxEco Logo emblem in document header');
 assert(woHtml.includes('alt="MaxEco Logo"'), 'Field work order slip embeds official MaxEco Logo emblem in document header');
 
+// --- WEBSITE TEMPLATE INTEGRATION TESTS ---
+console.log('\n--- VERIFYING MAXECO PARALLAX WEBSITE TEMPLATE ---');
+assert(fs.existsSync('./public/website/index.html'), 'Website template index.html exists at public/website/index.html');
+assert(fs.existsSync('./public/website/css/tooplate-style.css'), 'Template stylesheet exists at public/website/css/tooplate-style.css');
+assert(fs.existsSync('./public/website/css/bootstrap.min.css'), 'Bootstrap CSS exists at public/website/css/bootstrap.min.css');
+assert(fs.existsSync('./public/website/js/parallax.min.js'), 'Parallax script exists at public/website/js/parallax.min.js');
+assert(fs.existsSync('./public/website/slick/slick.min.js'), 'Slick carousel script exists at public/website/slick/slick.min.js');
+assert(fs.existsSync('./public/website/img/bg-img-01.jpg'), 'Hero background image exists at public/website/img/bg-img-01.jpg');
+
+const websiteHtml = fs.readFileSync('./public/website/index.html', 'utf8');
+assert(websiteHtml.includes('MaxEco Energy &amp; Tech') || websiteHtml.includes('MaxEco Energy & Tech'), 'Website template contains company branding');
+assert(websiteHtml.includes('Tamal Roy'), 'Website template contains Founder & Authorised Signatory Tamal Roy');
+assert(websiteHtml.includes('9954493909'), 'Website template contains official phone & WhatsApp number');
+assert(websiteHtml.includes('Maligaon, Guwahati, Assam'), 'Website template contains official registered office location');
+assert(websiteHtml.includes('Founder OS'), 'Website template contains direct linkage to Founder ERP OS');
+
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');
