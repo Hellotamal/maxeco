@@ -387,6 +387,7 @@ class AppController {
             <td><span class="badge ${badgeClass}">${inv.status}</span></td>
             <td>
               <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.viewInvoiceFormat('${inv.id}')" title="View & Print Official Invoice Format">📄 Format</button>
                 ${outstanding > 0 ? `<button class="btn btn-primary btn-sm" onclick="app.openRecordPaymentModal('${inv.id}')">Record Payment</button>` : `<span class="text-emerald text-sm">Settled</span>`}
                 <button class="btn btn-secondary btn-sm" onclick="app.openEditInvoiceModal('${inv.id}')">✏️ Edit</button>
                 <button class="btn btn-danger btn-sm" onclick="app.deleteInvoice('${inv.id}')">✕</button>
@@ -1027,6 +1028,11 @@ class AppController {
     due.setDate(due.getDate() + 14);
     document.getElementById('invoice-due-date').value = due.toISOString().slice(0, 10);
     document.getElementById('invoice-status').value = 'Sent';
+    if (document.getElementById('invoice-address')) document.getElementById('invoice-address').value = 'Guwahati, Assam';
+    if (document.getElementById('invoice-gstin')) document.getElementById('invoice-gstin').value = '';
+    if (document.getElementById('invoice-type')) document.getElementById('invoice-type').value = 'TAX INVOICE';
+    if (document.getElementById('invoice-hsn')) document.getElementById('invoice-hsn').value = '';
+    if (document.getElementById('invoice-notes')) document.getElementById('invoice-notes').value = 'Due on Receipt / Milestone terms';
     document.getElementById('modal-invoice').classList.remove('hidden');
   }
 
@@ -1044,6 +1050,11 @@ class AppController {
     document.getElementById('invoice-collected').value = inv.amountCollected || 0;
     document.getElementById('invoice-due-date').value = inv.dueDate || '';
     document.getElementById('invoice-status').value = inv.status || 'Sent';
+    if (document.getElementById('invoice-address')) document.getElementById('invoice-address').value = inv.clientAddress || '';
+    if (document.getElementById('invoice-gstin')) document.getElementById('invoice-gstin').value = inv.clientGstin || '';
+    if (document.getElementById('invoice-type')) document.getElementById('invoice-type').value = inv.invoiceType || 'TAX INVOICE';
+    if (document.getElementById('invoice-hsn')) document.getElementById('invoice-hsn').value = inv.hsnSac || '';
+    if (document.getElementById('invoice-notes')) document.getElementById('invoice-notes').value = inv.terms || '';
     document.getElementById('modal-invoice').classList.remove('hidden');
   }
 
@@ -1055,6 +1066,11 @@ class AppController {
     const amountCollected = Number(document.getElementById('invoice-collected').value) || 0;
     const dueDate = document.getElementById('invoice-due-date').value;
     const status = document.getElementById('invoice-status').value;
+    const clientAddress = document.getElementById('invoice-address') ? document.getElementById('invoice-address').value.trim() : '';
+    const clientGstin = document.getElementById('invoice-gstin') ? document.getElementById('invoice-gstin').value.trim() : '';
+    const invoiceType = document.getElementById('invoice-type') ? document.getElementById('invoice-type').value : 'TAX INVOICE';
+    const hsnSac = document.getElementById('invoice-hsn') ? document.getElementById('invoice-hsn').value.trim() : '';
+    const terms = document.getElementById('invoice-notes') ? document.getElementById('invoice-notes').value.trim() : '';
 
     if (!clientName || !amountBilled) {
       showToast('Please provide Client Name and Amount Billed.', 'error');
@@ -1067,14 +1083,19 @@ class AppController {
       amountBilled,
       amountCollected,
       dueDate,
-      status
+      status,
+      clientAddress,
+      clientGstin,
+      invoiceType,
+      hsnSac,
+      terms
     };
 
     if (editId) {
       invData.id = editId;
     }
 
-    window.storage.saveInvoice(invData);
+    const saved = window.storage.saveInvoice(invData);
     this.closeAllModals();
     showToast(editId ? `Invoice ${editId} updated.` : `Invoice created for ${clientName}`, 'success');
     this.renderQuotesInvoicesTab();
@@ -1089,6 +1110,45 @@ class AppController {
       showToast('Invoice deleted.', 'info');
       this.renderQuotesInvoicesTab();
     }
+  }
+
+  // --- INVOICE FORMAT VIEWER CONTROLS ---
+  viewInvoiceFormat(invoiceId) {
+    if (window.invoiceController) {
+      window.invoiceController.openInvoiceFormatModal(invoiceId);
+    } else {
+      showToast('Invoice format controller loading...', 'info');
+    }
+  }
+
+  printActiveInvoice() {
+    if (window.invoiceController) {
+      window.invoiceController.printInvoice();
+    }
+  }
+
+  shareActiveInvoiceWhatsApp() {
+    const activeId = document.getElementById('invoice-active-view-id')?.value;
+    if (activeId && window.invoiceController) {
+      window.invoiceController.shareInvoiceWhatsApp(activeId);
+    }
+  }
+
+  copyActiveInvoiceText() {
+    const activeId = document.getElementById('invoice-active-view-id')?.value;
+    if (activeId && window.invoiceController) {
+      window.invoiceController.copyInvoiceText(activeId);
+    }
+  }
+
+  openInvoiceFormatSelector() {
+    const invoices = window.storage.getInvoices();
+    if (!invoices || invoices.length === 0) {
+      showToast('No invoices issued yet. Please create an invoice first.', 'info');
+      this.openAddInvoiceModal();
+      return;
+    }
+    this.viewInvoiceFormat(invoices[0].id);
   }
 
   // --- PROJECT CONTROLS ---

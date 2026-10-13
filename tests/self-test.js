@@ -55,6 +55,7 @@ require('../src/js/storage.js');
 require('../src/js/calculator.js');
 require('../src/js/crm.js');
 require('../src/js/finance.js');
+require('../src/js/invoice.js');
 require('../src/js/projects.js');
 
 let passedTests = 0;
@@ -202,6 +203,48 @@ const currentStore = window.storage.getStore();
 const backupJson = JSON.stringify(currentStore);
 const restoreOk = window.storage.importJsonBackup(backupJson);
 assert(restoreOk === true, 'Full JSON backup integrity validated & restored');
+
+// TEST SUITE 6: TAX INVOICE & BILL OF SUPPLY FORMATTING ENGINE
+console.log('\n--- TEST SUITE 6: Indian Tax Invoice & Bill of Supply Engine ---');
+assert(typeof window.invoiceController !== 'undefined', 'InvoiceController initialized on window');
+
+// Number to words in Indian numbering convention
+const words6k = window.invoiceController.numberToWordsINR(6000);
+assert(words6k === 'Rupees Six Thousand Only', `Number to words for ₹6,000 matches (${words6k})`);
+
+const wordsLakh = window.invoiceController.numberToWordsINR(1450000);
+assert(wordsLakh === 'Rupees Fourteen Lakh Fifty Thousand Only', `Number to words for ₹14,50,000 matches (${wordsLakh})`);
+
+// HSN/SAC detection
+const solarSac = window.invoiceController.detectHsnSac('Rooftop Solar EPC Advisory & Installation');
+assert(solarSac.code === '995461', 'Auto-detects SAC 995461 for Solar EPC services');
+
+const itSac = window.invoiceController.detectHsnSac('E-commerce Website Maintenance & AI Automation');
+assert(itSac.code === '998313', 'Auto-detects SAC 998313 for IT & Website services');
+
+// HTML Generation for Official Invoice
+const sampleInv = {
+  id: 'INV-2026-TEST',
+  clientName: 'Kamrup Packaging Ltd',
+  clientAddress: 'Amingaon Industrial Area, Guwahati',
+  service: 'Solar EPC Coordination (35 kWp System)',
+  amountBilled: 1450000,
+  amountCollected: 500000,
+  date: '2026-10-10',
+  dueDate: '2026-10-24',
+  status: 'Partially Paid',
+  referenceNo: 'UPI/SBI/20261010/883912'
+};
+
+const invoiceHtml = window.invoiceController.generateInvoiceHTML(sampleInv);
+assert(invoiceHtml.includes('MaxEco Energy &amp; Tech') || invoiceHtml.includes('MaxEco Energy & Tech'), 'Invoice contains company name');
+assert(invoiceHtml.includes('Maligaon, Guwahati, Assam, Pin - 781011'), 'Invoice contains official registered address');
+assert(invoiceHtml.includes('+91 99544 93909'), 'Invoice contains official contact phone');
+assert(invoiceHtml.includes('INV-2026-TEST'), 'Invoice contains invoice number');
+assert(invoiceHtml.includes('Kamrup Packaging Ltd'), 'Invoice contains client name');
+assert(invoiceHtml.includes('Rupees Fourteen Lakh Fifty Thousand Only'), 'Invoice contains amount in words');
+assert(invoiceHtml.includes('9954493909@upi'), 'Invoice contains bank remittance UPI ID');
+assert(invoiceHtml.includes('State Bank of India (SBI)'), 'Invoice contains bank name');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
