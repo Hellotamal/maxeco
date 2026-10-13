@@ -197,29 +197,60 @@ class InvoiceController {
         </div>
 
         <!-- ITEMS / SERVICES TABLE -->
-        <table class="inv-items-table">
-          <thead>
-            <tr>
-              <th style="width: 5%; text-align: center;">#</th>
-              <th style="width: 55%;">Description of Goods / Services</th>
-              <th style="width: 15%; text-align: center;">HSN / SAC</th>
-              <th style="width: 10%; text-align: center;">Qty</th>
-              <th style="width: 15%; text-align: right;">Amount (INR)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="text-align: center; vertical-align: top;">1</td>
-              <td>
-                <div class="inv-item-title"><strong>${invoice.service || 'Professional Advisory & Services'}</strong></div>
-                <div class="inv-item-desc">${invoice.serviceDescription || hsnInfo.label}</div>
-              </td>
-              <td style="text-align: center; vertical-align: top;" class="font-mono">${sacCode}</td>
-              <td style="text-align: center; vertical-align: top;">1 Job</td>
-              <td style="text-align: right; vertical-align: top;" class="font-mono"><strong>${this.formatCurrency(subtotal)}</strong></td>
-            </tr>
-          </tbody>
-        </table>
+        ${(() => {
+          const items = (Array.isArray(invoice.items) && invoice.items.length > 0)
+            ? invoice.items
+            : [{
+                description: invoice.service || 'Professional Advisory & Services',
+                serviceDescription: invoice.serviceDescription || hsnInfo.label,
+                sac: sacCode,
+                qty: 1,
+                unit: 'Job',
+                rate: subtotal,
+                amount: subtotal
+              }];
+
+          const itemsRows = items.map((item, idx) => {
+            const itemDesc = item.description || invoice.service || `Item ${idx + 1}`;
+            const itemSubDesc = item.serviceDescription || item.notes || '';
+            const itemSac = item.sac || item.hsn || sacCode;
+            const itemQty = Number(item.qty !== undefined && item.qty !== '' ? item.qty : 1);
+            const itemUnit = item.unit || 'Nos';
+            const itemRate = Number(item.rate !== undefined && item.rate !== '' ? item.rate : (item.amount || subtotal));
+            const itemAmount = Number(item.amount !== undefined && item.amount !== '' ? item.amount : (itemQty * itemRate));
+            return `
+              <tr>
+                <td style="text-align: center; vertical-align: top;">${idx + 1}</td>
+                <td>
+                  <div class="inv-item-title"><strong>${itemDesc}</strong></div>
+                  ${itemSubDesc ? `<div class="inv-item-desc">${itemSubDesc}</div>` : ''}
+                </td>
+                <td style="text-align: center; vertical-align: top;" class="font-mono">${itemSac}</td>
+                <td style="text-align: center; vertical-align: top;">${itemQty} <small style="color: #64748b;">${itemUnit}</small></td>
+                <td style="text-align: right; vertical-align: top;" class="font-mono">${this.formatCurrency(itemRate)}</td>
+                <td style="text-align: right; vertical-align: top;" class="font-mono"><strong>${this.formatCurrency(itemAmount)}</strong></td>
+              </tr>
+            `;
+          }).join('');
+
+          return `
+            <table class="inv-items-table">
+              <thead>
+                <tr>
+                  <th style="width: 5%; text-align: center;">#</th>
+                  <th style="width: 45%;">Description of Goods / Services</th>
+                  <th style="width: 13%; text-align: center;">HSN / SAC</th>
+                  <th style="width: 11%; text-align: center;">Qty</th>
+                  <th style="width: 12%; text-align: right;">Unit Rate</th>
+                  <th style="width: 14%; text-align: right;">Amount (INR)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsRows}
+              </tbody>
+            </table>
+          `;
+        })()}
 
         <!-- TOTALS & TAX BREAKDOWN -->
         <div class="inv-summary-grid">
@@ -495,29 +526,60 @@ class InvoiceController {
         </div>
 
         <!-- COMMERCIAL SCHEDULE TABLE -->
-        <table class="inv-items-table">
-          <thead>
-            <tr>
-              <th style="width: 5%; text-align: center;">#</th>
-              <th style="width: 55%;">Deliverable Package / Scope Item</th>
-              <th style="width: 15%; text-align: center;">HSN / SAC</th>
-              <th style="width: 10%; text-align: center;">Qty</th>
-              <th style="width: 15%; text-align: right;">Quoted Amount (INR)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="text-align: center; vertical-align: top;">1</td>
-              <td>
-                <div class="inv-item-title"><strong>${quotation.service}</strong></div>
-                <div class="inv-item-desc">${isSolar ? 'Solar engineering, advisory & complete vendor execution coordination.' : 'Full-lifecycle SMB website design, deployment and maintenance setup.'}</div>
-              </td>
-              <td style="text-align: center; vertical-align: top;" class="font-mono">${hsnInfo.code}</td>
-              <td style="text-align: center; vertical-align: top;">1 Turnkey Job</td>
-              <td style="text-align: right; vertical-align: top;" class="font-mono"><strong>${this.formatCurrency(total)}</strong></td>
-            </tr>
-          </tbody>
-        </table>
+        ${(() => {
+          const quoteItems = (Array.isArray(quotation.items) && quotation.items.length > 0)
+            ? quotation.items
+            : [{
+                description: quotation.service || 'Turnkey Deliverables',
+                serviceDescription: isSolar ? 'Solar engineering, advisory & complete vendor execution coordination.' : 'Full-lifecycle SMB website design, deployment and maintenance setup.',
+                sac: hsnInfo.code,
+                qty: 1,
+                unit: 'Turnkey Job',
+                rate: total,
+                amount: total
+              }];
+
+          const quoteItemsRows = quoteItems.map((item, idx) => {
+            const itemDesc = item.description || quotation.service || `Deliverable ${idx + 1}`;
+            const itemSubDesc = item.serviceDescription || item.notes || '';
+            const itemSac = item.sac || item.hsn || hsnInfo.code;
+            const itemQty = Number(item.qty !== undefined && item.qty !== '' ? item.qty : 1);
+            const itemUnit = item.unit || 'Nos';
+            const itemRate = Number(item.rate !== undefined && item.rate !== '' ? item.rate : (item.amount || total));
+            const itemAmount = Number(item.amount !== undefined && item.amount !== '' ? item.amount : (itemQty * itemRate));
+            return `
+              <tr>
+                <td style="text-align: center; vertical-align: top;">${idx + 1}</td>
+                <td>
+                  <div class="inv-item-title"><strong>${itemDesc}</strong></div>
+                  ${itemSubDesc ? `<div class="inv-item-desc">${itemSubDesc}</div>` : ''}
+                </td>
+                <td style="text-align: center; vertical-align: top;" class="font-mono">${itemSac}</td>
+                <td style="text-align: center; vertical-align: top;">${itemQty} <small style="color: #64748b;">${itemUnit}</small></td>
+                <td style="text-align: right; vertical-align: top;" class="font-mono">${this.formatCurrency(itemRate)}</td>
+                <td style="text-align: right; vertical-align: top;" class="font-mono"><strong>${this.formatCurrency(itemAmount)}</strong></td>
+              </tr>
+            `;
+          }).join('');
+
+          return `
+            <table class="inv-items-table">
+              <thead>
+                <tr>
+                  <th style="width: 5%; text-align: center;">#</th>
+                  <th style="width: 45%;">Deliverable Package / Scope Item</th>
+                  <th style="width: 13%; text-align: center;">HSN / SAC</th>
+                  <th style="width: 11%; text-align: center;">Qty</th>
+                  <th style="width: 12%; text-align: right;">Unit Rate</th>
+                  <th style="width: 14%; text-align: right;">Quoted Amount (INR)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${quoteItemsRows}
+              </tbody>
+            </table>
+          `;
+        })()}
 
         <!-- TOTALS & AMOUNT IN WORDS -->
         <div class="inv-summary-grid">

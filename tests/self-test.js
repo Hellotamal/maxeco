@@ -419,6 +419,84 @@ assert(receiptHtml.includes('PUNB0458900'), 'Receipt HTML contains bank IFSC cod
 const csvPayOk = window.storage.exportCsv('payments');
 assert(csvPayOk === true, 'Payments & Receipts CSV export generated for banking ledger audit');
 
+// TEST SUITE 10: MULTIPLE LINE ITEMS & QUANTITY OPTION IN BILLING
+console.log('\n--- TEST SUITE 10: Multiple Line Items & Quantity Billing Option ---');
+
+const multiItemInvoice = {
+  id: 'INV-2026-MULTI',
+  clientName: 'Northeast Cold Storage Pvt Ltd',
+  clientAddress: 'Amingaon, Guwahati, Assam',
+  date: '2026-10-13',
+  dueDate: '2026-10-27',
+  amountBilled: 750000,
+  amountCollected: 0,
+  status: 'Sent',
+  items: [
+    {
+      description: '540W Mono PERC Solar Panels',
+      sac: '85414300',
+      qty: 30,
+      unit: 'Nos',
+      rate: 18000,
+      amount: 540000
+    },
+    {
+      description: '15kW On-Grid String Solar Inverter',
+      sac: '850440',
+      qty: 1,
+      unit: 'Set',
+      rate: 125000,
+      amount: 125000
+    },
+    {
+      description: 'Balance of System (BOS) & Installation Works',
+      sac: '995461',
+      qty: 1,
+      unit: 'Job',
+      rate: 85000,
+      amount: 85000
+    }
+  ]
+};
+
+const multiInvoiceHtml = window.invoiceController.generateInvoiceHTML(multiItemInvoice);
+assert(multiInvoiceHtml.includes('540W Mono PERC Solar Panels'), 'Multi-item invoice renders Item 1 description');
+assert(multiInvoiceHtml.includes('30 <small style="color: #64748b;">Nos</small>'), 'Multi-item invoice renders Item 1 quantity and unit (30 Nos)');
+assert(multiInvoiceHtml.includes('15kW On-Grid String Solar Inverter'), 'Multi-item invoice renders Item 2 description');
+assert(multiInvoiceHtml.includes('Balance of System (BOS) &amp; Installation Works') || multiInvoiceHtml.includes('Balance of System (BOS) & Installation Works'), 'Multi-item invoice renders Item 3 description');
+assert(multiInvoiceHtml.includes('7,50,000'), 'Multi-item invoice subtotal matches calculated line items sum (₹7,50,000)');
+
+const multiItemQuotation = {
+  id: 'QT-2026-MULTI',
+  clientName: 'Brahmaputra Agro Ventures',
+  date: '2026-10-13',
+  validUntil: '2026-11-13',
+  totalAmount: 60000,
+  items: [
+    {
+      description: 'PVGIS Shading & Feasibility Assessment',
+      sac: '995461',
+      qty: 1,
+      unit: 'Job',
+      rate: 25000,
+      amount: 25000
+    },
+    {
+      description: 'Net-Metering APDCL Liaison & CEIG Clearances',
+      sac: '995461',
+      qty: 1,
+      unit: 'Job',
+      rate: 35000,
+      amount: 35000
+    }
+  ]
+};
+
+const multiQuoteHtml = window.invoiceController.generateQuotationHTML(multiItemQuotation);
+assert(multiQuoteHtml.includes('PVGIS Shading &amp; Feasibility Assessment') || multiQuoteHtml.includes('PVGIS Shading & Feasibility Assessment'), 'Multi-item quotation renders Item 1 deliverable');
+assert(multiQuoteHtml.includes('Net-Metering APDCL Liaison &amp; CEIG Clearances') || multiQuoteHtml.includes('Net-Metering APDCL Liaison & CEIG Clearances'), 'Multi-item quotation renders Item 2 deliverable');
+assert(multiQuoteHtml.includes('60,000'), 'Multi-item quotation renders total matching line deliverables sum (₹60,000)');
+
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');

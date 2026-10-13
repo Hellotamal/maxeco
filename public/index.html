@@ -1936,7 +1936,7 @@
 
   <!-- Create/Edit Quotation Modal -->
   <div id="modal-quotation" class="modal-overlay hidden">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 860px; max-height: 94vh; overflow-y: auto;">
       <div class="modal-header">
         <h3 id="quote-modal-title" style="font-size: 15px;">Create Formal Quotation</h3>
         <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
@@ -1956,7 +1956,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Service & Deliverable Scope *</label>
+          <label class="form-label">Primary Scope Title / Package</label>
           <div style="margin-bottom: 8px;">
             <select id="quote-service-preset" class="form-control" onchange="app.onQuotePresetChange(this.value)">
               <option value="">-- Select Predefined Service Package (Optional) --</option>
@@ -1969,8 +1969,48 @@
               <option value="custom">Custom / Other Scope</option>
             </select>
           </div>
-          <input type="text" id="quote-service" class="form-control" required placeholder="e.g. SMB Website & WhatsApp Booking System">
-          <small class="text-muted">Choose a package from the dropdown above or enter custom scope text.</small>
+          <input type="text" id="quote-service" class="form-control" placeholder="e.g. SMB Website & WhatsApp Booking System">
+          <small class="text-muted">Choose a package from the dropdown or customize items below.</small>
+        </div>
+
+        <!-- Deliverables & Line Items Repeater -->
+        <div class="form-group">
+          <div class="flex justify-between items-center" style="margin-bottom: 6px;">
+            <label class="form-label" style="margin: 0; font-weight: 700; color: #0284c7; display: flex; align-items: center; gap: 6px;">
+              <span>📦</span> Deliverable Scope Items &amp; Quantities (Add Multiple Times)
+            </label>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="app.addQuoteItemRow()" style="border-color: #0284c7; color: #0284c7; font-weight: 600;">
+              + Add Item / Deliverable
+            </button>
+          </div>
+
+          <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; overflow-x: auto;">
+            <table class="data-table" style="width: 100%; font-size: 12px; margin-bottom: 6px;">
+              <thead>
+                <tr>
+                  <th style="min-width: 220px;">Deliverable / Item Description *</th>
+                  <th style="width: 95px;">HSN/SAC</th>
+                  <th style="width: 75px;">Qty *</th>
+                  <th style="width: 85px;">Unit</th>
+                  <th style="width: 110px;">Unit Rate (₹) *</th>
+                  <th style="width: 110px; text-align: right;">Amount (₹)</th>
+                  <th style="width: 36px; text-align: center;"></th>
+                </tr>
+              </thead>
+              <tbody id="quote-items-table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+
+            <div class="flex justify-between items-center flex-wrap gap-2" style="padding-top: 8px; border-top: 1px dashed var(--border-color); margin-top: 4px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="app.addQuoteItemRow()">
+                ➕ Add Another Line Item
+              </button>
+              <div style="font-size: 12px; color: var(--text-secondary);">
+                Calculated Scope Total: <strong id="quote-items-subtotal-display" class="text-cyan font-mono" style="font-size: 14px;">₹0</strong>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -1999,7 +2039,7 @@
 
   <!-- Create/Edit Direct Invoice Modal -->
   <div id="modal-invoice" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 500px;">
+    <div class="modal-content" style="max-width: 860px; max-height: 94vh; overflow-y: auto;">
       <div class="modal-header">
         <h3 id="invoice-modal-title" style="font-size: 15px;">Create Direct Invoice</h3>
         <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
@@ -2019,13 +2059,54 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Service Description *</label>
-          <input type="text" id="invoice-service" class="form-control" required placeholder="e.g. Turnkey Rooftop Solar Advisory / SMB Website">
+          <label class="form-label">Overall Invoice Title / Service Heading</label>
+          <input type="text" id="invoice-service" class="form-control" placeholder="e.g. Turnkey Rooftop Solar Installation &amp; EPC Advisory">
+          <small class="text-muted">Primary invoice heading (auto-summarized from line items if left blank).</small>
+        </div>
+
+        <!-- Invoicing Line Items Repeater -->
+        <div class="form-group">
+          <div class="flex justify-between items-center" style="margin-bottom: 6px;">
+            <label class="form-label" style="margin: 0; font-weight: 700; color: #10b981; display: flex; align-items: center; gap: 6px;">
+              <span>📦</span> Line Items &amp; Quantities (Add Multiple Times)
+            </label>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="app.addInvoiceItemRow()" style="border-color: #10b981; color: #10b981; font-weight: 600;">
+              + Add Item / Service
+            </button>
+          </div>
+
+          <div style="background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; overflow-x: auto;">
+            <table class="data-table" style="width: 100%; font-size: 12px; margin-bottom: 6px;">
+              <thead>
+                <tr>
+                  <th style="min-width: 220px;">Item / Service Description *</th>
+                  <th style="width: 95px;">HSN/SAC</th>
+                  <th style="width: 75px;">Qty *</th>
+                  <th style="width: 85px;">Unit</th>
+                  <th style="width: 110px;">Unit Rate (₹) *</th>
+                  <th style="width: 110px; text-align: right;">Amount (₹)</th>
+                  <th style="width: 36px; text-align: center;"></th>
+                </tr>
+              </thead>
+              <tbody id="invoice-items-table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+
+            <div class="flex justify-between items-center flex-wrap gap-2" style="padding-top: 8px; border-top: 1px dashed var(--border-color); margin-top: 4px;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="app.addInvoiceItemRow()">
+                ➕ Add Another Line Item
+              </button>
+              <div style="font-size: 12px; color: var(--text-secondary);">
+                Line Items Subtotal: <strong id="invoice-items-subtotal-display" class="text-emerald font-mono" style="font-size: 14px;">₹0</strong>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
-            <label class="form-label">Amount Billed (₹) *</label>
+            <label class="form-label">Total Amount Billed (₹) *</label>
             <input type="number" id="invoice-billed" class="form-control" required placeholder="e.g. 50000">
           </div>
           <div class="form-group">

@@ -634,6 +634,21 @@ class AppController {
     if (document.getElementById('quote-service')) document.getElementById('quote-service').value = lead.service;
     if (document.getElementById('quote-amount')) document.getElementById('quote-amount').value = lead.estimatedValue || '';
     if (document.getElementById('quote-cost')) document.getElementById('quote-cost').value = Math.round((lead.estimatedValue || 0) * 0.8);
+    
+    const tbody = document.getElementById('quote-items-table-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      const hsn = window.invoiceController ? window.invoiceController.detectHsnSac(lead.service) : null;
+      this.addQuoteItemRow({
+        description: lead.service,
+        sac: hsn ? hsn.code : '995461',
+        qty: 1,
+        unit: 'Job',
+        rate: lead.estimatedValue || '',
+        amount: lead.estimatedValue || ''
+      });
+    }
+
     showToast(`Autofilled quotation details from lead ${lead.name}`, 'info');
   }
 
@@ -649,6 +664,24 @@ class AppController {
         if (document.getElementById('invoice-notes') && quote.terms) document.getElementById('invoice-notes').value = quote.terms;
         const hsn = window.invoiceController ? window.invoiceController.detectHsnSac(quote.service) : null;
         if (document.getElementById('invoice-hsn') && hsn) document.getElementById('invoice-hsn').value = hsn.code;
+
+        const tbody = document.getElementById('invoice-items-table-body');
+        if (tbody) {
+          tbody.innerHTML = '';
+          if (Array.isArray(quote.items) && quote.items.length > 0) {
+            quote.items.forEach(it => this.addInvoiceItemRow(it));
+          } else {
+            this.addInvoiceItemRow({
+              description: quote.service,
+              sac: hsn ? hsn.code : '995461',
+              qty: 1,
+              unit: 'Job',
+              rate: quote.totalAmount,
+              amount: quote.totalAmount
+            });
+          }
+        }
+
         showToast(`Autofilled invoice from Quotation ${quote.id}`, 'info');
       }
     } else if (val.startsWith('LEAD:')) {
@@ -660,6 +693,20 @@ class AppController {
         if (document.getElementById('invoice-billed')) document.getElementById('invoice-billed').value = lead.estimatedValue || '';
         const hsn = window.invoiceController ? window.invoiceController.detectHsnSac(lead.service) : null;
         if (document.getElementById('invoice-hsn') && hsn) document.getElementById('invoice-hsn').value = hsn.code;
+
+        const tbody = document.getElementById('invoice-items-table-body');
+        if (tbody) {
+          tbody.innerHTML = '';
+          this.addInvoiceItemRow({
+            description: lead.service,
+            sac: hsn ? hsn.code : '995461',
+            qty: 1,
+            unit: 'Job',
+            rate: lead.estimatedValue || '',
+            amount: lead.estimatedValue || ''
+          });
+        }
+
         showToast(`Autofilled invoice from Lead ${lead.name}`, 'info');
       }
     }
@@ -1656,7 +1703,143 @@ class AppController {
     this.renderFinanceTab();
   }
 
-  // --- QUOTATION CONTROLS ---
+  // --- QUOTATION CONTROLS & LINE ITEMS REPEATER ---
+  addQuoteItemRow(data = {}) {
+    const tbody = document.getElementById('quote-items-table-body');
+    if (!tbody) return;
+
+    const rowId = 'quo-row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    const tr = document.createElement('tr');
+    tr.id = rowId;
+    tr.className = 'quote-item-row';
+
+    const desc = (data.description !== undefined ? data.description : '').replace(/"/g, '&quot;');
+    const sac = (data.sac || data.hsn || '').replace(/"/g, '&quot;');
+    const qty = data.qty !== undefined && data.qty !== '' ? data.qty : 1;
+    const unit = data.unit || 'Nos';
+    const rate = data.rate !== undefined && data.rate !== '' ? data.rate : (data.amount !== undefined ? data.amount : '');
+    const amount = Number(qty) * Number(rate) || 0;
+
+    tr.innerHTML = `
+      <td>
+        <input type="text" class="form-control form-control-sm quo-item-desc" placeholder="e.g. Turnkey Solar PV Rooftop Erection" value="${desc}" required oninput="app.onQuoteItemChanged()">
+      </td>
+      <td>
+        <input type="text" class="form-control form-control-sm quo-item-sac" placeholder="995461" value="${sac}" style="font-family: var(--font-mono); font-size: 11px;">
+      </td>
+      <td>
+        <input type="number" class="form-control form-control-sm quo-item-qty" placeholder="1" min="0.01" step="any" value="${qty}" required oninput="app.onQuoteItemChanged()">
+      </td>
+      <td>
+        <select class="form-control form-control-sm quo-item-unit" onchange="app.onQuoteItemChanged()">
+          <option value="Nos" ${unit === 'Nos' ? 'selected' : ''}>Nos</option>
+          <option value="kWp" ${unit === 'kWp' ? 'selected' : ''}>kWp</option>
+          <option value="Job" ${unit === 'Job' ? 'selected' : ''}>Job</option>
+          <option value="Set" ${unit === 'Set' ? 'selected' : ''}>Set</option>
+          <option value="Mtr" ${unit === 'Mtr' ? 'selected' : ''}>Mtr</option>
+          <option value="Sqft" ${unit === 'Sqft' ? 'selected' : ''}>Sqft</option>
+          <option value="Hours" ${unit === 'Hours' ? 'selected' : ''}>Hours</option>
+          <option value="Month" ${unit === 'Month' ? 'selected' : ''}>Month</option>
+        </select>
+      </td>
+      <td>
+        <input type="number" class="form-control form-control-sm quo-item-rate" placeholder="0" min="0" step="any" value="${rate}" required oninput="app.onQuoteItemChanged()">
+      </td>
+      <td style="text-align: right; vertical-align: middle;">
+        <span class="font-mono text-cyan quo-item-amount" style="font-weight: 600;">₹${Number(amount).toLocaleString('en-IN')}</span>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="app.removeQuoteItemRow('${rowId}')" title="Remove deliverable" style="padding: 2px 6px; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">✕</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+    this.recalculateQuoteItemsTotal();
+  }
+
+  removeQuoteItemRow(rowId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    const tbody = document.getElementById('quote-items-table-body');
+    if (tbody && tbody.children.length <= 1) {
+      if (typeof showToast === 'function') showToast('At least one deliverable item is required.', 'warning');
+      return;
+    }
+    row.remove();
+    this.recalculateQuoteItemsTotal();
+  }
+
+  onQuoteItemChanged() {
+    this.recalculateQuoteItemsTotal();
+  }
+
+  recalculateQuoteItemsTotal() {
+    const tbody = document.getElementById('quote-items-table-body');
+    if (!tbody) return;
+
+    let grandTotal = 0;
+    const rows = tbody.querySelectorAll('.quote-item-row');
+    rows.forEach(tr => {
+      const qtyInput = tr.querySelector('.quo-item-qty');
+      const rateInput = tr.querySelector('.quo-item-rate');
+      const qty = parseFloat(qtyInput ? qtyInput.value : 0) || 0;
+      const rate = parseFloat(rateInput ? rateInput.value : 0) || 0;
+      const lineAmt = Math.round(qty * rate * 100) / 100;
+      grandTotal += lineAmt;
+      const amtSpan = tr.querySelector('.quo-item-amount');
+      if (amtSpan) amtSpan.textContent = '₹' + lineAmt.toLocaleString('en-IN');
+    });
+
+    const subtotalEl = document.getElementById('quote-items-subtotal-display');
+    if (subtotalEl) subtotalEl.textContent = '₹' + grandTotal.toLocaleString('en-IN');
+
+    const amountInput = document.getElementById('quote-amount');
+    if (amountInput) {
+      amountInput.value = grandTotal > 0 ? grandTotal : '';
+    }
+
+    const costInput = document.getElementById('quote-cost');
+    if (costInput && (!costInput.value || parseFloat(costInput.value) === 0)) {
+      costInput.value = Math.round(grandTotal * 0.8);
+    }
+
+    const serviceInput = document.getElementById('quote-service');
+    if (serviceInput && !serviceInput.value.trim() && rows.length > 0) {
+      const firstDescInput = rows[0].querySelector('.quo-item-desc');
+      const firstDesc = firstDescInput ? firstDescInput.value.trim() : '';
+      if (firstDesc) {
+        serviceInput.value = rows.length > 1 ? `${firstDesc} (+${rows.length - 1} deliverables)` : firstDesc;
+      }
+    }
+  }
+
+  collectQuoteItems() {
+    const tbody = document.getElementById('quote-items-table-body');
+    if (!tbody) return [];
+
+    const items = [];
+    const rows = tbody.querySelectorAll('.quote-item-row');
+    rows.forEach(tr => {
+      const descInput = tr.querySelector('.quo-item-desc');
+      const sacInput = tr.querySelector('.quo-item-sac');
+      const qtyInput = tr.querySelector('.quo-item-qty');
+      const unitInput = tr.querySelector('.quo-item-unit');
+      const rateInput = tr.querySelector('.quo-item-rate');
+
+      const desc = descInput ? descInput.value.trim() : '';
+      const sac = sacInput ? sacInput.value.trim() : '';
+      const qty = parseFloat(qtyInput ? qtyInput.value : 1) || 1;
+      const unit = unitInput ? unitInput.value : 'Nos';
+      const rate = parseFloat(rateInput ? rateInput.value : 0) || 0;
+      const amount = Math.round(qty * rate * 100) / 100;
+
+      if (desc || rate > 0) {
+        items.push({ description: desc || 'Deliverable', sac, qty, unit, rate, amount });
+      }
+    });
+    return items;
+  }
+
   openAddQuotationModal() {
     document.getElementById('quote-edit-id').value = '';
     const titleEl = document.getElementById('quote-modal-title');
@@ -1670,6 +1853,13 @@ class AppController {
     document.getElementById('quote-amount').value = '';
     document.getElementById('quote-cost').value = '';
     document.getElementById('quote-terms').value = '15% advance with order, 45% upon module delivery, 25% upon mounting, 15% upon commissioning.';
+
+    const tbody = document.getElementById('quote-items-table-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      this.addQuoteItemRow({ qty: 1, unit: 'Job' });
+    }
+
     document.getElementById('modal-quotation').classList.remove('hidden');
   }
 
@@ -1688,6 +1878,24 @@ class AppController {
     document.getElementById('quote-amount').value = quote.totalAmount || '';
     document.getElementById('quote-cost').value = quote.directCostEstimate || '';
     document.getElementById('quote-terms').value = quote.terms || '';
+
+    const tbody = document.getElementById('quote-items-table-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      if (Array.isArray(quote.items) && quote.items.length > 0) {
+        quote.items.forEach(it => this.addQuoteItemRow(it));
+      } else {
+        this.addQuoteItemRow({
+          description: quote.service || 'Turnkey Deliverable',
+          sac: '995461',
+          qty: 1,
+          unit: 'Job',
+          rate: quote.totalAmount || '',
+          amount: quote.totalAmount || ''
+        });
+      }
+    }
+
     document.getElementById('modal-quotation').classList.remove('hidden');
   }
 
@@ -1724,16 +1932,37 @@ class AppController {
       if (document.getElementById('quote-terms')) {
         document.getElementById('quote-terms').value = presets[val].terms;
       }
+      const tbody = document.getElementById('quote-items-table-body');
+      if (tbody) {
+        tbody.innerHTML = '';
+        const hsn = window.invoiceController ? window.invoiceController.detectHsnSac(presets[val].scope) : null;
+        this.addQuoteItemRow({
+          description: presets[val].scope,
+          sac: hsn ? hsn.code : '995461',
+          qty: 1,
+          unit: val.includes('solar') ? 'kWp' : 'Job',
+          rate: '',
+          amount: ''
+        });
+      }
     }
   }
 
   saveQuotationFromModal() {
     const editId = document.getElementById('quote-edit-id').value.trim();
     const clientName = document.getElementById('quote-client').value.trim();
-    const service = document.getElementById('quote-service').value.trim();
-    const totalAmount = Number(document.getElementById('quote-amount').value) || 0;
+    let service = document.getElementById('quote-service').value.trim();
+    let totalAmount = Number(document.getElementById('quote-amount').value) || 0;
     const directCostEstimate = Number(document.getElementById('quote-cost').value) || 0;
     const terms = document.getElementById('quote-terms').value.trim();
+
+    const items = this.collectQuoteItems();
+    if (!totalAmount && items.length > 0) {
+      totalAmount = items.reduce((sum, it) => sum + (it.amount || 0), 0);
+    }
+    if (!service && items.length > 0) {
+      service = items.length === 1 ? items[0].description : `${items[0].description} (+${items.length - 1} deliverables)`;
+    }
 
     if (!clientName || !totalAmount) {
       showToast('Please provide Client Name and Total Amount.', 'error');
@@ -1750,7 +1979,8 @@ class AppController {
       directCostEstimate,
       projectedMargin,
       marginPercent,
-      terms
+      terms,
+      items
     };
 
     if (editId) {
@@ -1779,7 +2009,8 @@ class AppController {
       amountBilled: quote.totalAmount,
       amountCollected: 0,
       dueDate: dueDate.toISOString().slice(0, 10),
-      status: 'Sent'
+      status: 'Sent',
+      items: quote.items || []
     });
 
     quote.status = 'Accepted';
@@ -1802,7 +2033,154 @@ class AppController {
     document.getElementById('quote-service').value = lead.service;
     document.getElementById('quote-amount').value = lead.estimatedValue || '';
     document.getElementById('quote-cost').value = Math.round((lead.estimatedValue || 0) * 0.8);
+
+    const tbody = document.getElementById('quote-items-table-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      const hsn = window.invoiceController ? window.invoiceController.detectHsnSac(lead.service) : null;
+      this.addQuoteItemRow({
+        description: lead.service,
+        sac: hsn ? hsn.code : '995461',
+        qty: 1,
+        unit: 'Job',
+        rate: lead.estimatedValue || '',
+        amount: lead.estimatedValue || ''
+      });
+    }
+
     document.getElementById('modal-quotation').classList.remove('hidden');
+  }
+
+  // --- INVOICE LINE ITEMS REPEATER & QUANTITIES ---
+  addInvoiceItemRow(data = {}) {
+    const tbody = document.getElementById('invoice-items-table-body');
+    if (!tbody) return;
+
+    const rowId = 'inv-row-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    const tr = document.createElement('tr');
+    tr.id = rowId;
+    tr.className = 'invoice-item-row';
+
+    const desc = (data.description !== undefined ? data.description : '').replace(/"/g, '&quot;');
+    const sac = (data.sac || data.hsn || '').replace(/"/g, '&quot;');
+    const qty = data.qty !== undefined && data.qty !== '' ? data.qty : 1;
+    const unit = data.unit || 'Nos';
+    const rate = data.rate !== undefined && data.rate !== '' ? data.rate : (data.amount !== undefined ? data.amount : '');
+    const amount = Number(qty) * Number(rate) || 0;
+
+    tr.innerHTML = `
+      <td>
+        <input type="text" class="form-control form-control-sm inv-item-desc" placeholder="e.g. 540W Mono PERC Solar Panel" value="${desc}" required oninput="app.onInvoiceItemChanged()">
+      </td>
+      <td>
+        <input type="text" class="form-control form-control-sm inv-item-sac" placeholder="995461" value="${sac}" style="font-family: var(--font-mono); font-size: 11px;">
+      </td>
+      <td>
+        <input type="number" class="form-control form-control-sm inv-item-qty" placeholder="1" min="0.01" step="any" value="${qty}" required oninput="app.onInvoiceItemChanged()">
+      </td>
+      <td>
+        <select class="form-control form-control-sm inv-item-unit" onchange="app.onInvoiceItemChanged()">
+          <option value="Nos" ${unit === 'Nos' ? 'selected' : ''}>Nos</option>
+          <option value="kWp" ${unit === 'kWp' ? 'selected' : ''}>kWp</option>
+          <option value="Job" ${unit === 'Job' ? 'selected' : ''}>Job</option>
+          <option value="Set" ${unit === 'Set' ? 'selected' : ''}>Set</option>
+          <option value="Mtr" ${unit === 'Mtr' ? 'selected' : ''}>Mtr</option>
+          <option value="Sqft" ${unit === 'Sqft' ? 'selected' : ''}>Sqft</option>
+          <option value="Hours" ${unit === 'Hours' ? 'selected' : ''}>Hours</option>
+          <option value="Month" ${unit === 'Month' ? 'selected' : ''}>Month</option>
+        </select>
+      </td>
+      <td>
+        <input type="number" class="form-control form-control-sm inv-item-rate" placeholder="0" min="0" step="any" value="${rate}" required oninput="app.onInvoiceItemChanged()">
+      </td>
+      <td style="text-align: right; vertical-align: middle;">
+        <span class="font-mono text-emerald inv-item-amount" style="font-weight: 600;">₹${Number(amount).toLocaleString('en-IN')}</span>
+      </td>
+      <td style="text-align: center; vertical-align: middle;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="app.removeInvoiceItemRow('${rowId}')" title="Remove line item" style="padding: 2px 6px; color: #ef4444; border-color: rgba(239, 68, 68, 0.3);">✕</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+    this.recalculateInvoiceItemsTotal();
+  }
+
+  removeInvoiceItemRow(rowId) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    const tbody = document.getElementById('invoice-items-table-body');
+    if (tbody && tbody.children.length <= 1) {
+      if (typeof showToast === 'function') showToast('At least one line item is required.', 'warning');
+      return;
+    }
+    row.remove();
+    this.recalculateInvoiceItemsTotal();
+  }
+
+  onInvoiceItemChanged() {
+    this.recalculateInvoiceItemsTotal();
+  }
+
+  recalculateInvoiceItemsTotal() {
+    const tbody = document.getElementById('invoice-items-table-body');
+    if (!tbody) return;
+
+    let grandTotal = 0;
+    const rows = tbody.querySelectorAll('.invoice-item-row');
+    rows.forEach(tr => {
+      const qtyInput = tr.querySelector('.inv-item-qty');
+      const rateInput = tr.querySelector('.inv-item-rate');
+      const qty = parseFloat(qtyInput ? qtyInput.value : 0) || 0;
+      const rate = parseFloat(rateInput ? rateInput.value : 0) || 0;
+      const lineAmt = Math.round(qty * rate * 100) / 100;
+      grandTotal += lineAmt;
+      const amtSpan = tr.querySelector('.inv-item-amount');
+      if (amtSpan) amtSpan.textContent = '₹' + lineAmt.toLocaleString('en-IN');
+    });
+
+    const subtotalEl = document.getElementById('invoice-items-subtotal-display');
+    if (subtotalEl) subtotalEl.textContent = '₹' + grandTotal.toLocaleString('en-IN');
+
+    const billedInput = document.getElementById('invoice-billed');
+    if (billedInput) {
+      billedInput.value = grandTotal > 0 ? grandTotal : '';
+    }
+
+    const serviceInput = document.getElementById('invoice-service');
+    if (serviceInput && !serviceInput.value.trim() && rows.length > 0) {
+      const firstDescInput = rows[0].querySelector('.inv-item-desc');
+      const firstDesc = firstDescInput ? firstDescInput.value.trim() : '';
+      if (firstDesc) {
+        serviceInput.value = rows.length > 1 ? `${firstDesc} (+${rows.length - 1} items)` : firstDesc;
+      }
+    }
+  }
+
+  collectInvoiceItems() {
+    const tbody = document.getElementById('invoice-items-table-body');
+    if (!tbody) return [];
+
+    const items = [];
+    const rows = tbody.querySelectorAll('.invoice-item-row');
+    rows.forEach(tr => {
+      const descInput = tr.querySelector('.inv-item-desc');
+      const sacInput = tr.querySelector('.inv-item-sac');
+      const qtyInput = tr.querySelector('.inv-item-qty');
+      const unitInput = tr.querySelector('.inv-item-unit');
+      const rateInput = tr.querySelector('.inv-item-rate');
+
+      const desc = descInput ? descInput.value.trim() : '';
+      const sac = sacInput ? sacInput.value.trim() : '';
+      const qty = parseFloat(qtyInput ? qtyInput.value : 1) || 1;
+      const unit = unitInput ? unitInput.value : 'Nos';
+      const rate = parseFloat(rateInput ? rateInput.value : 0) || 0;
+      const amount = Math.round(qty * rate * 100) / 100;
+
+      if (desc || rate > 0) {
+        items.push({ description: desc || 'Item', sac, qty, unit, rate, amount });
+      }
+    });
+    return items;
   }
 
   // --- INVOICE CONTROLS ---
@@ -1825,6 +2203,13 @@ class AppController {
     if (document.getElementById('invoice-type')) document.getElementById('invoice-type').value = 'TAX INVOICE';
     if (document.getElementById('invoice-hsn')) document.getElementById('invoice-hsn').value = '';
     if (document.getElementById('invoice-notes')) document.getElementById('invoice-notes').value = 'Due on Receipt / Milestone terms';
+
+    const tbody = document.getElementById('invoice-items-table-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      this.addInvoiceItemRow({ qty: 1, unit: 'Job' });
+    }
+
     document.getElementById('modal-invoice').classList.remove('hidden');
   }
 
@@ -1847,14 +2232,32 @@ class AppController {
     if (document.getElementById('invoice-type')) document.getElementById('invoice-type').value = inv.invoiceType || 'TAX INVOICE';
     if (document.getElementById('invoice-hsn')) document.getElementById('invoice-hsn').value = inv.hsnSac || '';
     if (document.getElementById('invoice-notes')) document.getElementById('invoice-notes').value = inv.terms || '';
+
+    const tbody = document.getElementById('invoice-items-table-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      if (Array.isArray(inv.items) && inv.items.length > 0) {
+        inv.items.forEach(it => this.addInvoiceItemRow(it));
+      } else {
+        this.addInvoiceItemRow({
+          description: inv.service || 'Professional Service',
+          sac: inv.hsnSac || '995461',
+          qty: 1,
+          unit: 'Job',
+          rate: inv.amountBilled || '',
+          amount: inv.amountBilled || ''
+        });
+      }
+    }
+
     document.getElementById('modal-invoice').classList.remove('hidden');
   }
 
   saveInvoiceFromModal() {
     const editId = document.getElementById('invoice-edit-id').value.trim();
     const clientName = document.getElementById('invoice-client').value.trim();
-    const service = document.getElementById('invoice-service').value.trim();
-    const amountBilled = Number(document.getElementById('invoice-billed').value) || 0;
+    let service = document.getElementById('invoice-service').value.trim();
+    let amountBilled = Number(document.getElementById('invoice-billed').value) || 0;
     const amountCollected = Number(document.getElementById('invoice-collected').value) || 0;
     const dueDate = document.getElementById('invoice-due-date').value;
     const status = document.getElementById('invoice-status').value;
@@ -1863,6 +2266,14 @@ class AppController {
     const invoiceType = document.getElementById('invoice-type') ? document.getElementById('invoice-type').value : 'TAX INVOICE';
     const hsnSac = document.getElementById('invoice-hsn') ? document.getElementById('invoice-hsn').value.trim() : '';
     const terms = document.getElementById('invoice-notes') ? document.getElementById('invoice-notes').value.trim() : '';
+
+    const items = this.collectInvoiceItems();
+    if (!amountBilled && items.length > 0) {
+      amountBilled = items.reduce((sum, it) => sum + (it.amount || 0), 0);
+    }
+    if (!service && items.length > 0) {
+      service = items.length === 1 ? items[0].description : `${items[0].description} (+${items.length - 1} items)`;
+    }
 
     if (!clientName || !amountBilled) {
       showToast('Please provide Client Name and Amount Billed.', 'error');
@@ -1880,7 +2291,8 @@ class AppController {
       clientGstin,
       invoiceType,
       hsnSac,
-      terms
+      terms,
+      items
     };
 
     if (editId) {
@@ -2783,6 +3195,20 @@ class AppController {
     document.getElementById('quote-amount').value = res.avgInvestment;
     document.getElementById('quote-cost').value = Math.round(res.avgInvestment * 0.8);
     document.getElementById('quote-terms').value = "15% advance with work order, 45% upon module/inverter site delivery, 25% upon structural erection & wiring, 15% upon APDCL net-meter synchronization & CEIG testing.";
+
+    const tbody = document.getElementById('quote-items-table-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      this.addQuoteItemRow({
+        description: `Solar EPC Coordination — Complete Turnkey ${res.finalCapacityKw} kWp Rooftop System`,
+        sac: '995461',
+        qty: res.finalCapacityKw,
+        unit: 'kWp',
+        rate: Math.round(res.avgInvestment / res.finalCapacityKw),
+        amount: res.avgInvestment
+      });
+    }
+
     showToast(`Quotation pre-populated from ${res.finalCapacityKw} kWp Solar Sizing!`, 'success');
   }
 
