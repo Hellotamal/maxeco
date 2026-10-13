@@ -275,9 +275,15 @@ class OperationsController {
             <div style="font-size: 10px; color: #64748b;">(Acceptance of scope & safety protocols)</div>
           </div>
           <div style="text-align: right;">
-            <div style="border-bottom: 1px solid #94a3b8; height: 35px;"></div>
-            <div style="font-size: 11px; font-weight: 700; color: #334155; margin-top: 4px;">For MaxEco Energy & Tech</div>
-            <div style="font-size: 10px; color: #64748b;">Authorized Project Manager</div>
+            <div style="min-height: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; margin-bottom: 2px;">
+              <img src="${(typeof window !== 'undefined' && window.AUTHORISED_SIGNATURE_DATA_URI) || (typeof global !== 'undefined' && global.AUTHORISED_SIGNATURE_DATA_URI) || 'assets/signature.png'}" alt="Tamal Roy Authorised Signature" style="height: 44px; max-width: 140px; display: block; object-fit: contain; margin-bottom: -4px;" onerror="if(typeof window !== 'undefined' && window.AUTHORISED_SIGNATURE_DATA_URI) this.src=window.AUTHORISED_SIGNATURE_DATA_URI">
+              <div style="border-bottom: 1.5px solid #0f172a; width: 170px;"></div>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: flex-end; margin-top: 4px;">
+              <span style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3); font-size: 8px; padding: 1px 5px; font-weight: 700; border-radius: 4px; display: inline-block;">DIGITALLY VERIFIED SIGNATURE</span>
+            </div>
+            <div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-top: 3px;">Tamal Roy • Founder & Authorised Signatory</div>
+            <div style="font-size: 10px; color: #64748b;">For MaxEco Energy & Tech</div>
           </div>
         </div>
       </div>

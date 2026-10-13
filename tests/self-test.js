@@ -52,6 +52,7 @@ global.URL = {
 // 2. Load Core Modules
 require('../src/data/initial-data.js');
 require('../src/data/payment-qr-data.js');
+require('../src/data/signature-data.js');
 require('../src/js/storage.js');
 require('../src/js/calculator.js');
 require('../src/js/crm.js');
@@ -496,6 +497,36 @@ const multiQuoteHtml = window.invoiceController.generateQuotationHTML(multiItemQ
 assert(multiQuoteHtml.includes('PVGIS Shading &amp; Feasibility Assessment') || multiQuoteHtml.includes('PVGIS Shading & Feasibility Assessment'), 'Multi-item quotation renders Item 1 deliverable');
 assert(multiQuoteHtml.includes('Net-Metering APDCL Liaison &amp; CEIG Clearances') || multiQuoteHtml.includes('Net-Metering APDCL Liaison & CEIG Clearances'), 'Multi-item quotation renders Item 2 deliverable');
 assert(multiQuoteHtml.includes('60,000'), 'Multi-item quotation renders total matching line deliverables sum (₹60,000)');
+
+// --- AUTHORISED SIGNATURE & DIGITAL SIGNATURE VERIFICATION TESTS ---
+console.log('\n--- VERIFYING AUTHORISED & DIGITAL SIGNATURE INTEGRATION ---');
+assert(typeof global.AUTHORISED_SIGNATURE_DATA_URI === 'string' && global.AUTHORISED_SIGNATURE_DATA_URI.startsWith('data:image/png;base64,'), 'AUTHORISED_SIGNATURE_DATA_URI is valid base64 PNG data URI');
+assert(fs.existsSync('./public/assets/signature.png'), 'Physical transparent signature image asset exists at public/assets/signature.png');
+
+assert(multiInvoiceHtml.includes('Tamal Roy'), 'Invoice renders Tamal Roy as Authorised Signatory');
+assert(multiInvoiceHtml.includes('DIGITALLY VERIFIED SIGNATURE'), 'Invoice renders DIGITALLY VERIFIED SIGNATURE security badge');
+assert(multiInvoiceHtml.includes('Founder &amp; Authorised Signatory') || multiInvoiceHtml.includes('Founder & Authorised Signatory'), 'Invoice renders signatory designation');
+
+assert(multiQuoteHtml.includes('Tamal Roy'), 'Quotation renders Tamal Roy as Authorised Signatory');
+assert(multiQuoteHtml.includes('DIGITALLY VERIFIED PROPOSAL'), 'Quotation renders DIGITALLY VERIFIED PROPOSAL badge');
+
+const testReceiptHtml = window.invoiceController.generatePaymentReceiptHTML(multiItemInvoice, 250000, '2026-10-13', 'UPI');
+assert(testReceiptHtml.includes('Tamal Roy'), 'Payment receipt renders Tamal Roy as Authorised Signatory');
+assert(testReceiptHtml.includes('DIGITALLY VERIFIED VOUCHER'), 'Payment receipt renders DIGITALLY VERIFIED VOUCHER badge');
+
+const sampleWorkOrder = {
+  id: 'WO-2026-TEST',
+  projectName: '50kWp Solar Warehouse',
+  type: 'Solar EPC',
+  contractor: 'North-East Solar Mech',
+  startDate: '2026-10-15',
+  estCompletion: '2026-10-25',
+  status: 'In Progress',
+  notes: 'Mounting and electrical wiring'
+};
+const woHtml = window.operationsController.generateWorkOrderSlipHTML(sampleWorkOrder);
+assert(woHtml.includes('Tamal Roy'), 'Work order slip renders Tamal Roy as Authorised Signatory');
+assert(woHtml.includes('DIGITALLY VERIFIED SIGNATURE'), 'Work order slip renders DIGITALLY VERIFIED SIGNATURE badge');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);

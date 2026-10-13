@@ -20,6 +20,9 @@ class InvoiceController {
       branch: "Maligaon, Guwahati",
       upiId: "9954493909@upi",
       qrCodeImage: (typeof window !== 'undefined' && window.PAYMENT_QR_DATA_URI) ? window.PAYMENT_QR_DATA_URI : "assets/payment-qr.png",
+      authorisedSignatory: "Tamal Roy",
+      designation: "Founder & Authorised Signatory",
+      signatureImage: (typeof window !== 'undefined' && window.AUTHORISED_SIGNATURE_DATA_URI) ? window.AUTHORISED_SIGNATURE_DATA_URI : "assets/signature.png",
       jurisdiction: "Guwahati, Assam"
     };
   }
@@ -322,14 +325,17 @@ class InvoiceController {
             </ol>
           </div>
 
-          <div class="inv-sign-box">
-            <p style="font-size: 11px; color: #475569;">For <strong>${this.companyProfile.name}</strong></p>
-            <div class="inv-stamp-zone">
-              <span class="inv-stamp-tag">[ Digitally Issued ]</span>
+          <div class="inv-sign-box" style="text-align: right; min-width: 200px;">
+            <p style="font-size: 11px; color: #475569; margin: 0 0 2px 0;">For <strong>${this.companyProfile.name}</strong></p>
+            <div style="margin: 4px 0 2px 0; min-height: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end;">
+              <img src="${this.companyProfile.signatureImage}" alt="Tamal Roy Authorised Signature" style="height: 46px; max-width: 155px; display: block; object-fit: contain; margin-bottom: -4px;" onerror="if(window.AUTHORISED_SIGNATURE_DATA_URI) this.src=window.AUTHORISED_SIGNATURE_DATA_URI">
+              <div style="border-bottom: 1.5px solid #0f172a; width: 175px;"></div>
             </div>
-            <div class="inv-sign-line"></div>
-            <p style="font-weight: 700; font-size: 12px; margin-top: 4px;">Authorized Signatory / Founder</p>
-            <p style="font-size: 10px; color: #64748b;">Maligaon, Guwahati, Assam</p>
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px;">
+              <span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3); font-size: 9px; padding: 1px 5px; font-weight: 700;">DIGITALLY VERIFIED SIGNATURE</span>
+            </div>
+            <p style="font-weight: 700; font-size: 12px; margin-top: 3px; color: #0f172a; margin-bottom: 1px;">${this.companyProfile.authorisedSignatory}</p>
+            <p style="font-size: 10px; color: #64748b; margin: 0;">${this.companyProfile.designation}</p>
           </div>
         </div>
 
@@ -616,14 +622,17 @@ class InvoiceController {
             <p style="font-size: 10px; color: #64748b;">Signature, Seal &amp; Date</p>
           </div>
 
-          <div class="inv-sign-box">
-            <p style="font-size: 11px; color: #475569;">Issued for <strong>${this.companyProfile.name}</strong></p>
-            <div class="inv-stamp-zone">
-              <span class="inv-stamp-tag" style="border-color: #0284c7; color: #0284c7;">[ Formal Quotation Issued ]</span>
+          <div class="inv-sign-box" style="text-align: right; min-width: 200px;">
+            <p style="font-size: 11px; color: #475569; margin: 0 0 2px 0;">Issued for <strong>${this.companyProfile.name}</strong></p>
+            <div style="margin: 4px 0 2px 0; min-height: 48px; display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end;">
+              <img src="${this.companyProfile.signatureImage}" alt="Tamal Roy Authorised Signature" style="height: 46px; max-width: 155px; display: block; object-fit: contain; margin-bottom: -4px;" onerror="if(window.AUTHORISED_SIGNATURE_DATA_URI) this.src=window.AUTHORISED_SIGNATURE_DATA_URI">
+              <div style="border-bottom: 1.5px solid #0f172a; width: 175px;"></div>
             </div>
-            <div class="inv-sign-line"></div>
-            <p style="font-weight: 700; font-size: 12px; margin-top: 4px;">Founder &amp; Principal Consultant</p>
-            <p style="font-size: 10px; color: #64748b;">MaxEco Energy &amp; Tech, Guwahati</p>
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px;">
+              <span class="badge" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; border: 1px solid rgba(2, 132, 199, 0.3); font-size: 9px; padding: 1px 5px; font-weight: 700;">DIGITALLY VERIFIED PROPOSAL</span>
+            </div>
+            <p style="font-weight: 700; font-size: 12px; margin-top: 3px; color: #0f172a; margin-bottom: 1px;">${this.companyProfile.authorisedSignatory}</p>
+            <p style="font-size: 10px; color: #64748b; margin: 0;">${this.companyProfile.designation}</p>
           </div>
         </div>
 
@@ -807,11 +816,17 @@ class InvoiceController {
           <div>
             <div style="font-size: 11px; color: #64748b;">Electronic Computer Generated Receipt</div>
             <div style="font-size: 10px; color: #94a3b8;">MaxEco ERP Business Operating System</div>
+            <div style="margin-top: 6px;">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 9px; padding: 2px 6px; font-weight: 700;">DIGITALLY VERIFIED VOUCHER</span>
+            </div>
           </div>
           <div style="text-align: right;">
-            <div style="border-bottom: 1px solid #94a3b8; height: 35px; width: 180px; margin-left: auto;"></div>
-            <div style="font-size: 11px; font-weight: 700; color: #334155; margin-top: 4px;">For ${this.companyProfile.name}</div>
-            <div style="font-size: 10px; color: #64748b;">Authorized Accounts Signatory</div>
+            <div style="display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end; min-height: 46px;">
+              <img src="${this.companyProfile.signatureImage}" alt="Tamal Roy Authorised Signature" style="height: 44px; max-width: 150px; display: block; object-fit: contain; margin-bottom: -4px;" onerror="if(window.AUTHORISED_SIGNATURE_DATA_URI) this.src=window.AUTHORISED_SIGNATURE_DATA_URI">
+              <div style="border-bottom: 1.5px solid #0f172a; width: 175px;"></div>
+            </div>
+            <div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-top: 4px;">Tamal Roy</div>
+            <div style="font-size: 10px; color: #64748b;">Founder &amp; Authorised Signatory</div>
           </div>
         </div>
       </div>

@@ -1589,6 +1589,17 @@
                   This QR code is automatically embedded in all generated Invoices, Quotations, and Payment Receipts.
                 </div>
               </div>
+
+              <div style="background: rgba(2, 132, 199, 0.08); border: 1px dashed rgba(2, 132, 199, 0.3); border-radius: var(--radius-sm); padding: 10px; margin-top: 10px; display: flex; align-items: center; gap: 12px;">
+                <div style="background: #fff; padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; min-width: 90px; height: 58px; flex-shrink: 0;">
+                  <img src="assets/signature.png" alt="Tamal Roy Authorised Signature" style="max-height: 46px; max-width: 85px; object-fit: contain;" onerror="if(window.AUTHORISED_SIGNATURE_DATA_URI) this.src=window.AUTHORISED_SIGNATURE_DATA_URI">
+                </div>
+                <div style="font-size: 11px; line-height: 1.4; color: var(--text-secondary);">
+                  <strong style="color: #0284c7;">Authorised Digital Signature Active</strong><br>
+                  Signatory: <strong>Tamal Roy</strong> (Founder & Authorised Signatory).<br>
+                  Automatically stamped on all Invoices, Quotations, Receipts, and Work Orders.
+                </div>
+              </div>
             </div>
 
             <button class="btn btn-primary" onclick="app.saveSettingsFromModal()">Save Settings</button>
@@ -2733,6 +2744,7 @@
   <!-- Application Scripts (Zero External Dependencies) -->
   <script src="../src/data/initial-data.js"></script>
   <script src="../src/data/payment-qr-data.js"></script>
+  <script src="../src/data/signature-data.js"></script>
   <script src="../src/js/storage.js"></script>
   <script src="../src/js/calculator.js"></script>
   <script src="../src/js/crm.js"></script>
