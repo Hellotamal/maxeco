@@ -29,7 +29,14 @@ class StorageController {
             taxReserveRate: 18,
             solarTariffCommercial: 7.85,
             solarTariffDomestic: 6.20,
-            solarGenPerKwp: 120
+            solarGenPerKwp: 120,
+            bankAccountName: "Tamal Roy",
+            bankName: "Punjab National Bank",
+            bankAccountNo: "4589000100072219",
+            bankIfscCode: "PUNB0458900",
+            bankBranch: "Maligaon, Guwahati",
+            bankAccountType: "Saving Account",
+            paymentQrPath: "assets/payment-qr.png"
           },
           leads: [],
           quotations: [],
@@ -57,6 +64,17 @@ class StorageController {
           parsed.settings.contactPhone = "+91 99544 93909";
           parsed.settings.contactEmail = "maxecoenergyit@gmail.com";
           parsed.settings.whatsappNumber = "919954493909";
+          updated = true;
+        }
+
+        if (parsed && parsed.settings && !parsed.settings.bankAccountNo) {
+          parsed.settings.bankAccountName = "Tamal Roy";
+          parsed.settings.bankName = "Punjab National Bank";
+          parsed.settings.bankAccountNo = "4589000100072219";
+          parsed.settings.bankIfscCode = "PUNB0458900";
+          parsed.settings.bankBranch = "Maligaon, Guwahati";
+          parsed.settings.bankAccountType = "Saving Account";
+          parsed.settings.paymentQrPath = "assets/payment-qr.png";
           updated = true;
         }
 

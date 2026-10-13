@@ -14,7 +14,14 @@ const initialSeedData = {
     taxReserveRate: 18, // 18% GST / estimated tax reserve
     solarTariffCommercial: 7.85, // APDCL benchmark
     solarTariffDomestic: 6.20,
-    solarGenPerKwp: 120 // units/month in Assam
+    solarGenPerKwp: 120, // units/month in Assam
+    bankAccountName: "Tamal Roy",
+    bankName: "Punjab National Bank",
+    bankAccountNo: "4589000100072219",
+    bankIfscCode: "PUNB0458900",
+    bankBranch: "Maligaon, Guwahati",
+    bankAccountType: "Saving Account",
+    paymentQrPath: "assets/payment-qr.png"
   },
 
   leads: [

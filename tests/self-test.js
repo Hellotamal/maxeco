@@ -51,6 +51,7 @@ global.URL = {
 
 // 2. Load Core Modules
 require('../src/data/initial-data.js');
+require('../src/data/payment-qr-data.js');
 require('../src/js/storage.js');
 require('../src/js/calculator.js');
 require('../src/js/crm.js');
@@ -245,7 +246,12 @@ assert(invoiceHtml.includes('INV-2026-TEST'), 'Invoice contains invoice number')
 assert(invoiceHtml.includes('Kamrup Packaging Ltd'), 'Invoice contains client name');
 assert(invoiceHtml.includes('Rupees Fourteen Lakh Fifty Thousand Only'), 'Invoice contains amount in words');
 assert(invoiceHtml.includes('9954493909@upi'), 'Invoice contains bank remittance UPI ID');
-assert(invoiceHtml.includes('State Bank of India (SBI)'), 'Invoice contains bank name');
+assert(invoiceHtml.includes('Punjab National Bank'), 'Invoice contains bank name (Punjab National Bank)');
+assert(invoiceHtml.includes('Tamal Roy'), 'Invoice contains beneficiary account name (Tamal Roy)');
+assert(invoiceHtml.includes('4589000100072219'), 'Invoice contains bank account number (4589000100072219)');
+assert(invoiceHtml.includes('PUNB0458900'), 'Invoice contains bank IFSC code (PUNB0458900)');
+assert(invoiceHtml.includes('Maligaon, Guwahati'), 'Invoice contains bank branch (Maligaon, Guwahati)');
+assert(invoiceHtml.includes('Saving Account') || invoiceHtml.includes('Saving'), 'Invoice contains bank account type');
 
 // TEST SUITE 7: CUSTOMER QUOTATION GENERATION & PROPOSAL ENGINE
 console.log('\n--- TEST SUITE 7: Customer Quotation Generation & Proposal Engine ---');
@@ -404,6 +410,10 @@ assert(receiptHtml.includes('Brahmaputra Engineering Works'), 'Receipt HTML cont
 assert(receiptHtml.includes('AXISN20261013009'), 'Receipt HTML contains bank UTR reference');
 assert(receiptHtml.includes('Rupees Four Lakh Only'), 'Receipt HTML contains amount in words');
 assert(receiptHtml.includes('₹6,00,000'), 'Receipt HTML contains remaining balance due');
+assert(receiptHtml.includes('Punjab National Bank'), 'Receipt HTML contains PNB bank name');
+assert(receiptHtml.includes('Tamal Roy'), 'Receipt HTML contains beneficiary account name');
+assert(receiptHtml.includes('4589000100072219'), 'Receipt HTML contains bank account number');
+assert(receiptHtml.includes('PUNB0458900'), 'Receipt HTML contains bank IFSC code');
 
 // 5. Payments CSV Export
 const csvPayOk = window.storage.exportCsv('payments');

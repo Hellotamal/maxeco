@@ -1393,6 +1393,12 @@ class AppController {
     document.getElementById('setting-whatsapp').value = settings.whatsappNumber || '';
     document.getElementById('setting-tax-rate').value = settings.taxReserveRate || 18;
     document.getElementById('setting-admin-pin').value = settings.adminPin || 'maxeco2026';
+    if (document.getElementById('setting-bank-name')) document.getElementById('setting-bank-name').value = settings.bankName || 'Punjab National Bank';
+    if (document.getElementById('setting-bank-acc-name')) document.getElementById('setting-bank-acc-name').value = settings.bankAccountName || 'Tamal Roy';
+    if (document.getElementById('setting-bank-acc-no')) document.getElementById('setting-bank-acc-no').value = settings.bankAccountNo || '4589000100072219';
+    if (document.getElementById('setting-bank-ifsc')) document.getElementById('setting-bank-ifsc').value = settings.bankIfscCode || 'PUNB0458900';
+    if (document.getElementById('setting-bank-branch')) document.getElementById('setting-bank-branch').value = settings.bankBranch || 'Maligaon, Guwahati';
+    if (document.getElementById('setting-bank-acc-type')) document.getElementById('setting-bank-acc-type').value = settings.bankAccountType || 'Saving Account';
   }
 
   // --- ACTIONS & MODAL HANDLERS ---
@@ -2170,7 +2176,7 @@ class AppController {
       `Payment Method: ${receipt.paymentMethod || 'UPI / Bank Transfer'}\n` +
       `Bank Ref / UTR: ${receipt.referenceNo || 'Verified'}\n` +
       `Balance Due: ₹${Number(receipt.balanceRemaining).toLocaleString('en-IN')}\n` +
-      `Beneficiary: MaxEco Operating Treasury (State Bank of India)\n` +
+      `Beneficiary: Tamal Roy | Punjab National Bank (A/C: 4589000100072219, IFSC: PUNB0458900, Branch: Maligaon, Guwahati)\n` +
       `====================================================\n`;
 
     if (navigator.clipboard) {
@@ -2478,6 +2484,12 @@ class AppController {
     const whatsappNumber = document.getElementById('setting-whatsapp').value.trim();
     const taxReserveRate = Number(document.getElementById('setting-tax-rate').value) || 18;
     const adminPin = document.getElementById('setting-admin-pin').value.trim() || 'maxeco2026';
+    const bankName = document.getElementById('setting-bank-name') ? document.getElementById('setting-bank-name').value.trim() : 'Punjab National Bank';
+    const bankAccountName = document.getElementById('setting-bank-acc-name') ? document.getElementById('setting-bank-acc-name').value.trim() : 'Tamal Roy';
+    const bankAccountNo = document.getElementById('setting-bank-acc-no') ? document.getElementById('setting-bank-acc-no').value.trim() : '4589000100072219';
+    const bankIfscCode = document.getElementById('setting-bank-ifsc') ? document.getElementById('setting-bank-ifsc').value.trim() : 'PUNB0458900';
+    const bankBranch = document.getElementById('setting-bank-branch') ? document.getElementById('setting-bank-branch').value.trim() : 'Maligaon, Guwahati';
+    const bankAccountType = document.getElementById('setting-bank-acc-type') ? document.getElementById('setting-bank-acc-type').value.trim() : 'Saving Account';
 
     window.storage.saveSettings({
       companyName,
@@ -2485,10 +2497,25 @@ class AppController {
       contactEmail,
       whatsappNumber,
       taxReserveRate,
-      adminPin
+      adminPin,
+      bankName,
+      bankAccountName,
+      bankAccountNo,
+      bankIfscCode,
+      bankBranch,
+      bankAccountType
     });
 
-    showToast('System settings saved successfully!', 'success');
+    if (window.invoiceController && window.invoiceController.companyProfile) {
+      window.invoiceController.companyProfile.bankName = bankName;
+      window.invoiceController.companyProfile.accountName = bankAccountName;
+      window.invoiceController.companyProfile.accountNo = bankAccountNo;
+      window.invoiceController.companyProfile.ifscCode = bankIfscCode;
+      window.invoiceController.companyProfile.branch = bankBranch;
+      window.invoiceController.companyProfile.accountType = bankAccountType;
+    }
+
+    showToast('System and bank settings saved successfully!', 'success');
   }
 
   deleteExpense(id) {

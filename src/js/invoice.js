@@ -12,13 +12,14 @@ class InvoiceController {
       email: "maxecoenergyit@gmail.com",
       whatsapp: "919954493909",
       state: "Assam",
-      stateCode: "18",
-      bankName: "State Bank of India (SBI)",
-      accountName: "MaxEco Energy & Tech",
-      accountType: "Current / Business Account",
-      accountNo: "XXXXXXXXXXXX (Available upon request)",
-      ifscCode: "SBIN0000000",
+      bankName: "Punjab National Bank",
+      accountName: "Tamal Roy",
+      accountType: "Saving Account",
+      accountNo: "4589000100072219",
+      ifscCode: "PUNB0458900",
+      branch: "Maligaon, Guwahati",
       upiId: "9954493909@upi",
+      qrCodeImage: (typeof window !== 'undefined' && window.PAYMENT_QR_DATA_URI) ? window.PAYMENT_QR_DATA_URI : "assets/payment-qr.png",
       jurisdiction: "Guwahati, Assam"
     };
   }
@@ -227,15 +228,23 @@ class InvoiceController {
             <div class="inv-words-val"><em>${words}</em></div>
             
             <!-- Remittance Bank Details -->
-            <div class="inv-bank-box">
-              <div class="inv-bank-title">💳 BANK REMITTANCE & UPI DETAILS</div>
-              <table class="inv-bank-table">
-                <tr><td><strong>Beneficiary:</strong></td><td>${this.companyProfile.accountName}</td></tr>
-                <tr><td><strong>Bank Name:</strong></td><td>${this.companyProfile.bankName}</td></tr>
-                <tr><td><strong>Account Type:</strong></td><td>${this.companyProfile.accountType}</td></tr>
-                <tr><td><strong>UPI ID:</strong></td><td class="font-mono"><strong>${this.companyProfile.upiId}</strong></td></tr>
-                <tr><td><strong>Scan & Pay:</strong></td><td>GPay / PhonePe / Paytm to <strong>+91 99544 93909</strong></td></tr>
-              </table>
+            <div class="inv-bank-box" style="display: flex; gap: 14px; align-items: center; justify-content: space-between; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; margin-top: 10px;">
+              <div style="flex: 1;">
+                <div class="inv-bank-title" style="font-size: 11px; font-weight: 800; color: #0284c7; margin-bottom: 6px; text-transform: uppercase;">💳 BANK REMITTANCE &amp; UPI DETAILS</div>
+                <table class="inv-bank-table" style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                  <tr><td style="color: #64748b; padding: 1px 0;">Beneficiary:</td><td><strong>${this.companyProfile.accountName}</strong></td></tr>
+                  <tr><td style="color: #64748b; padding: 1px 0;">Bank:</td><td><strong>${this.companyProfile.bankName}</strong></td></tr>
+                  <tr><td style="color: #64748b; padding: 1px 0;">A/C No:</td><td class="font-mono" style="font-weight: 700; color: #0f172a;">${this.companyProfile.accountNo}</td></tr>
+                  <tr><td style="color: #64748b; padding: 1px 0;">IFSC Code:</td><td class="font-mono" style="font-weight: 700; color: #0f172a;">${this.companyProfile.ifscCode}</td></tr>
+                  <tr><td style="color: #64748b; padding: 1px 0;">Branch:</td><td>${this.companyProfile.branch}</td></tr>
+                  <tr><td style="color: #64748b; padding: 1px 0;">Account Type:</td><td>${this.companyProfile.accountType}</td></tr>
+                  <tr><td style="color: #64748b; padding: 1px 0;">UPI VPA:</td><td class="font-mono" style="font-weight: 700; color: #0284c7;">${this.companyProfile.upiId}</td></tr>
+                </table>
+              </div>
+              <div style="text-align: center; background: #ffffff; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <img src="${this.companyProfile.qrCodeImage}" alt="Tamal Roy PNB UPI QR" style="width: 95px; height: 95px; display: block; object-fit: contain;">
+                <div style="font-size: 9px; font-weight: 800; color: #0284c7; margin-top: 3px; letter-spacing: 0.5px;">SCAN &amp; PAY UPI</div>
+              </div>
             </div>
           </div>
 
@@ -719,9 +728,16 @@ class InvoiceController {
         </div>
 
         <!-- REMITTANCE VERIFICATION -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 24px; font-size: 11px; color: #475569;">
-          <div><strong>Beneficiary Settlement Account:</strong> ${this.companyProfile.accountName} • ${this.companyProfile.bankName} (UPI: ${this.companyProfile.upiId})</div>
-          <div style="margin-top: 4px;">Payment received and verified into MaxEco operating treasury account in accordance with RBI cash-basis accounting protocols.</div>
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 24px; font-size: 11px; color: #475569; display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+          <div style="flex: 1;">
+            <div><strong>Beneficiary Settlement Account:</strong> <strong>${this.companyProfile.accountName}</strong> • ${this.companyProfile.bankName} (A/C: <span style="font-family: monospace; font-weight: 700; color: #0f172a;">${this.companyProfile.accountNo}</span>)</div>
+            <div style="margin-top: 3px;"><strong>IFSC Code:</strong> <span style="font-family: monospace; font-weight: 700; color: #0f172a;">${this.companyProfile.ifscCode}</span> &nbsp;|&nbsp; <strong>Branch:</strong> ${this.companyProfile.branch} &nbsp;|&nbsp; <strong>Type:</strong> ${this.companyProfile.accountType}</div>
+            <div style="margin-top: 4px; color: #64748b;">Payment received and verified into MaxEco operating treasury account in accordance with RBI cash-basis accounting protocols.</div>
+          </div>
+          <div style="text-align: center; background: #ffffff; padding: 5px; border: 1px solid #cbd5e1; border-radius: 6px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            <img src="${this.companyProfile.qrCodeImage}" alt="Tamal Roy PNB UPI QR" style="width: 75px; height: 75px; display: block; object-fit: contain;">
+            <div style="font-size: 8px; font-weight: 800; color: #10b981; margin-top: 2px;">VERIFIED UPI QR</div>
+          </div>
         </div>
 
         <!-- SIGNATURE BLOCK -->

@@ -927,6 +927,33 @@
               </table>
             </div>
           </div>
+
+          <!-- Official Bank Remittance & UPI QR Voucher Card -->
+          <div class="card" style="margin-top: 16px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border: 1px solid rgba(16, 185, 129, 0.35);">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+              <div class="flex items-center gap-4">
+                <div style="background: #fff; padding: 6px; border-radius: var(--radius-sm); border: 2px solid #10b981; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                  <img src="assets/payment-qr.png" alt="Payment QR" style="width: 100px; height: 100px; display: block;" onerror="if(window.PAYMENT_QR_DATA_URI) this.src=window.PAYMENT_QR_DATA_URI">
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); font-weight: 700;">OFFICIAL SETTLEMENT ACCOUNT</span>
+                    <span style="font-size: 11px; color: var(--text-secondary);">UPI &amp; RTGS / NEFT</span>
+                  </div>
+                  <h3 style="font-size: 16px; font-weight: 700; color: #f8fafc; margin: 0 0 4px 0;">Punjab National Bank (PNB)</h3>
+                  <div style="font-size: 12px; color: #94a3b8; line-height: 1.6;">
+                    <div>Beneficiary: <strong style="color: #38bdf8;">Tamal Roy</strong> &bull; Account Type: <strong style="color: #f8fafc;">Saving Account</strong></div>
+                    <div>Account No: <strong style="color: #f8fafc; font-family: var(--font-mono); letter-spacing: 0.5px;">4589000100072219</strong> &bull; IFSC: <strong style="color: #f8fafc; font-family: var(--font-mono);">PUNB0458900</strong></div>
+                    <div>Branch: <strong style="color: #f8fafc;">Maligaon, Guwahati, Assam</strong> &bull; UPI VPA: <strong style="color: #10b981;">9954493909@upi</strong></div>
+                  </div>
+                </div>
+              </div>
+              <div style="text-align: right; font-size: 11px; color: #94a3b8; max-width: 240px; line-height: 1.5;">
+                <span style="color: #10b981; font-weight: 600;">⚡ Instant QR Remittance:</span><br>
+                Customers can scan directly using PhonePe, Google Pay, Paytm, or BHIM UPI for milestone advances and invoice settlements.
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1520,6 +1547,50 @@
               <label class="form-label">Founder Admin PIN</label>
               <input type="password" id="setting-admin-pin" class="form-control">
             </div>
+
+            <div style="border-top: 1px solid var(--border-color); padding-top: 14px; margin-top: 14px; margin-bottom: 14px;">
+              <h4 style="font-size: 13px; font-weight: 600; color: var(--accent-emerald); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                <span>🏦</span> Official Bank &amp; UPI Remittance Credentials
+              </h4>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="form-group">
+                  <label class="form-label">Beneficiary Name</label>
+                  <input type="text" id="setting-bank-acc-name" class="form-control" value="Tamal Roy">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Bank Name</label>
+                  <input type="text" id="setting-bank-name" class="form-control" value="Punjab National Bank">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="form-group">
+                  <label class="form-label">Account Number</label>
+                  <input type="text" id="setting-bank-acc-no" class="form-control" value="4589000100072219">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">IFSC Code</label>
+                  <input type="text" id="setting-bank-ifsc" class="form-control" value="PUNB0458900">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="form-group">
+                  <label class="form-label">Branch</label>
+                  <input type="text" id="setting-bank-branch" class="form-control" value="Maligaon, Guwahati">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Account Type</label>
+                  <input type="text" id="setting-bank-acc-type" class="form-control" value="Saving Account">
+                </div>
+              </div>
+              <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 10px; margin-top: 10px; display: flex; align-items: center; gap: 12px;">
+                <img src="assets/payment-qr.png" alt="Payment QR" style="width: 58px; height: 58px; border-radius: 4px; background: #fff; padding: 2px; border: 1px solid #cbd5e1; flex-shrink: 0;" onerror="if(window.PAYMENT_QR_DATA_URI) this.src=window.PAYMENT_QR_DATA_URI">
+                <div style="font-size: 11px; line-height: 1.4; color: var(--text-secondary);">
+                  <strong style="color: var(--accent-emerald);">Verified UPI QR Code Active</strong><br>
+                  This QR code is automatically embedded in all generated Invoices, Quotations, and Payment Receipts.
+                </div>
+              </div>
+            </div>
+
             <button class="btn btn-primary" onclick="app.saveSettingsFromModal()">Save Settings</button>
           </div>
 
@@ -2493,6 +2564,17 @@
           <!-- Dynamically populated -->
         </div>
 
+        <!-- Official Bank & UPI Remittance Card for Instant Scanning -->
+        <div style="background: #0f172a; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px;">
+          <img src="assets/payment-qr.png" alt="Payment QR" style="width: 68px; height: 68px; border-radius: 4px; background: #fff; padding: 2px; flex-shrink: 0;" onerror="if(window.PAYMENT_QR_DATA_URI) this.src=window.PAYMENT_QR_DATA_URI">
+          <div style="font-size: 11px; color: #cbd5e1; line-height: 1.45; overflow: hidden;">
+            <div style="font-weight: 700; color: #10b981; font-size: 12px;">Punjab National Bank (Saving A/C)</div>
+            <div><strong>A/C:</strong> <span style="font-family: var(--font-mono); color: #fff;">4589000100072219</span></div>
+            <div><strong>IFSC:</strong> <span style="font-family: var(--font-mono); color: #fff;">PUNB0458900</span> | <strong>Branch:</strong> Maligaon, Ghy</div>
+            <div><strong>Beneficiary:</strong> <span style="color: #38bdf8; font-weight: 600;">Tamal Roy</span></div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
             <label class="form-label">Payment Amount (₹) *</label>
@@ -2569,6 +2651,7 @@
 
   <!-- Application Scripts (Zero External Dependencies) -->
   <script src="../src/data/initial-data.js"></script>
+  <script src="../src/data/payment-qr-data.js"></script>
   <script src="../src/js/storage.js"></script>
   <script src="../src/js/calculator.js"></script>
   <script src="../src/js/crm.js"></script>
