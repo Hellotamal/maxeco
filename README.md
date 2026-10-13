@@ -53,7 +53,7 @@ This application requires **zero external build tools, zero npm packages, and ze
 
 1. Clone or download this repository:
    ```bash
-   git clone https://github.com/maxecoenergytech/maxeco.git
+   git clone https://github.com/Hellotamal/maxeco.git
    ```
 2. Open `index.html` (or `public/index.html`) in any modern web browser (Chrome, Edge, Firefox, Safari).
 3. Access the private Founder OS by clicking **"Founder OS"** or **"🔑 Founder Login"** (Default PIN: `maxeco2026`).

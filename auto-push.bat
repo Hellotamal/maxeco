@@ -4,7 +4,7 @@ setlocal enabledelayedexpansion
 :: ============================================================================
 :: MaxEco Energy & Tech - Automated Git Push Script
 :: Location: Maligaon, Guwahati, Assam
-:: Remote: https://github.com/maxecoenergytech/maxeco.git
+:: Remote: https://github.com/Hellotamal/maxeco.git
 :: ============================================================================
 
 title MaxEco - Automated GitHub Push Utility
@@ -122,7 +122,7 @@ color 0A
 echo.
 echo ============================================================================
 echo   SUCCESS! All changes have been pushed to GitHub:
-echo   https://github.com/maxecoenergytech/maxeco.git
+echo   https://github.com/Hellotamal/maxeco.git
 echo ============================================================================
 echo.
 
