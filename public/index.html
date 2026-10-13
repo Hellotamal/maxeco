@@ -476,7 +476,7 @@
         <div class="flex items-center gap-2" style="flex-wrap: wrap;">
           <button class="btn btn-secondary btn-sm" onclick="app.showView('dashboard', true)">📊 Overview</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('leads', true)">👥 Leads & CRM</button>
-          <button class="btn btn-secondary btn-sm" onclick="app.showView('quotes-invoices', true)">📄 Quotes & Invoices</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.showView('quotes-invoices', true)">🧾 Billing & Invoicing</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('finance', true)">💰 Cash Flow</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('solar-feasibility', true)">☀️ Solar Engine</button>
           <button class="btn btn-secondary btn-sm" onclick="app.showView('projects', true)">🏗️ Operations & ERP</button>
@@ -493,8 +493,9 @@
             <div id="menu-dropdown-add" class="menu-dropdown hidden" style="position: absolute; right: 0; top: 100%; margin-top: 6px;">
               <div class="dropdown-header">Quick Creation Menu</div>
               <button class="dropdown-item" onclick="app.openAddLeadModal(); app.closeMenuDropdowns();">👥 Add Customer Lead</button>
-              <button class="dropdown-item" onclick="app.openAddQuotationModal(); app.closeMenuDropdowns();">📄 Generate Customer Quotation (MaxEco)</button>
               <button class="dropdown-item" onclick="app.openAddInvoiceModal(); app.closeMenuDropdowns();">🧾 Generate Customer Invoice (MaxEco)</button>
+              <button class="dropdown-item" onclick="app.openRecordPaymentModal(); app.closeMenuDropdowns();">💳 Record Customer Payment Receipt</button>
+              <button class="dropdown-item" onclick="app.openAddQuotationModal(); app.closeMenuDropdowns();">📄 Generate Customer Quotation (MaxEco)</button>
               <button class="dropdown-item" onclick="app.openAddExpenseModal(); app.closeMenuDropdowns();">💸 Add Business Expense</button>
               <button class="dropdown-item" onclick="app.openAddDrawingModal(); app.closeMenuDropdowns();">🏦 Log Personal Withdrawal</button>
               <button class="dropdown-item" onclick="app.openAddProjectModal('solar'); app.closeMenuDropdowns();">☀️ Add Solar Project</button>
@@ -685,53 +686,140 @@
         </div>
       </section>
 
-      <!-- TAB 3: QUOTES & INVOICES REGISTER -->
+      <!-- TAB 3: CUSTOMER BILLING & INVOICING COMMAND CENTER -->
       <section id="tab-quotes-invoices" class="dashboard-tab hidden">
-        <!-- MaxEco Document Generation Quick Bar -->
-        <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(245, 158, 11, 0.12)); border: 1px solid rgba(245, 158, 11, 0.3);">
+        <!-- MaxEco Billing & Invoicing Header Bar -->
+        <div class="card" style="margin-bottom: 20px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(16, 185, 129, 0.12)); border: 1px solid rgba(16, 185, 129, 0.3);">
           <div class="flex justify-between items-center flex-wrap gap-3">
             <div>
-              <div style="font-size: 15px; font-weight: 700; color: #fff;">
-                📑 MaxEco Official Document Generation
+              <div style="font-size: 16px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                <span>🧾 Customer Billing &amp; Invoicing Command Center</span>
+                <span class="badge badge-won" style="font-size: 10px;">MaxEco Cash-Basis</span>
               </div>
-              <div style="font-size: 12px; color: var(--text-secondary);">
-                Generate, format, print, or share commercial proposals and tax invoices under <strong>MaxEco Energy &amp; Tech</strong> (Guwahati, Assam).
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+                Customer invoices, quotations, verified payment receipts, and HSN/SAC GST compliance under <strong>MaxEco Energy &amp; Tech</strong> (Guwahati, Assam).
               </div>
             </div>
-            <div class="flex gap-2">
-              <button class="btn btn-primary btn-sm" onclick="app.openAddQuotationModal()" style="background: #0284c7; border-color: #0284c7;">
+            <div class="flex gap-2 flex-wrap">
+              <button class="btn btn-secondary btn-sm" onclick="app.openAddQuotationModal()">
                 📄 + Generate Quotation
               </button>
               <button class="btn btn-primary btn-sm" onclick="app.openAddInvoiceModal()">
-                🧾 + Generate Invoice
+                🧾 + New Invoice
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="app.openRecordPaymentModal()" style="background: #10b981; border-color: #10b981;">
+                💳 + Record Payment
               </button>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4" style="margin-bottom: 24px;">
-          <!-- Quotations Register -->
+        <!-- 5 Billing KPI Cards -->
+        <div class="grid grid-cols-5 gap-3" style="margin-bottom: 20px;">
+          <div class="kpi-card" style="border-top: 3px solid #0284c7;">
+            <div class="kpi-label">Total Invoiced</div>
+            <div class="kpi-value text-cyan" id="billing-kpi-invoiced">₹0</div>
+            <small class="text-muted" id="billing-kpi-invoices-count">0 invoices raised</small>
+          </div>
+          <div class="kpi-card" style="border-top: 3px solid #10b981;">
+            <div class="kpi-label">Collected Cash</div>
+            <div class="kpi-value text-emerald" id="billing-kpi-collected">₹0</div>
+            <small class="text-muted" id="billing-kpi-receipts-count">0 receipts logged</small>
+          </div>
+          <div class="kpi-card" style="border-top: 3px solid #f59e0b;">
+            <div class="kpi-label">Outstanding Receivables</div>
+            <div class="kpi-value text-amber" id="billing-kpi-receivables">₹0</div>
+            <small class="text-muted">Uncollected balance</small>
+          </div>
+          <div class="kpi-card" style="border-top: 3px solid #ef4444;">
+            <div class="kpi-label">Overdue Bills</div>
+            <div class="kpi-value text-rose" id="billing-kpi-overdue">0</div>
+            <small class="text-muted" id="billing-kpi-overdue-amt">₹0 past due date</small>
+          </div>
+          <div class="kpi-card" style="border-top: 3px solid #8b5cf6;">
+            <div class="kpi-label">Quoted Pipeline</div>
+            <div class="kpi-value" style="color: #a78bfa;" id="billing-kpi-quoted">₹0</div>
+            <small class="text-muted" id="billing-kpi-quotes-count">0 proposals pending</small>
+          </div>
+        </div>
+
+        <!-- Billing Navigation Sub-Tabs -->
+        <div class="flex gap-2 border-b" style="border-bottom: 1px solid var(--border-color); margin-bottom: 20px; padding-bottom: 8px;">
+          <button id="btn-billing-subtab-invoices" class="btn btn-secondary btn-sm active" onclick="app.switchBillingSubTab('invoices')" style="border-color: #0284c7; color: #0284c7; font-weight: 600;">
+            🧾 Customer Invoices (<span id="billing-badge-invoices">0</span>)
+          </button>
+          <button id="btn-billing-subtab-quotes" class="btn btn-secondary btn-sm" onclick="app.switchBillingSubTab('quotes')" style="font-weight: 600;">
+            📄 Customer Quotations (<span id="billing-badge-quotes">0</span>)
+          </button>
+          <button id="btn-billing-subtab-payments" class="btn btn-secondary btn-sm" onclick="app.switchBillingSubTab('payments')" style="font-weight: 600;">
+            💳 Payment Collections &amp; Receipts (<span id="billing-badge-payments">0</span>)
+          </button>
+          <button id="btn-billing-subtab-gst" class="btn btn-secondary btn-sm" onclick="app.switchBillingSubTab('gst')" style="font-weight: 600;">
+            🏛️ HSN/SAC &amp; GST Breakdown
+          </button>
+        </div>
+
+        <!-- SUB-VIEW 1: CUSTOMER INVOICES -->
+        <div id="billing-view-invoices">
           <div class="card">
-            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+            <div class="flex justify-between items-center flex-wrap gap-2" style="margin-bottom: 14px;">
               <div>
-                <h3 class="card-title">Quotations Register</h3>
-                <small class="text-muted">Customer proposals in name of MaxEco</small>
+                <h3 class="card-title">Customer Invoices &amp; Receivables Register</h3>
+                <small class="text-muted">Strict cash-basis tracking — Real bank settlement required before recognizing cash</small>
               </div>
               <div class="flex gap-2">
-                <button class="btn btn-secondary btn-sm" onclick="app.openQuotationFormatSelector()">📄 View Proposal Format</button>
-                <button class="btn btn-primary btn-sm" onclick="app.openAddQuotationModal()">+ Generate Quote</button>
+                <button class="btn btn-secondary btn-sm" onclick="app.openInvoiceFormatSelector()">📄 View Printable Format</button>
+                <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('invoices')">📥 Export Invoices CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddInvoiceModal()">+ New Direct Invoice</button>
               </div>
             </div>
             <div class="table-container">
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Quote ID</th>
-                    <th>Client & Service</th>
-                    <th>Total (INR)</th>
+                    <th>Invoice ID &amp; Date</th>
+                    <th>Client &amp; Service</th>
+                    <th>SAC Code</th>
+                    <th>Billed (₹)</th>
+                    <th>Collected (₹)</th>
+                    <th>Due Date</th>
+                    <th>Payment Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="invoices-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 2: CUSTOMER QUOTATIONS -->
+        <div id="billing-view-quotes" class="hidden">
+          <div class="card">
+            <div class="flex justify-between items-center flex-wrap gap-2" style="margin-bottom: 14px;">
+              <div>
+                <h3 class="card-title">Commercial Quotations &amp; Proposals</h3>
+                <small class="text-muted">MaxEco Energy &amp; Tech customer proposals with estimated fulfillment margins</small>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.openQuotationFormatSelector()">📄 View Proposal Format</button>
+                <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('quotations')">📥 Export Quotes CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddQuotationModal()" style="background: #0284c7; border-color: #0284c7;">+ Generate Quotation</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Quote ID &amp; Date</th>
+                    <th>Client &amp; Service Scope</th>
+                    <th>Quoted Total (₹)</th>
                     <th>Est. Direct Cost</th>
+                    <th>Projected Margin</th>
                     <th>Status</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody id="quotes-table-body">
@@ -740,18 +828,83 @@
               </table>
             </div>
           </div>
+        </div>
 
-          <!-- Invoices & Collections Register -->
+        <!-- SUB-VIEW 3: PAYMENT COLLECTIONS & RECEIPTS -->
+        <div id="billing-view-payments" class="hidden">
           <div class="card">
-            <div class="flex justify-between items-center" style="margin-bottom: 12px;">
+            <div class="flex justify-between items-center flex-wrap gap-2" style="margin-bottom: 14px;">
               <div>
-                <h3 class="card-title">Invoices & Collections</h3>
-                <small class="text-muted">Strict cash-basis tracking</small>
+                <h3 class="card-title">Payment Collections &amp; Verified Receipts</h3>
+                <small class="text-muted">Official computer-generated receipt vouchers with bank UTR and UPI settlement audit</small>
               </div>
               <div class="flex gap-2">
-                <button class="btn btn-secondary btn-sm" onclick="app.openInvoiceFormatSelector()">📄 View Invoice Format</button>
-                <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('invoices')">📥 Export CSV</button>
-                <button class="btn btn-primary btn-sm" onclick="app.openAddInvoiceModal()">+ New Invoice</button>
+                <button class="btn btn-secondary btn-sm" onclick="storage.exportCsv('payments')">📥 Export Receipts CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openRecordPaymentModal()" style="background: #10b981; border-color: #10b981;">💳 Record Payment</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Receipt ID &amp; Date</th>
+                    <th>Linked Invoice</th>
+                    <th>Client &amp; Service</th>
+                    <th>Amount Collected</th>
+                    <th>Payment Mode</th>
+                    <th>Bank Ref / UTR</th>
+                    <th>Remaining Due</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="payments-table-body">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW 4: HSN/SAC & GST BREAKDOWN -->
+        <div id="billing-view-gst" class="hidden">
+          <div class="grid grid-cols-3 gap-3" style="margin-bottom: 20px;">
+            <div class="card" style="border-left: 4px solid var(--solar-amber);">
+              <h4 style="font-size: 14px; margin-bottom: 4px; color: var(--solar-amber);">☀️ SAC 995461 — Solar EPC Services</h4>
+              <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                Specialized electrical &amp; solar installation works, rooftop PV plant erection, and APDCL net-meter synchronizing services.
+              </p>
+              <div class="flex justify-between text-xs" style="background: var(--bg-surface); padding: 8px; border-radius: 4px;">
+                <span>GST Tariff Rate:</span>
+                <strong class="text-amber">18% (9% CGST + 9% SGST)</strong>
+              </div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--tech-cyan);">
+              <h4 style="font-size: 14px; margin-bottom: 4px; color: var(--tech-cyan);">💻 SAC 998313 — IT Consulting &amp; Portals</h4>
+              <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                Information technology consulting, SMB responsive websites, WhatsApp booking integrations, and cloud software workflows.
+              </p>
+              <div class="flex justify-between text-xs" style="background: var(--bg-surface); padding: 8px; border-radius: 4px;">
+                <span>GST Tariff Rate:</span>
+                <strong class="text-cyan">18% (9% CGST + 9% SGST)</strong>
+              </div>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--accent-emerald);">
+              <h4 style="font-size: 14px; margin-bottom: 4px; color: var(--accent-emerald);">🏛️ Tax Reserve &amp; Compliance Rule</h4>
+              <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">
+                Under MaxEco financial policy, an 18% tax buffer is reserved <em>only upon realized cash collections</em>, shielding cash flow from unpaid invoices.
+              </p>
+              <div class="flex justify-between text-xs" style="background: var(--bg-surface); padding: 8px; border-radius: 4px;">
+                <span>Reserved on Cash:</span>
+                <strong class="text-emerald" id="gst-tax-reserve-amt">₹0 (18%)</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="flex justify-between items-center" style="margin-bottom: 14px;">
+              <div>
+                <h3 class="card-title">HSN / SAC Invoicing Compliance Ledger</h3>
+                <small class="text-muted">Calculated CGST (9%) and SGST (9%) or IGST (18%) tax distribution on billed services</small>
               </div>
             </div>
             <div class="table-container">
@@ -759,15 +912,16 @@
                 <thead>
                   <tr>
                     <th>Invoice ID</th>
-                    <th>Client</th>
-                    <th>Billed</th>
-                    <th>Collected</th>
-                    <th>Due Date</th>
+                    <th>Client &amp; State</th>
+                    <th>Service &amp; SAC Code</th>
+                    <th>Taxable Base (₹)</th>
+                    <th>CGST @ 9% (₹)</th>
+                    <th>SGST @ 9% (₹)</th>
+                    <th>Total Invoiced (₹)</th>
                     <th>Status</th>
-                    <th>Action</th>
                   </tr>
                 </thead>
-                <tbody id="invoices-table-body">
+                <tbody id="gst-breakdown-table-body">
                   <!-- Rendered dynamically -->
                 </tbody>
               </table>
@@ -1718,6 +1872,13 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="quote-edit-id">
+        <div class="form-group" style="background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); padding: 10px; border-radius: var(--radius-sm); margin-bottom: 12px;">
+          <label class="form-label" style="color: #0284c7; margin-bottom: 4px;">⚡ Autofill from CRM Lead (Optional)</label>
+          <select id="quote-lead-autofill" class="form-control" onchange="app.autofillQuoteFromLead(this.value)">
+            <option value="">-- Select Lead to Autofill Scope &amp; Pricing --</option>
+          </select>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Client / Entity Name *</label>
           <input type="text" id="quote-client" class="form-control" required placeholder="e.g. Pragjyotish Diagnostic Clinic">
@@ -1774,6 +1935,13 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="invoice-edit-id">
+        <div class="form-group" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); padding: 10px; border-radius: var(--radius-sm); margin-bottom: 12px;">
+          <label class="form-label" style="color: #10b981; margin-bottom: 4px;">⚡ Autofill from CRM Lead or Accepted Quote (Optional)</label>
+          <select id="invoice-lead-autofill" class="form-control" onchange="app.autofillInvoiceFromLead(this.value)">
+            <option value="">-- Select Lead or Quote to Autofill Client Details --</option>
+          </select>
+        </div>
+
         <div class="form-group">
           <label class="form-label">Client / Entity Name *</label>
           <input type="text" id="invoice-client" class="form-control" required placeholder="e.g. Apex Diagnostics, Guwahati">
@@ -1808,6 +1976,7 @@
               <option value="Paid">Fully Paid & Settled</option>
             </select>
           </div>
+        </div>
         <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
             <label class="form-label">Client Location / Address</label>
@@ -2022,6 +2191,7 @@
             <option value="lead">👥 Customer Leads & CRM</option>
             <option value="quotation">📄 Quotations</option>
             <option value="invoice">🧾 Invoices & Receivables</option>
+            <option value="payment">💳 Customer Payment Receipts</option>
             <option value="expense">💸 Business Expenses</option>
             <option value="drawing">🏦 Personal Withdrawals</option>
             <option value="solar">☀️ Solar Projects</option>
@@ -2063,6 +2233,7 @@
             <option value="lead">👥 Customer Leads & CRM</option>
             <option value="quotation">📄 Quotations</option>
             <option value="invoice">🧾 Invoices & Receivables</option>
+            <option value="payment">💳 Customer Payment Receipts</option>
             <option value="expense">💸 Business Expenses</option>
             <option value="drawing">🏦 Personal Withdrawals</option>
             <option value="solar">☀️ Solar Projects</option>
@@ -2297,6 +2468,96 @@
       <div class="modal-body" style="padding: 24px; background: #e2e8f0;">
         <input type="hidden" id="workorder-active-view-id">
         <div id="workorder-slip-view-content">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Record Customer Payment Receipt -->
+  <div id="modal-record-payment" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 540px; border-top: 4px solid var(--accent-emerald);">
+      <div class="modal-header">
+        <h3 id="record-payment-modal-title" style="font-size: 16px; color: var(--accent-emerald);">💳 Record Customer Payment Receipt</h3>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Linked Customer Invoice *</label>
+          <select id="payment-invoice-select" class="form-control" onchange="app.onPaymentInvoiceSelected(this.value)" style="font-family: var(--font-mono); font-size: 13px;">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <div id="payment-invoice-summary-box" style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; font-size: 12px;">
+          <!-- Dynamically populated -->
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Payment Amount (₹) *</label>
+            <input type="number" id="payment-amount" class="form-control" required placeholder="e.g. 25000" oninput="app.updatePaymentRemainingPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Settlement Date *</label>
+            <input type="date" id="payment-date" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Payment Method *</label>
+            <select id="payment-method" class="form-control">
+              <option value="UPI / QR Code">UPI / QR Code (PhonePe, GPay, Paytm)</option>
+              <option value="NEFT / RTGS">NEFT / RTGS Bank Transfer</option>
+              <option value="IMPS Immediate Transfer">IMPS Immediate Transfer</option>
+              <option value="Account Payee Cheque">Account Payee Cheque</option>
+              <option value="Cash Receipt">Cash Receipt</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Bank Reference / UTR Number</label>
+            <input type="text" id="payment-reference" class="form-control" placeholder="e.g. UTR / UPI Ref 4102938472">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Payment Notes / Milestone Reference</label>
+          <input type="text" id="payment-notes" class="form-control" placeholder="e.g. 50% mobilization advance for solar installation">
+        </div>
+
+        <div id="payment-remaining-preview" style="font-size: 12px; color: var(--text-secondary); text-align: right; padding-top: 4px;">
+          Remaining Balance: <strong id="payment-preview-balance" class="text-amber">₹0</strong>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveCustomerPaymentFromModal()" style="background: #10b981; border-color: #10b981;">💳 Record &amp; Issue Payment Voucher</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Official Payment Receipt Voucher Viewer & Print Console -->
+  <div id="modal-payment-receipt" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 820px; max-height: 94vh; display: flex; flex-direction: column;">
+      <div class="modal-header flex justify-between items-center" style="background: #0f172a; padding: 12px 20px; border-bottom: 1px solid var(--border-color);">
+        <div class="flex items-center gap-2">
+          <span style="font-size: 18px;">💳</span>
+          <div>
+            <h3 style="font-size: 15px; margin: 0; color: #f8fafc;">Official Payment Receipt Voucher</h3>
+            <small style="color: #94a3b8;">MaxEco Energy &amp; Tech | Maligaon, Guwahati, Assam</small>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary btn-sm" onclick="app.printPaymentReceiptSlip()" style="background: #10b981; border-color: #10b981;">🖨️ Print Receipt (A4)</button>
+          <button class="btn btn-whatsapp btn-sm" onclick="app.sharePaymentReceiptWhatsApp()">💬 Share WhatsApp</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.copyPaymentReceiptText()">📋 Copy Text</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕ Close</button>
+        </div>
+      </div>
+      <div class="modal-body" style="background: #e2e8f0; padding: 24px; overflow-y: auto;">
+        <input type="hidden" id="payment-receipt-active-id">
+        <div id="payment-receipt-view-content">
           <!-- Dynamically populated -->
         </div>
       </div>

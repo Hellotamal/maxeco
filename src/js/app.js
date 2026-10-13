@@ -332,71 +332,336 @@ class AppController {
   }
 
   renderQuotesInvoicesTab() {
-    const quotes = window.storage.getQuotations();
-    const invoices = window.storage.getInvoices();
+    const quotes = window.storage.getQuotations() || [];
+    const invoices = window.storage.getInvoices() || [];
+    const payments = window.storage.getPayments() || [];
+    const today = new Date().toISOString().slice(0, 10);
 
-    // Quotes Table
-    const quotesBody = document.getElementById('quotes-table-body');
-    if (quotes.length === 0) {
-      quotesBody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding: 20px;">No quotations recorded yet.</td></tr>';
-    } else {
-      quotesBody.innerHTML = quotes.map(q => `
+    // Compute Billing KPIs
+    let totalInvoiced = 0;
+    let cashCollected = 0;
+    let overdueCount = 0;
+    let overdueAmt = 0;
+
+    invoices.forEach(inv => {
+      const billed = Number(inv.amountBilled) || 0;
+      const collected = Number(inv.amountCollected) || 0;
+      const outstanding = Math.max(0, billed - collected);
+      totalInvoiced += billed;
+      cashCollected += collected;
+      if (outstanding > 0 && inv.dueDate && inv.dueDate < today) {
+        overdueCount++;
+        overdueAmt += outstanding;
+      }
+    });
+
+    const receivables = Math.max(0, totalInvoiced - cashCollected);
+    const totalQuoted = quotes.reduce((acc, q) => acc + (Number(q.totalAmount) || 0), 0);
+
+    // Populate KPI Elements
+    const elInvoiced = document.getElementById('billing-kpi-invoiced');
+    if (elInvoiced) elInvoiced.textContent = formatINR(totalInvoiced);
+    const elInvoicesCount = document.getElementById('billing-kpi-invoices-count');
+    if (elInvoicesCount) elInvoicesCount.textContent = `${invoices.length} invoices raised`;
+
+    const elCollected = document.getElementById('billing-kpi-collected');
+    if (elCollected) elCollected.textContent = formatINR(cashCollected);
+    const elReceiptsCount = document.getElementById('billing-kpi-receipts-count');
+    if (elReceiptsCount) elReceiptsCount.textContent = `${payments.length} receipts logged`;
+
+    const elReceivables = document.getElementById('billing-kpi-receivables');
+    if (elReceivables) elReceivables.textContent = formatINR(receivables);
+
+    const elOverdue = document.getElementById('billing-kpi-overdue');
+    if (elOverdue) elOverdue.textContent = overdueCount;
+    const elOverdueAmt = document.getElementById('billing-kpi-overdue-amt');
+    if (elOverdueAmt) elOverdueAmt.textContent = `${formatINR(overdueAmt)} past due`;
+
+    const elQuoted = document.getElementById('billing-kpi-quoted');
+    if (elQuoted) elQuoted.textContent = formatINR(totalQuoted);
+    const elQuotesCount = document.getElementById('billing-kpi-quotes-count');
+    if (elQuotesCount) elQuotesCount.textContent = `${quotes.length} proposals recorded`;
+
+    // Badges
+    const badgeInv = document.getElementById('billing-badge-invoices');
+    if (badgeInv) badgeInv.textContent = invoices.length;
+    const badgeQuo = document.getElementById('billing-badge-quotes');
+    if (badgeQuo) badgeQuo.textContent = quotes.length;
+    const badgePay = document.getElementById('billing-badge-payments');
+    if (badgePay) badgePay.textContent = payments.length;
+
+    // GST Tax Reserve (18% on realized cash)
+    const elTaxReserve = document.getElementById('gst-tax-reserve-amt');
+    if (elTaxReserve) elTaxReserve.textContent = `${formatINR(Math.round(cashCollected * 0.18))} (18%)`;
+
+    // Render Sub-Views
+    this.renderInvoicesTable();
+    this.renderQuotesTable();
+    this.renderPaymentsTable();
+    this.renderGstBreakdownTable();
+
+    // Populate autofill options for modal-quotation and modal-invoice
+    this.populateBillingAutofills();
+  }
+
+  switchBillingSubTab(subTab) {
+    const tabs = ['invoices', 'quotes', 'payments', 'gst'];
+    tabs.forEach(t => {
+      const viewEl = document.getElementById(`billing-view-${t}`);
+      const btnEl = document.getElementById(`btn-billing-subtab-${t}`);
+      if (viewEl) viewEl.classList.toggle('hidden', t !== subTab);
+      if (btnEl) {
+        if (t === subTab) {
+          btnEl.classList.add('active');
+          btnEl.style.borderColor = '#0284c7';
+          btnEl.style.color = '#0284c7';
+        } else {
+          btnEl.classList.remove('active');
+          btnEl.style.borderColor = 'var(--border-color)';
+          btnEl.style.color = 'var(--text-secondary)';
+        }
+      }
+    });
+
+    if (subTab === 'invoices') this.renderInvoicesTable();
+    else if (subTab === 'quotes') this.renderQuotesTable();
+    else if (subTab === 'payments') this.renderPaymentsTable();
+    else if (subTab === 'gst') this.renderGstBreakdownTable();
+  }
+
+  renderInvoicesTable() {
+    const invoicesBody = document.getElementById('invoices-table-body');
+    if (!invoicesBody) return;
+    const invoices = window.storage.getInvoices() || [];
+    const today = new Date().toISOString().slice(0, 10);
+
+    if (invoices.length === 0) {
+      invoicesBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted" style="padding: 24px;">No invoices issued yet. Click "+ New Direct Invoice" to generate one.</td></tr>';
+      return;
+    }
+
+    invoicesBody.innerHTML = invoices.map(inv => {
+      const outstanding = Math.max(0, (Number(inv.amountBilled) || 0) - (Number(inv.amountCollected) || 0));
+      const isOverdue = outstanding > 0 && inv.dueDate && inv.dueDate < today;
+      let badgeClass = 'badge-new';
+      if (inv.status === 'Paid') badgeClass = 'badge-won';
+      else if (isOverdue) badgeClass = 'badge-lost';
+      else if (inv.status === 'Partially Paid') badgeClass = 'badge-proposal';
+
+      const hsnInfo = window.invoiceController ? window.invoiceController.detectHsnSac(inv.service) : null;
+      const sacDisplay = inv.hsnSac || (hsnInfo ? hsnInfo.code : '998313');
+
+      return `
         <tr>
-          <td><strong>${q.id}</strong><br><small class="text-muted">${formatDate(q.date)}</small></td>
-          <td>${q.clientName}<br><small class="text-secondary">${q.service}</small></td>
-          <td><strong>${formatINR(q.totalAmount)}</strong></td>
-          <td>${formatINR(q.directCostEstimate)}<br><small class="text-emerald">Margin: ${formatINR(q.projectedMargin)} (${q.marginPercent || 0}%)</small></td>
-          <td><span class="badge ${q.status === 'Accepted' ? 'badge-won' : 'badge-proposal'}">${q.status}</span></td>
+          <td><strong>${inv.id}</strong><br><small class="text-muted">${formatDate(inv.date)}</small></td>
+          <td>
+            <strong>${inv.clientName}</strong><br>
+            <small class="text-secondary">${inv.service}</small>
+          </td>
+          <td><span class="font-mono text-xs" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; padding: 2px 6px; border-radius: 4px;">SAC ${sacDisplay}</span></td>
+          <td><strong>${formatINR(inv.amountBilled)}</strong></td>
+          <td>
+            <span class="text-emerald"><strong>${formatINR(inv.amountCollected)}</strong></span><br>
+            <small class="${outstanding > 0 ? 'text-amber' : 'text-muted'}">Due: ${formatINR(outstanding)}</small>
+          </td>
+          <td>
+            <span class="${isOverdue ? 'text-rose' : ''}">${formatDate(inv.dueDate)}</span>
+            ${isOverdue ? '<br><small class="text-rose" style="font-weight: 700;">OVERDUE</small>' : ''}
+          </td>
+          <td><span class="badge ${badgeClass}">${inv.status}</span></td>
           <td>
             <div class="flex gap-2">
-              <button class="btn btn-secondary btn-sm" onclick="app.viewQuotationFormat('${q.id}')" title="View & Print Official Proposal Format">📄 Proposal</button>
-              <button class="btn btn-secondary btn-sm" onclick="app.convertQuoteToInvoice('${q.id}')">Convert to Invoice</button>
-              <button class="btn btn-secondary btn-sm" onclick="app.openEditQuotationModal('${q.id}')">✏️ Edit</button>
-              <button class="btn btn-danger btn-sm" onclick="app.deleteQuotation('${q.id}')">✕</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.viewInvoiceFormat('${inv.id}')" title="View & Print Official Invoice">📄 Format</button>
+              ${outstanding > 0 ? `<button class="btn btn-primary btn-sm" onclick="app.openRecordPaymentModal('${inv.id}')" style="background: #10b981; border-color: #10b981;">💳 Pay</button>` : `<span class="text-emerald text-sm" style="font-weight: 600; padding: 4px 6px;">Settled</span>`}
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditInvoiceModal('${inv.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteInvoice('${inv.id}')">✕</button>
             </div>
           </td>
         </tr>
-      `).join('');
+      `;
+    }).join('');
+  }
+
+  renderQuotesTable() {
+    const quotesBody = document.getElementById('quotes-table-body');
+    if (!quotesBody) return;
+    const quotes = window.storage.getQuotations() || [];
+
+    if (quotes.length === 0) {
+      quotesBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding: 24px;">No quotations recorded yet. Click "+ Generate Quotation" to create a proposal.</td></tr>';
+      return;
     }
 
-    // Invoices Table
-    const invoicesBody = document.getElementById('invoices-table-body');
-    const today = new Date().toISOString().slice(0, 10);
-    if (invoices.length === 0) {
-      invoicesBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding: 20px;">No invoices issued yet.</td></tr>';
-    } else {
-      invoicesBody.innerHTML = invoices.map(inv => {
-        const outstanding = (Number(inv.amountBilled) || 0) - (Number(inv.amountCollected) || 0);
-        const isOverdue = outstanding > 0 && inv.dueDate && inv.dueDate < today;
-        let badgeClass = 'badge-new';
-        if (inv.status === 'Paid') badgeClass = 'badge-won';
-        else if (isOverdue) badgeClass = 'badge-lost';
+    quotesBody.innerHTML = quotes.map(q => `
+      <tr>
+        <td><strong>${q.id}</strong><br><small class="text-muted">${formatDate(q.date)}</small></td>
+        <td>${q.clientName}<br><small class="text-secondary">${q.service}</small></td>
+        <td><strong>${formatINR(q.totalAmount)}</strong></td>
+        <td>${formatINR(q.directCostEstimate)}</td>
+        <td><small class="text-emerald">Margin: ${formatINR(q.projectedMargin)} (${q.marginPercent || 0}%)</small></td>
+        <td><span class="badge ${q.status === 'Accepted' ? 'badge-won' : (q.status === 'Declined' ? 'badge-lost' : 'badge-proposal')}">${q.status}</span></td>
+        <td>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary btn-sm" onclick="app.viewQuotationFormat('${q.id}')" title="View Proposal">📄 Proposal</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.convertQuoteToInvoice('${q.id}')">Convert Inv</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.openEditQuotationModal('${q.id}')">✏️ Edit</button>
+            <button class="btn btn-danger btn-sm" onclick="app.deleteQuotation('${q.id}')">✕</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
 
-        return `
-          <tr>
-            <td><strong>${inv.id}</strong><br><small class="text-muted">${formatDate(inv.date)}</small></td>
-            <td>${inv.clientName}<br><small class="text-secondary">${inv.service}</small></td>
-            <td><strong>${formatINR(inv.amountBilled)}</strong></td>
-            <td>
-              <span class="text-emerald"><strong>${formatINR(inv.amountCollected)}</strong></span><br>
-              <small class="${outstanding > 0 ? 'text-amber' : 'text-muted'}">Due: ${formatINR(outstanding)}</small>
-            </td>
-            <td>
-              <span class="${isOverdue ? 'text-rose' : ''}">${formatDate(inv.dueDate)}</span>
-              ${isOverdue ? '<br><small class="text-rose">OVERDUE</small>' : ''}
-            </td>
-            <td><span class="badge ${badgeClass}">${inv.status}</span></td>
-            <td>
-              <div class="flex gap-2">
-                <button class="btn btn-secondary btn-sm" onclick="app.viewInvoiceFormat('${inv.id}')" title="View & Print Official Invoice Format">📄 Format</button>
-                ${outstanding > 0 ? `<button class="btn btn-primary btn-sm" onclick="app.openRecordPaymentModal('${inv.id}')">Record Payment</button>` : `<span class="text-emerald text-sm">Settled</span>`}
-                <button class="btn btn-secondary btn-sm" onclick="app.openEditInvoiceModal('${inv.id}')">✏️ Edit</button>
-                <button class="btn btn-danger btn-sm" onclick="app.deleteInvoice('${inv.id}')">✕</button>
-              </div>
-            </td>
-          </tr>
-        `;
-      }).join('');
+  renderPaymentsTable() {
+    const paymentsBody = document.getElementById('payments-table-body');
+    if (!paymentsBody) return;
+    const payments = window.storage.getPayments() || [];
+
+    if (payments.length === 0) {
+      paymentsBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted" style="padding: 24px;">No payment collections recorded yet. Click "💳 Record Payment" to issue a receipt.</td></tr>';
+      return;
+    }
+
+    paymentsBody.innerHTML = payments.map(p => `
+      <tr>
+        <td>
+          <span class="font-mono text-xs" style="color: #10b981; font-weight: 700;">${p.id}</span><br>
+          <small class="text-muted">${formatDate(p.date)}</small>
+        </td>
+        <td><span class="font-mono text-xs">${p.invoiceId || 'DIRECT'}</span></td>
+        <td>
+          <strong>${p.clientName}</strong><br>
+          <small class="text-secondary">${p.service || 'Advisory / Services'}</small>
+        </td>
+        <td><span class="text-emerald" style="font-weight: 700;">${formatINR(p.amount)}</span></td>
+        <td><span class="badge badge-won" style="font-size: 11px;">${p.paymentMethod || 'UPI / Bank Transfer'}</span></td>
+        <td><span class="font-mono text-xs">${p.referenceNo || 'Verified'}</span></td>
+        <td>
+          <span class="${p.balanceRemaining > 0 ? 'text-amber' : 'text-emerald'}">
+            ${p.balanceRemaining > 0 ? formatINR(p.balanceRemaining) : '₹0 (Settled)'}
+          </span>
+        </td>
+        <td>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary btn-sm" onclick="app.viewPaymentReceiptSlip('${p.id}')" title="View & Print Official Receipt Voucher">🧾 Receipt</button>
+            <button class="btn btn-whatsapp btn-sm" onclick="app.sharePaymentReceiptWhatsApp('${p.id}')" title="Share via WhatsApp">💬 WA</button>
+            <button class="btn btn-danger btn-sm" onclick="app.deletePayment('${p.id}')" title="Delete Payment Record">✕</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  renderGstBreakdownTable() {
+    const gstBody = document.getElementById('gst-breakdown-table-body');
+    if (!gstBody) return;
+    const invoices = window.storage.getInvoices() || [];
+
+    if (invoices.length === 0) {
+      gstBody.innerHTML = '<tr><td colspan="8" class="text-center text-muted" style="padding: 24px;">No invoice ledger entries available for GST calculation.</td></tr>';
+      return;
+    }
+
+    gstBody.innerHTML = invoices.map(inv => {
+      const hsnInfo = window.invoiceController ? window.invoiceController.detectHsnSac(inv.service) : null;
+      const sacCode = inv.hsnSac || (hsnInfo ? hsnInfo.code : '998313');
+      const total = Number(inv.amountBilled) || 0;
+      const base = Math.round(total / 1.18);
+      const gstAmt = total - base;
+      const cgst = Math.round(gstAmt / 2);
+      const sgst = gstAmt - cgst;
+
+      return `
+        <tr>
+          <td><span class="font-mono text-xs" style="font-weight: 700;">${inv.id}</span></td>
+          <td>
+            <strong>${inv.clientName}</strong><br>
+            <small class="text-muted">${inv.clientAddress || 'Guwahati, Assam (State Code: 18)'}</small>
+          </td>
+          <td>
+            <span class="font-mono text-xs" style="background: rgba(2, 132, 199, 0.12); color: #0284c7; padding: 2px 6px; border-radius: 4px;">SAC ${sacCode}</span><br>
+            <small class="text-secondary">${inv.service}</small>
+          </td>
+          <td class="font-mono"><strong>${formatINR(base)}</strong></td>
+          <td class="font-mono text-cyan">${formatINR(cgst)}</td>
+          <td class="font-mono text-cyan">${formatINR(sgst)}</td>
+          <td class="font-mono text-emerald"><strong>${formatINR(total)}</strong></td>
+          <td><span class="badge ${inv.status === 'Paid' ? 'badge-won' : 'badge-proposal'}">${inv.status}</span></td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  populateBillingAutofills() {
+    const leads = window.storage.getLeads() || [];
+    const quotes = window.storage.getQuotations() || [];
+
+    // Quote autofill dropdown
+    const quoteSel = document.getElementById('quote-lead-autofill');
+    if (quoteSel) {
+      quoteSel.innerHTML = '<option value="">-- Select Lead to Autofill Scope & Pricing --</option>' +
+        leads.map(l => `<option value="${l.id}">${l.name} — ${l.service} (${formatINR(l.estimatedValue)})</option>`).join('');
+    }
+
+    // Invoice autofill dropdown
+    const invSel = document.getElementById('invoice-lead-autofill');
+    if (invSel) {
+      let options = '<option value="">-- Select Lead or Quote to Autofill Client Details --</option>';
+      if (quotes.length > 0) {
+        options += '<optgroup label="From Accepted / Formal Quotations">';
+        quotes.forEach(q => {
+          options += `<option value="QUOTE:${q.id}">[Quote ${q.id}] ${q.clientName} — ${q.service} (${formatINR(q.totalAmount)})</option>`;
+        });
+        options += '</optgroup>';
+      }
+      if (leads.length > 0) {
+        options += '<optgroup label="From CRM Sales Leads">';
+        leads.forEach(l => {
+          options += `<option value="LEAD:${l.id}">[Lead ${l.id}] ${l.name} — ${l.service} (${formatINR(l.estimatedValue)})</option>`;
+        });
+        options += '</optgroup>';
+      }
+      invSel.innerHTML = options;
+    }
+  }
+
+  autofillQuoteFromLead(leadId) {
+    if (!leadId) return;
+    const lead = (window.storage.getLeads() || []).find(l => l.id === leadId);
+    if (!lead) return;
+
+    if (document.getElementById('quote-client')) document.getElementById('quote-client').value = lead.name;
+    if (document.getElementById('quote-service')) document.getElementById('quote-service').value = lead.service;
+    if (document.getElementById('quote-amount')) document.getElementById('quote-amount').value = lead.estimatedValue || '';
+    if (document.getElementById('quote-cost')) document.getElementById('quote-cost').value = Math.round((lead.estimatedValue || 0) * 0.8);
+    showToast(`Autofilled quotation details from lead ${lead.name}`, 'info');
+  }
+
+  autofillInvoiceFromLead(val) {
+    if (!val) return;
+    if (val.startsWith('QUOTE:')) {
+      const qId = val.replace('QUOTE:', '');
+      const quote = (window.storage.getQuotations() || []).find(q => q.id === qId);
+      if (quote) {
+        if (document.getElementById('invoice-client')) document.getElementById('invoice-client').value = quote.clientName;
+        if (document.getElementById('invoice-service')) document.getElementById('invoice-service').value = quote.service;
+        if (document.getElementById('invoice-billed')) document.getElementById('invoice-billed').value = quote.totalAmount || '';
+        if (document.getElementById('invoice-notes') && quote.terms) document.getElementById('invoice-notes').value = quote.terms;
+        const hsn = window.invoiceController ? window.invoiceController.detectHsnSac(quote.service) : null;
+        if (document.getElementById('invoice-hsn') && hsn) document.getElementById('invoice-hsn').value = hsn.code;
+        showToast(`Autofilled invoice from Quotation ${quote.id}`, 'info');
+      }
+    } else if (val.startsWith('LEAD:')) {
+      const lId = val.replace('LEAD:', '');
+      const lead = (window.storage.getLeads() || []).find(l => l.id === lId);
+      if (lead) {
+        if (document.getElementById('invoice-client')) document.getElementById('invoice-client').value = lead.name;
+        if (document.getElementById('invoice-service')) document.getElementById('invoice-service').value = lead.service;
+        if (document.getElementById('invoice-billed')) document.getElementById('invoice-billed').value = lead.estimatedValue || '';
+        const hsn = window.invoiceController ? window.invoiceController.detectHsnSac(lead.service) : null;
+        if (document.getElementById('invoice-hsn') && hsn) document.getElementById('invoice-hsn').value = hsn.code;
+        showToast(`Autofilled invoice from Lead ${lead.name}`, 'info');
+      }
     }
   }
 
@@ -1719,6 +1984,213 @@ class AppController {
     }
   }
 
+  // --- CUSTOMER PAYMENT RECORDING & RECEIPT VOUCHERS (MAXECO) ---
+  openRecordPaymentModal(preselectedInvoiceId = '') {
+    const invoices = window.storage.getInvoices() || [];
+    if (invoices.length === 0) {
+      showToast('No invoices found. Please create an invoice first.', 'error');
+      this.openAddInvoiceModal();
+      return;
+    }
+
+    const sel = document.getElementById('payment-invoice-select');
+    if (!sel) return;
+
+    // Filter to invoices with outstanding balance first, or show all
+    const pendingInvoices = invoices.filter(inv => (Number(inv.amountBilled) || 0) > (Number(inv.amountCollected) || 0));
+    const targetInvoices = pendingInvoices.length > 0 ? pendingInvoices : invoices;
+
+    sel.innerHTML = targetInvoices.map(inv => {
+      const due = Math.max(0, (Number(inv.amountBilled) || 0) - (Number(inv.amountCollected) || 0));
+      return `<option value="${inv.id}">[${inv.id}] ${inv.clientName} — Due: ${formatINR(due)} (${inv.status})</option>`;
+    }).join('');
+
+    if (preselectedInvoiceId && targetInvoices.some(i => i.id === preselectedInvoiceId)) {
+      sel.value = preselectedInvoiceId;
+    } else {
+      sel.value = targetInvoices[0].id;
+    }
+
+    document.getElementById('payment-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('payment-reference').value = '';
+    document.getElementById('payment-notes').value = '';
+
+    this.onPaymentInvoiceSelected(sel.value);
+    document.getElementById('modal-record-payment')?.classList.remove('hidden');
+  }
+
+  onPaymentInvoiceSelected(invoiceId) {
+    const invoice = (window.storage.getInvoices() || []).find(i => i.id === invoiceId);
+    const box = document.getElementById('payment-invoice-summary-box');
+    const amtInput = document.getElementById('payment-amount');
+
+    if (!invoice) {
+      if (box) box.innerHTML = '<span class="text-muted">No invoice selected.</span>';
+      return;
+    }
+
+    const billed = Number(invoice.amountBilled) || 0;
+    const collected = Number(invoice.amountCollected) || 0;
+    const outstanding = Math.max(0, billed - collected);
+
+    if (box) {
+      box.innerHTML = `
+        <div class="flex justify-between" style="margin-bottom: 4px;">
+          <span>Client: <strong>${invoice.clientName}</strong></span>
+          <span>Service: <strong>${invoice.service}</strong></span>
+        </div>
+        <div class="flex justify-between" style="border-top: 1px dashed rgba(16, 185, 129, 0.3); padding-top: 4px;">
+          <span>Billed: <strong>${formatINR(billed)}</strong></span>
+          <span>Collected: <strong class="text-emerald">${formatINR(collected)}</strong></span>
+          <span>Outstanding Due: <strong class="text-amber">${formatINR(outstanding)}</strong></span>
+        </div>
+      `;
+    }
+
+    if (amtInput) {
+      amtInput.value = outstanding > 0 ? outstanding : billed;
+      amtInput.dataset.outstanding = outstanding;
+    }
+
+    this.updatePaymentRemainingPreview();
+  }
+
+  updatePaymentRemainingPreview() {
+    const amtInput = document.getElementById('payment-amount');
+    const previewEl = document.getElementById('payment-preview-balance');
+    if (!amtInput || !previewEl) return;
+
+    const outstanding = Number(amtInput.dataset.outstanding) || 0;
+    const paying = Number(amtInput.value) || 0;
+    const remaining = Math.max(0, outstanding - paying);
+
+    previewEl.textContent = formatINR(remaining);
+    previewEl.className = remaining > 0 ? 'text-amber' : 'text-emerald';
+  }
+
+  saveCustomerPaymentFromModal() {
+    const invoiceId = document.getElementById('payment-invoice-select')?.value;
+    const amount = Number(document.getElementById('payment-amount')?.value) || 0;
+    const date = document.getElementById('payment-date')?.value || new Date().toISOString().slice(0, 10);
+    const method = document.getElementById('payment-method')?.value || 'UPI / QR Code';
+    const ref = document.getElementById('payment-reference')?.value?.trim() || '';
+    const notes = document.getElementById('payment-notes')?.value?.trim() || '';
+
+    if (!invoiceId) {
+      showToast('Please select a customer invoice.', 'error');
+      return;
+    }
+    if (!amount || amount <= 0) {
+      showToast('Please enter a valid payment amount greater than ₹0.', 'error');
+      return;
+    }
+
+    const res = window.storage.recordCustomerPayment(invoiceId, amount, method, ref, date, notes);
+    if (!res) {
+      showToast('Error recording payment.', 'error');
+      return;
+    }
+
+    this.closeAllModals();
+    showToast(`Payment receipt ${res.paymentRecord.id} recorded successfully (₹${amount.toLocaleString('en-IN')})!`, 'success');
+
+    // Refresh views
+    this.renderQuotesInvoicesTab();
+    if (this.currentView === 'finance' || this.currentView === 'dashboard') {
+      this.renderPrivateView(this.currentView);
+    }
+
+    // Immediately open the official payment receipt voucher
+    this.viewPaymentReceiptSlip(res.paymentRecord.id);
+  }
+
+  viewPaymentReceiptSlip(receiptId) {
+    const payments = window.storage.getPayments() || [];
+    const receipt = payments.find(p => p.id === receiptId) || payments[0];
+    if (!receipt) {
+      showToast('Payment receipt not found.', 'error');
+      return;
+    }
+
+    const invoice = (window.storage.getInvoices() || []).find(i => i.id === receipt.invoiceId);
+    const container = document.getElementById('payment-receipt-view-content');
+    const activeIdEl = document.getElementById('payment-receipt-active-id');
+
+    if (container && window.invoiceController) {
+      container.innerHTML = window.invoiceController.generatePaymentReceiptHTML(receipt, invoice);
+    }
+    if (activeIdEl) {
+      activeIdEl.value = receipt.id;
+    }
+
+    document.getElementById('modal-payment-receipt')?.classList.remove('hidden');
+  }
+
+  printPaymentReceiptSlip() {
+    window.print();
+  }
+
+  sharePaymentReceiptWhatsApp(receiptId = '') {
+    const activeId = receiptId || document.getElementById('payment-receipt-active-id')?.value;
+    const payments = window.storage.getPayments() || [];
+    const receipt = payments.find(p => p.id === activeId) || payments[0];
+    if (!receipt) return;
+
+    const text = `*OFFICIAL PAYMENT RECEIPT — MAXECO ENERGY & TECH*\n` +
+      `Receipt No: ${receipt.id}\n` +
+      `Settlement Date: ${receipt.date}\n` +
+      `Received With Thanks From: ${receipt.clientName}\n` +
+      `Towards: ${receipt.service || 'Advisory / Services'}\n` +
+      `Amount Paid: ₹${Number(receipt.amount).toLocaleString('en-IN')}\n` +
+      `Payment Mode: ${receipt.paymentMethod || 'UPI / Bank Transfer'}\n` +
+      `Bank UTR / Reference: ${receipt.referenceNo || 'Verified'}\n` +
+      `Remaining Balance: ₹${Number(receipt.balanceRemaining).toLocaleString('en-IN')}\n\n` +
+      `Thank you for your business!\n` +
+      `MaxEco Energy & Tech | Maligaon, Guwahati, Assam | +91 99544 93909`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  }
+
+  copyPaymentReceiptText(receiptId = '') {
+    const activeId = receiptId || document.getElementById('payment-receipt-active-id')?.value;
+    const payments = window.storage.getPayments() || [];
+    const receipt = payments.find(p => p.id === activeId) || payments[0];
+    if (!receipt) return;
+
+    const text = `====================================================\n` +
+      `MAXECO ENERGY & TECH — OFFICIAL PAYMENT RECEIPT\n` +
+      `Maligaon, Guwahati, Assam, Pin - 781011 | +91 99544 93909\n` +
+      `====================================================\n` +
+      `Receipt Voucher: ${receipt.id} | Date: ${receipt.date}\n` +
+      `Invoice Ref: ${receipt.invoiceId || 'DIRECT'}\n` +
+      `Client: ${receipt.clientName}\n` +
+      `Service: ${receipt.service || 'Professional Advisory'}\n` +
+      `Amount Received: ₹${Number(receipt.amount).toLocaleString('en-IN')}\n` +
+      `Payment Method: ${receipt.paymentMethod || 'UPI / Bank Transfer'}\n` +
+      `Bank Ref / UTR: ${receipt.referenceNo || 'Verified'}\n` +
+      `Balance Due: ₹${Number(receipt.balanceRemaining).toLocaleString('en-IN')}\n` +
+      `Beneficiary: MaxEco Operating Treasury (State Bank of India)\n` +
+      `====================================================\n`;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Receipt details copied to clipboard.', 'success');
+      });
+    }
+  }
+
+  deletePayment(id) {
+    if (confirm('Are you sure you want to delete this payment receipt record?')) {
+      window.storage.deletePayment(id);
+      showToast('Payment receipt removed.', 'info');
+      this.renderQuotesInvoicesTab();
+      if (this.currentView === 'finance' || this.currentView === 'dashboard') {
+        this.renderPrivateView(this.currentView);
+      }
+    }
+  }
+
   // --- PROJECT CONTROLS ---
   openAddProjectModal(defaultType = 'solar') {
     document.getElementById('project-edit-id').value = '';
@@ -1887,6 +2359,8 @@ class AppController {
       items = window.storage.getQuotations().map(q => ({ id: q.id, label: `[${q.id}] ${q.clientName} — ${formatINR(q.totalAmount)} (${q.status})` }));
     } else if (type === 'invoice') {
       items = window.storage.getInvoices().map(i => ({ id: i.id, label: `[${i.id}] ${i.clientName} — ${formatINR(i.amountBilled)} (${i.status})` }));
+    } else if (type === 'payment') {
+      items = (window.storage.getPayments() || []).map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} — ${formatINR(p.amount)} (${p.paymentMethod || 'UPI'})` }));
     } else if (type === 'expense') {
       items = window.storage.getExpenses().map(e => ({ id: e.id, label: `[${e.id}] ${e.description} — ${formatINR(e.amount)} (${e.category})` }));
     } else if (type === 'drawing') {
@@ -1928,6 +2402,9 @@ class AppController {
     } else if (type === 'invoice') {
       const i = window.storage.getInvoices().find(x => x.id === id);
       if (i) details = `<strong>${i.clientName}</strong> • Billed: <strong>${formatINR(i.amountBilled)}</strong> • Collected: <strong>${formatINR(i.amountCollected)}</strong> • Due: ${formatDate(i.dueDate)} • Status: ${i.status}`;
+    } else if (type === 'payment') {
+      const p = (window.storage.getPayments() || []).find(x => x.id === id);
+      if (p) details = `<strong>[Receipt] ${p.clientName}</strong> • Amount: <strong>${formatINR(p.amount)}</strong> • Method: ${p.paymentMethod} • Ref: ${p.referenceNo || 'Verified'} • Date: ${formatDate(p.date)}`;
     } else if (type === 'expense') {
       const e = window.storage.getExpenses().find(x => x.id === id);
       if (e) details = `<strong>${e.description}</strong> • ${e.category} • Amount: <strong>${formatINR(e.amount)}</strong> • Paid to: ${e.paidTo}`;
@@ -1965,6 +2442,8 @@ class AppController {
       this.openEditQuotationModal(id);
     } else if (type === 'invoice') {
       this.openEditInvoiceModal(id);
+    } else if (type === 'payment') {
+      this.viewPaymentReceiptSlip(id);
     } else if (type === 'expense') {
       this.openEditExpenseModal(id);
     } else if (type === 'drawing') {
@@ -2067,6 +2546,8 @@ class AppController {
       items = window.storage.getQuotations().map(q => ({ id: q.id, label: `[${q.id}] ${q.clientName} — ${formatINR(q.totalAmount)} (${q.status})` }));
     } else if (type === 'invoice') {
       items = window.storage.getInvoices().map(i => ({ id: i.id, label: `[${i.id}] ${i.clientName} — ${formatINR(i.amountBilled)} (${i.status})` }));
+    } else if (type === 'payment') {
+      items = (window.storage.getPayments() || []).map(p => ({ id: p.id, label: `[${p.id}] ${p.clientName} — ${formatINR(p.amount)} (${p.paymentMethod || 'UPI'})` }));
     } else if (type === 'expense') {
       items = window.storage.getExpenses().map(e => ({ id: e.id, label: `[${e.id}] ${e.description} — ${formatINR(e.amount)} (${e.category})` }));
     } else if (type === 'drawing') {
@@ -2108,6 +2589,9 @@ class AppController {
     } else if (type === 'invoice') {
       const i = window.storage.getInvoices().find(x => x.id === id);
       if (i) details = `<strong style="color: var(--accent-rose);">[Invoice] ${i.clientName}</strong> • Billed: ${formatINR(i.amountBilled)} • Collected: ${formatINR(i.amountCollected)} • Due: ${formatDate(i.dueDate)} • Status: ${i.status}`;
+    } else if (type === 'payment') {
+      const p = (window.storage.getPayments() || []).find(x => x.id === id);
+      if (p) details = `<strong style="color: var(--accent-rose);">[Receipt] ${p.clientName}</strong> • Amount: ${formatINR(p.amount)} • Method: ${p.paymentMethod} • Ref: ${p.referenceNo || 'Verified'} • Date: ${formatDate(p.date)}`;
     } else if (type === 'expense') {
       const e = window.storage.getExpenses().find(x => x.id === id);
       if (e) details = `<strong style="color: var(--accent-rose);">[Expense] ${e.description}</strong> • ${e.category} • Amount: ${formatINR(e.amount)} • Paid to: ${e.paidTo}`;
@@ -2145,6 +2629,8 @@ class AppController {
       this.deleteQuotation(id);
     } else if (type === 'invoice') {
       this.deleteInvoice(id);
+    } else if (type === 'payment') {
+      this.deletePayment(id);
     } else if (type === 'expense') {
       this.deleteExpense(id);
     } else if (type === 'drawing') {

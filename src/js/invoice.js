@@ -645,6 +645,100 @@ class InvoiceController {
       }
     }
   }
+
+  // --- OFFICIAL PAYMENT RECEIPT & ACKNOWLEDGEMENT (MAXECO) ---
+  generatePaymentReceiptHTML(receipt, invoice = null) {
+    if (!receipt) return '<p>No payment receipt found.</p>';
+    const amount = Number(receipt.amount) || 0;
+    const words = this.numberToWordsINR(amount);
+    const balance = Number(receipt.balanceRemaining !== undefined ? receipt.balanceRemaining : (invoice ? Math.max(0, invoice.amountBilled - invoice.amountCollected) : 0));
+
+    return `
+      <div class="maxeco-invoice-sheet" id="payment-receipt-printable-area" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+        <!-- HEADER -->
+        <div class="inv-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+          <div class="inv-brand" style="display: flex; gap: 14px; align-items: center;">
+            <div style="width: 44px; height: 44px; border-radius: 8px; background: linear-gradient(135deg, #10b981, #0284c7); display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; font-size: 20px;">
+              M
+            </div>
+            <div>
+              <h1 style="font-size: 18px; margin: 0; color: #0f172a; font-weight: 800;">${this.companyProfile.name}</h1>
+              <p style="font-size: 11px; margin: 2px 0; color: #475569;">${this.companyProfile.tagline}</p>
+              <p style="font-size: 11px; margin: 0; color: #64748b;">${this.companyProfile.address} | Phone: ${this.companyProfile.phone}</p>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 16px; font-weight: 800; color: #10b981; text-transform: uppercase;">OFFICIAL PAYMENT RECEIPT</div>
+            <div style="font-size: 11px; font-weight: 700; color: #10b981; background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; padding: 3px 8px; border-radius: 4px; display: inline-block; margin-top: 4px;">
+              ● PAYMENT RECEIVED &amp; VERIFIED
+            </div>
+          </div>
+        </div>
+
+        <hr style="border: 0; border-top: 2px solid #e2e8f0; margin: 12px 0 16px 0;">
+
+        <!-- RECEIPT DETAILS & PAYER -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
+            <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">RECEIVED WITH THANKS FROM:</div>
+            <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-top: 4px;">${receipt.clientName}</div>
+            <div style="font-size: 12px; color: #334155; margin-top: 2px;">Towards: <strong>${receipt.service || 'Professional Advisory & Services'}</strong></div>
+            ${receipt.notes ? `<div style="font-size: 11px; color: #64748b; margin-top: 4px;">Milestone / Purpose: ${receipt.notes}</div>` : ''}
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px;">
+            <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+              <tr><td style="color: #64748b; padding: 2px 0;">Receipt Voucher No:</td><td style="font-weight: 700; font-family: monospace; color: #10b981; text-align: right;">${receipt.id}</td></tr>
+              <tr><td style="color: #64748b; padding: 2px 0;">Invoice Reference:</td><td style="font-weight: 700; font-family: monospace; color: #0f172a; text-align: right;">${receipt.invoiceId || 'DIRECT'}</td></tr>
+              <tr><td style="color: #64748b; padding: 2px 0;">Payment Settlement Date:</td><td style="color: #0f172a; text-align: right;">${this.formatDateIndian(receipt.date)}</td></tr>
+              <tr><td style="color: #64748b; padding: 2px 0;">Payment Method:</td><td style="font-weight: 600; color: #0f172a; text-align: right;">${receipt.paymentMethod || 'UPI / Bank Transfer'}</td></tr>
+              <tr><td style="color: #64748b; padding: 2px 0;">Bank UTR / Reference:</td><td style="font-family: monospace; color: #0f172a; text-align: right;">${receipt.referenceNo || 'Verified'}</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- PAYMENT SUM BLOCK -->
+        <div style="background: rgba(16, 185, 129, 0.06); border: 2px solid #10b981; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <div style="font-size: 11px; font-weight: 800; color: #047857; text-transform: uppercase;">AMOUNT RECEIVED:</div>
+              <div style="font-size: 26px; font-weight: 800; font-family: monospace; color: #065f46; margin-top: 2px;">
+                ${this.formatCurrency(amount)}
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 11px; font-weight: 700; color: #64748b;">REMAINING BALANCE DUE:</div>
+              <div style="font-size: 18px; font-weight: 700; font-family: monospace; color: ${balance > 0 ? '#b45309' : '#059669'}; margin-top: 2px;">
+                ${balance > 0 ? this.formatCurrency(balance) : '₹0 (Settled)'}
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(16, 185, 129, 0.4); font-size: 12px; color: #047857;">
+            <strong>Amount in Words:</strong> <em>${words}</em>
+          </div>
+        </div>
+
+        <!-- REMITTANCE VERIFICATION -->
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; margin-bottom: 24px; font-size: 11px; color: #475569;">
+          <div><strong>Beneficiary Settlement Account:</strong> ${this.companyProfile.accountName} • ${this.companyProfile.bankName} (UPI: ${this.companyProfile.upiId})</div>
+          <div style="margin-top: 4px;">Payment received and verified into MaxEco operating treasury account in accordance with RBI cash-basis accounting protocols.</div>
+        </div>
+
+        <!-- SIGNATURE BLOCK -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 24px; padding-top: 16px; border-top: 1px dashed #cbd5e1;">
+          <div>
+            <div style="font-size: 11px; color: #64748b;">Electronic Computer Generated Receipt</div>
+            <div style="font-size: 10px; color: #94a3b8;">MaxEco ERP Business Operating System</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="border-bottom: 1px solid #94a3b8; height: 35px; width: 180px; margin-left: auto;"></div>
+            <div style="font-size: 11px; font-weight: 700; color: #334155; margin-top: 4px;">For ${this.companyProfile.name}</div>
+            <div style="font-size: 10px; color: #64748b;">Authorized Accounts Signatory</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 }
 
 // Global initialization

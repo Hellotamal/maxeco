@@ -139,6 +139,22 @@ const initialSeedData = {
     }
   ],
 
+  // --- CUSTOMER PAYMENT RECEIPTS & SETTLEMENTS ---
+  payments: [
+    {
+      id: "REC-2026-001",
+      invoiceId: "INV-2026-001",
+      clientName: "Assam Craft & Loom Traders",
+      service: "Website Maintenance (Q4 2026 Retainer)",
+      amount: 6000,
+      paymentMethod: "UPI / Bank Transfer (SBI)",
+      referenceNo: "UPI/20260928/998124",
+      date: "2026-09-28",
+      balanceRemaining: 0,
+      notes: "Full settlement received via UPI. Q4 retainer activated."
+    }
+  ],
+
   expenses: [
     {
       id: "EXP-2026-001",

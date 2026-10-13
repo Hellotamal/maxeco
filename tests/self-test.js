@@ -350,6 +350,65 @@ assert(csvProcOk === true, 'BOM Procurements CSV export generated for supply cha
 const csvWoOk = window.storage.exportCsv('workOrders');
 assert(csvWoOk === true, 'Field Work Orders CSV export generated for contractor accounting');
 
+// TEST SUITE 9: CUSTOMER BILLING & PAYMENT RECEIPTS ENGINE
+console.log('\n--- TEST SUITE 9: Customer Billing & Payment Receipts Engine ---');
+const initialPayments = window.storage.getPayments();
+assert(Array.isArray(initialPayments), 'Payments collection initialized as array');
+
+// 1. Create test invoice for billing lifecycle
+const testInv = window.storage.saveInvoice({
+  clientName: 'Brahmaputra Engineering Works',
+  service: 'Solar EPC Coordination — 20 kWp Rooftop Installation',
+  amountBilled: 1000000,
+  amountCollected: 0,
+  dueDate: '2026-11-15',
+  status: 'Sent',
+  clientAddress: 'Amingaon Industrial Estate, Guwahati',
+  clientGstin: '18AAACB1234F1Z5'
+});
+assert(Boolean(testInv.id), `Test invoice created with ID: ${testInv.id}`);
+
+// 2. Record Partial Customer Payment
+const payRes1 = window.storage.recordCustomerPayment(
+  testInv.id,
+  400000,
+  'NEFT / RTGS',
+  'AXISN20261013009',
+  '2026-10-13',
+  '40% project mobilization advance'
+);
+assert(Boolean(payRes1), 'Customer payment recorded successfully');
+assert(payRes1.invoice.amountCollected === 400000, 'Invoice amountCollected updated to ₹4,00,000');
+assert(payRes1.invoice.status === 'Partially Paid', 'Invoice status updated to Partially Paid');
+assert(payRes1.paymentRecord.id.startsWith('REC-'), `Receipt voucher generated with ID: ${payRes1.paymentRecord.id}`);
+assert(payRes1.paymentRecord.balanceRemaining === 600000, 'Receipt tracks remaining balance of ₹6,00,000');
+
+// 3. Record Final Settlement Payment
+const payRes2 = window.storage.recordCustomerPayment(
+  testInv.id,
+  600000,
+  'UPI / QR Code',
+  'UPI/410293849182',
+  '2026-10-14',
+  'Remaining balance settlement'
+);
+assert(payRes2.invoice.amountCollected === 1000000, 'Invoice fully paid (₹10,00,000)');
+assert(payRes2.invoice.status === 'Paid', 'Invoice status transitioned to Paid');
+assert(payRes2.paymentRecord.balanceRemaining === 0, 'Zero remaining balance on final receipt');
+
+// 4. Test Payment Receipt HTML Generation
+const receiptHtml = window.invoiceController.generatePaymentReceiptHTML(payRes1.paymentRecord, payRes1.invoice);
+assert(receiptHtml.includes('OFFICIAL PAYMENT RECEIPT'), 'Receipt HTML contains header title');
+assert(receiptHtml.includes('MaxEco Energy & Tech'), 'Receipt HTML contains company profile name');
+assert(receiptHtml.includes('Brahmaputra Engineering Works'), 'Receipt HTML contains customer name');
+assert(receiptHtml.includes('AXISN20261013009'), 'Receipt HTML contains bank UTR reference');
+assert(receiptHtml.includes('Rupees Four Lakh Only'), 'Receipt HTML contains amount in words');
+assert(receiptHtml.includes('₹6,00,000'), 'Receipt HTML contains remaining balance due');
+
+// 5. Payments CSV Export
+const csvPayOk = window.storage.exportCsv('payments');
+assert(csvPayOk === true, 'Payments & Receipts CSV export generated for banking ledger audit');
+
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');

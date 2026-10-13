@@ -783,10 +783,11 @@ textarea.form-control {
   }
   #invoice-printable-area, #invoice-printable-area *,
   #quotation-printable-area, #quotation-printable-area *,
-  #workorder-printable-area, #workorder-printable-area * {
+  #workorder-printable-area, #workorder-printable-area *,
+  #payment-receipt-printable-area, #payment-receipt-printable-area * {
     visibility: visible;
   }
-  #invoice-printable-area, #quotation-printable-area, #workorder-printable-area {
+  #invoice-printable-area, #quotation-printable-area, #workorder-printable-area, #payment-receipt-printable-area {
     position: absolute;
     left: 0;
     top: 0;

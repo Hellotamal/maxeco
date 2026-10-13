@@ -39,7 +39,8 @@ class StorageController {
           solarProjects: [],
           itProjects: [],
           procurements: [],
-          workOrders: []
+          workOrders: [],
+          payments: []
         });
       }
     } else {
@@ -66,6 +67,10 @@ class StorageController {
         }
         if (parsed && (!parsed.workOrders || parsed.workOrders.length === 0)) {
           parsed.workOrders = (seed && seed.workOrders) ? JSON.parse(JSON.stringify(seed.workOrders)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.payments || parsed.payments.length === 0)) {
+          parsed.payments = (seed && seed.payments) ? JSON.parse(JSON.stringify(seed.payments)) : [];
           updated = true;
         }
 
@@ -226,6 +231,55 @@ class StorageController {
   deleteInvoice(id) {
     const store = this.getStore();
     store.invoices = (store.invoices || []).filter(inv => inv.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CUSTOMER PAYMENTS & RECEIPTS ---
+  getPayments() {
+    const store = this.getStore();
+    return store && store.payments ? store.payments : [];
+  }
+
+  recordCustomerPayment(invoiceId, paymentAmount, paymentMethod, referenceNo, paymentDate, notes) {
+    const store = this.getStore();
+    if (!store.payments) store.payments = [];
+    const invoice = (store.invoices || []).find(inv => inv.id === invoiceId);
+    if (!invoice) return null;
+
+    const amount = Number(paymentAmount) || 0;
+    invoice.amountCollected = (Number(invoice.amountCollected) || 0) + amount;
+    invoice.paymentMethod = paymentMethod || 'UPI / Bank Transfer';
+    invoice.referenceNo = referenceNo || '';
+    invoice.paymentDate = paymentDate || new Date().toISOString().slice(0, 10);
+
+    if (invoice.amountCollected >= invoice.amountBilled) {
+      invoice.status = 'Paid';
+    } else if (invoice.amountCollected > 0) {
+      invoice.status = 'Partially Paid';
+    }
+
+    const year = new Date().getFullYear();
+    const count = (store.payments.length + 1).toString().padStart(3, '0');
+    const paymentRecord = {
+      id: `REC-${year}-${count}`,
+      invoiceId: invoice.id,
+      clientName: invoice.clientName,
+      service: invoice.service,
+      amount: amount,
+      paymentMethod: invoice.paymentMethod,
+      referenceNo: invoice.referenceNo,
+      date: invoice.paymentDate,
+      balanceRemaining: Math.max(0, invoice.amountBilled - invoice.amountCollected),
+      notes: notes || 'Customer payment received and credited.'
+    };
+    store.payments.unshift(paymentRecord);
+    this.saveStore(store);
+    return { invoice, paymentRecord };
+  }
+
+  deletePayment(id) {
+    const store = this.getStore();
+    store.payments = (store.payments || []).filter(p => p.id !== id);
     this.saveStore(store);
   }
 
@@ -532,6 +586,11 @@ class StorageController {
       csvContent = "WO ID,Project ID,Work Title,Work Type,Assigned Contractor,Phone,Scheduled Date,Target Completion,Contractor Fee (INR),Safety Compliance,Status,Notes\n";
       (store.workOrders || []).forEach(w => {
         csvContent += `"${w.id}","${w.projectId || ''}","${(w.title || '').replace(/"/g, '""')}","${w.workType || ''}","${(w.assignedTo || '').replace(/"/g, '""')}","${w.contactPhone || ''}","${w.scheduledDate || ''}","${w.targetCompletionDate || ''}",${w.contractorFee || 0},"${(w.safetyCompliance || '').replace(/"/g, '""')}","${w.status}","${(w.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'payments') {
+      csvContent = "Receipt ID,Invoice ID,Client Name,Service,Amount Received (INR),Payment Method,Reference No,Date,Balance Remaining (INR),Notes\n";
+      (store.payments || []).forEach(p => {
+        csvContent += `"${p.id}","${p.invoiceId || ''}","${p.clientName}","${(p.service || '').replace(/"/g, '""')}",${p.amount || 0},"${p.paymentMethod || ''}","${p.referenceNo || ''}","${p.date || ''}",${p.balanceRemaining || 0},"${(p.notes || '').replace(/"/g, '""')}"\n`;
       });
     } else {
       return false;
