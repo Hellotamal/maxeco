@@ -836,6 +836,8 @@ assert(!websiteHtml.includes('user_accounts') && !websiteHtml.includes('auditLog
 assert(!websiteHtml.includes('4589000100072219'), 'Privacy & Compliance check: Website does not publicly expose bank account numbers');
 assert(!websiteHtml.includes('PUNB0458900'), 'Privacy & Compliance check: Website does not publicly expose bank IFSC code');
 assert(!websiteHtml.includes('id="settlement"'), 'Privacy & Compliance check: Website has removed direct settlement details section');
+assert(!websiteHtml.includes('Tamal Roy'), 'Privacy & Compliance check: Website does not publicly expose Authorised Signatory personal name');
+assert(!websiteHtml.includes('Authorised Signatory'), 'Privacy & Compliance check: Website does not expose Authorised Signatory title');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
