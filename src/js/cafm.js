@@ -264,6 +264,10 @@ class CafmController {
     };
   }
 
+  get storage() {
+    return (typeof window !== 'undefined' && window.storage) ? window.storage : (typeof global !== 'undefined' ? global.storage : null);
+  }
+
   // --- MULTI-TENANT FILTERING ---
   setOrganizationFilter(orgId) {
     this.currentOrganizationFilter = orgId || 'all';
@@ -1023,6 +1027,689 @@ class CafmController {
 
         <div style="text-align: center; font-size: 8.5px; color: #94a3b8; margin-top: 14px; border-top: 1px dashed #e2e8f0; padding-top: 6px;">
           MaxEco Energy &amp; Tech Computer-Aided Facility Management (CAFM) System • Maligaon, Guwahati, Assam
+        </div>
+
+      </div>
+    `;
+  }
+
+  // ========================================================
+  // PHASE 2: OPERATIONS ENGINE
+  // ========================================================
+
+  // --- SPARE PARTS CATALOG WRAPPERS ---
+  getPartsCatalog(category = 'all') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : (typeof global !== 'undefined' ? global.storage : null);
+    if (!store) return [];
+    return store.getPartsCatalog(category);
+  }
+
+  getPartById(id) {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : (typeof global !== 'undefined' ? global.storage : null);
+    if (!store) return null;
+    return store.getPartById(id);
+  }
+
+  savePart(partData) {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : (typeof global !== 'undefined' ? global.storage : null);
+    if (!store) return null;
+    return store.savePart(partData);
+  }
+
+  deletePart(id) {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : (typeof global !== 'undefined' ? global.storage : null);
+    if (!store) return false;
+    return store.deletePart(id);
+  }
+
+  getDefaultChecklist(category = 'Solar EPC') {
+    if (category === 'Solar EPC') {
+      return [
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Lock-Out / Tag-Out (LOTO) safety protocol activated on DC isolator", task: "Lock-Out / Tag-Out (LOTO) safety protocol activated on DC isolator", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Visual inspection for glass cracks, delamination, or snail trails", task: "Visual inspection for glass cracks, delamination, or snail trails", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "De-ionized water pressure wash without abrasive cleaning agents", task: "De-ionized water pressure wash without abrasive cleaning agents", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Verify module clamp tightness & aluminum torque integrity (9.5 Nm)", task: "Verify module clamp tightness & aluminum torque integrity (9.5 Nm)", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Measure DC string open circuit Voc voltage & confirm inverter power logger", task: "Measure DC string open circuit Voc voltage & confirm inverter power logger", done: false, completed: false, checkedAt: null, checkedBy: null }
+      ];
+    } else if (category === 'IT Infrastructure') {
+      return [
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Server rack cable dressing, ventilation fan & ambient airflow check", task: "Server rack cable dressing, ventilation fan & ambient airflow check", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Online UPS battery bank impedance & individual 12V float charge test", task: "Online UPS battery bank impedance & individual 12V float charge test", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Managed switch ports link integrity & packet loss diagnostic test", task: "Managed switch ports link integrity & packet loss diagnostic test", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Simulated utility power loss cutover & runtime discharge verification", task: "Simulated utility power loss cutover & runtime discharge verification", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Chassis dust filter cleaning and firmware error log archive", task: "Chassis dust filter cleaning and firmware error log archive", done: false, completed: false, checkedAt: null, checkedBy: null }
+      ];
+    } else {
+      // Electrical & CEIG
+      return [
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Megger Earth Resistance 4-terminal test measured (< 2.0 Ohms standard)", task: "Megger Earth Resistance 4-terminal test measured (< 2.0 Ohms standard)", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Copper busbar terminal disconnect & oxide layer brushing", task: "Copper busbar terminal disconnect & oxide layer brushing", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Chemical compound slurry hydration & cover chamber inspection", task: "Chemical compound slurry hydration & cover chamber inspection", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Verify lightning arrester down conductor continuity to roof finial", task: "Verify lightning arrester down conductor continuity to roof finial", done: false, completed: false, checkedAt: null, checkedBy: null },
+        { id: "chk-" + Math.random().toString(36).substr(2, 6), text: "Record readings on statutory CEIG Inspection Verification Slip", task: "Record readings on statutory CEIG Inspection Verification Slip", done: false, completed: false, checkedAt: null, checkedBy: null }
+      ];
+    }
+  }
+
+  getTicketChecklist(ticketId) {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket) return [];
+    if (!ticket.checklist || ticket.checklist.length === 0) {
+      const asset = ticket.assetId ? this.getAssetById(ticket.assetId) : null;
+      ticket.checklist = this.getDefaultChecklist(asset ? asset.category : 'Solar EPC');
+      this.saveTicket(ticket);
+    }
+    // Normalize properties for backwards compatibility
+    ticket.checklist.forEach(i => {
+      if (!i.task && i.text) i.task = i.text;
+      if (!i.text && i.task) i.text = i.task;
+      if (i.completed === undefined) i.completed = Boolean(i.done);
+      if (i.done === undefined) i.done = Boolean(i.completed);
+    });
+    return ticket.checklist;
+  }
+
+  toggleChecklistItem(ticketId, itemId, checkedBy = '') {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket) return null;
+    if (!ticket.checklist || ticket.checklist.length === 0) {
+      this.getTicketChecklist(ticketId);
+    }
+
+    const item = ticket.checklist.find(i => i.id === itemId);
+    if (!item) return null;
+
+    const newStatus = !(item.done || item.completed);
+    item.done = newStatus;
+    item.completed = newStatus;
+    if (newStatus) {
+      item.checkedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+      item.checkedBy = checkedBy || ticket.assignedTech || 'MaxEco Field Engineer';
+    } else {
+      item.checkedAt = null;
+      item.checkedBy = null;
+    }
+
+    this.saveTicket(ticket);
+    if (this.storage && this.storage.logAuditAction) {
+      this.storage.logAuditAction(
+        'CHECKLIST_TOGGLE',
+        'serviceTickets',
+        ticket.id,
+        `Task "${item.text || item.task}" marked ${item.done ? 'COMPLETED' : 'PENDING'} by ${item.checkedBy || 'engineer'}`
+      );
+    }
+    return item;
+  }
+
+  addChecklistItem(ticketId, taskText, checkedBy = '') {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket) return null;
+    if (!ticket.checklist) ticket.checklist = [];
+
+    const newItem = {
+      id: "chk-" + Math.random().toString(36).substr(2, 6),
+      text: taskText.trim(),
+      task: taskText.trim(),
+      done: false,
+      completed: false,
+      checkedAt: null,
+      checkedBy: null
+    };
+
+    ticket.checklist.push(newItem);
+    this.saveTicket(ticket);
+    if (this.storage && this.storage.logAuditAction) {
+      this.storage.logAuditAction(
+        'CHECKLIST_ADD',
+        'serviceTickets',
+        ticket.id,
+        `Added custom inspection task: "${taskText}"`
+      );
+    }
+    return newItem;
+  }
+
+  // --- PARTS & CONSUMABLES TRACKING ---
+  getTicketParts(ticketId) {
+    const ticket = this.getTicketById(ticketId);
+    const parts = ticket && ticket.partsUsed ? ticket.partsUsed : [];
+    parts.forEach(p => {
+      if (!p.partName && p.name) p.partName = p.name;
+      if (!p.name && p.partName) p.name = p.partName;
+      if (!p.quantity && p.qty) p.quantity = p.qty;
+      if (!p.qty && p.quantity) p.qty = p.quantity;
+      if (p.total === undefined && p.totalCost !== undefined) p.total = p.totalCost;
+      if (p.totalCost === undefined && p.total !== undefined) p.totalCost = p.total;
+      if (p.billable === undefined && p.isBillable !== undefined) p.billable = p.isBillable;
+      if (p.isBillable === undefined && p.billable !== undefined) p.isBillable = p.billable;
+    });
+    return parts;
+  }
+
+  addPartToTicket(ticketId, partData) {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket) return null;
+    if (!ticket.partsUsed) ticket.partsUsed = [];
+
+    const qty = Number(partData.qty !== undefined ? partData.qty : partData.quantity) || 1;
+    const unitCost = Number(partData.unitCost) || 0;
+    const totalCost = qty * unitCost;
+    const name = partData.name || partData.partName || 'Consumable Item';
+    const isBillable = Boolean(partData.isBillable !== undefined ? partData.isBillable : partData.billable);
+
+    const partUsage = {
+      id: "PU-" + Date.now().toString().slice(-6),
+      partId: partData.partId || null,
+      name,
+      partName: name,
+      partNumber: partData.partNumber || '',
+      qty,
+      quantity: qty,
+      unitCost,
+      totalCost,
+      total: totalCost,
+      isBillable,
+      billable: isBillable,
+      notes: partData.notes ? partData.notes.trim() : ''
+    };
+
+    ticket.partsUsed.push(partUsage);
+
+    // If billable, update chargeableWork total
+    if (partUsage.isBillable) {
+      if (!ticket.chargeableWork) {
+        ticket.chargeableWork = { isChargeable: true, estimatedAmount: 0, scopeDescription: '', approvalStatus: 'Pending', approvalReference: '', approvedAt: null, approvedBy: null };
+      }
+      ticket.chargeableWork.isChargeable = true;
+      ticket.chargeableWork.estimatedAmount = (Number(ticket.chargeableWork.estimatedAmount) || 0) + totalCost;
+      if (ticket.chargeableWork.approvalStatus === 'N/A') {
+        ticket.chargeableWork.approvalStatus = 'Pending';
+      }
+    }
+
+    this.saveTicket(ticket);
+    if (this.storage && this.storage.logAuditAction) {
+      this.storage.logAuditAction(
+        'PARTS_LOGGED',
+        'serviceTickets',
+        ticket.id,
+        `Logged ${qty}x ${partUsage.name} (₹${totalCost.toLocaleString('en-IN')}) - ${partUsage.isBillable ? 'Billable to Customer' : 'Covered under AMC'}`
+      );
+    }
+    return partUsage;
+  }
+
+  removePartFromTicket(ticketId, partUsageId) {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket || !ticket.partsUsed) return false;
+
+    const idx = ticket.partsUsed.findIndex(p => p.id === partUsageId);
+    if (idx === -1) return false;
+
+    const removed = ticket.partsUsed.splice(idx, 1)[0];
+    if (removed.isBillable && ticket.chargeableWork) {
+      ticket.chargeableWork.estimatedAmount = Math.max(0, (Number(ticket.chargeableWork.estimatedAmount) || 0) - removed.totalCost);
+      if (ticket.chargeableWork.estimatedAmount === 0 && (!ticket.chargeableWork.scopeDescription || ticket.chargeableWork.scopeDescription === '')) {
+        ticket.chargeableWork.isChargeable = false;
+        ticket.chargeableWork.approvalStatus = 'N/A';
+      }
+    }
+
+    this.saveTicket(ticket);
+    if (this.storage && this.storage.logAuditAction) {
+      this.storage.logAuditAction(
+        'PARTS_REMOVED',
+        'serviceTickets',
+        ticket.id,
+        `Removed part: ${removed.name}`
+      );
+    }
+    return true;
+  }
+
+  // --- CUSTOMER APPROVAL FOR CHARGEABLE WORK ---
+  updateChargeableWorkApproval(ticketId, approvalStatus, approvedBy = '', approvalReference = '', scopeDescription = null, estimatedAmount = null) {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket) return null;
+
+    if (!ticket.chargeableWork) {
+      ticket.chargeableWork = { isChargeable: true, estimatedAmount: 0, scopeDescription: '', approvalStatus: 'Pending', approvalReference: '', approvedAt: null, approvedBy: null };
+    }
+
+    ticket.chargeableWork.approvalStatus = approvalStatus;
+    if (approvedBy) ticket.chargeableWork.approvedBy = approvedBy.trim();
+    if (approvalReference) ticket.chargeableWork.approvalReference = approvalReference.trim();
+    if (scopeDescription !== null) ticket.chargeableWork.scopeDescription = scopeDescription.trim();
+    if (estimatedAmount !== null) ticket.chargeableWork.estimatedAmount = Number(estimatedAmount) || 0;
+
+    if (approvalStatus === 'Approved') {
+      ticket.chargeableWork.approvedAt = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    } else if (approvalStatus === 'Pending') {
+      ticket.chargeableWork.approvedAt = null;
+    }
+
+    this.saveTicket(ticket);
+    if (this.storage && this.storage.logAuditAction) {
+      this.storage.logAuditAction(
+        'CHARGEABLE_APPROVAL',
+        'serviceTickets',
+        ticket.id,
+        `Chargeable work (₹${(ticket.chargeableWork.estimatedAmount || 0).toLocaleString('en-IN')}) status changed to: ${approvalStatus} by ${approvedBy || 'Operator'}`
+      );
+    }
+    return ticket.chargeableWork;
+  }
+
+  convertChargeableWorkToInvoice(ticketId) {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket || !this.storage) return null;
+
+    const cw = ticket.chargeableWork;
+    if (!cw || cw.approvalStatus !== 'Approved') {
+      return null;
+    }
+
+    const site = this.getSiteById(ticket.siteId);
+    const org = this.getOrganizationById(ticket.organizationId || (site ? site.organizationId : ''));
+    const billableParts = (ticket.partsUsed || []).filter(p => p.isBillable || p.billable);
+
+    const lineItems = billableParts.map(p => ({
+      description: `${p.name || p.partName} [P/N: ${p.partNumber || 'OEM'}] - Installed during ${ticket.id}`,
+      hsnCode: '8504',
+      quantity: p.qty || p.quantity || 1,
+      unit: 'Nos',
+      rate: p.unitCost,
+      amount: p.totalCost || p.total || ((p.qty || 1) * p.unitCost)
+    }));
+
+    const partsTotal = lineItems.reduce((acc, it) => acc + (it.amount || 0), 0);
+    const laborOrScopeAmount = Math.max(0, (cw.estimatedAmount || 0) - partsTotal);
+
+    if (laborOrScopeAmount > 0 || lineItems.length === 0) {
+      lineItems.push({
+        description: cw.scopeDescription || `Out-of-scope maintenance and technical servicing labor for ticket ${ticket.id}`,
+        hsnCode: '998713',
+        quantity: 1,
+        unit: 'Job',
+        rate: laborOrScopeAmount > 0 ? laborOrScopeAmount : (cw.estimatedAmount || 0),
+        amount: laborOrScopeAmount > 0 ? laborOrScopeAmount : (cw.estimatedAmount || 0)
+      });
+    }
+
+    const subtotal = lineItems.reduce((acc, it) => acc + (it.amount || 0), 0);
+    const gstRate = 18;
+    const gstAmount = Math.round(subtotal * (gstRate / 100));
+    const totalAmount = subtotal + gstAmount;
+    const amountBilled = cw.estimatedAmount > 0 ? cw.estimatedAmount : subtotal;
+
+    const invoiceData = {
+      clientName: org ? org.name : (site ? site.clientName : 'Client Customer'),
+      customerName: org ? org.name : (site ? site.clientName : 'Client Customer'),
+      contactPerson: org ? org.contactPerson : (site ? site.contactPerson : ''),
+      contactPhone: org ? org.phone : (site ? site.contactPhone : ''),
+      contactEmail: org ? org.email : '',
+      clientAddress: org ? org.billingAddress : (site ? site.location : 'Guwahati, Assam'),
+      billingAddress: org ? org.billingAddress : (site ? site.location : 'Guwahati, Assam'),
+      gstin: org ? org.gstin : '',
+      service: `Out-of-Scope Facility Maintenance (Ticket ${ticket.id})`,
+      serviceType: 'IT Infra Sales & Support',
+      sacCode: '998713',
+      date: new Date().toISOString().slice(0, 10),
+      invoiceDate: new Date().toISOString().slice(0, 10),
+      dueDate: new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10),
+      status: 'Sent',
+      lineItems,
+      subtotal,
+      gstRate,
+      gstAmount,
+      totalAmount,
+      amountBilled,
+      amountCollected: 0,
+      notes: `Generated from Approved CAFM Maintenance Ticket ${ticket.id} (${ticket.title}). SAC 998713. Approval Ref: ${cw.approvalReference || 'Confirmed'}.`
+    };
+
+    const savedInvoice = this.storage.saveInvoice(invoiceData);
+    if (savedInvoice) {
+      ticket.chargeableWork.invoiceId = savedInvoice.id;
+      this.saveTicket(ticket);
+      if (this.storage.logAuditAction) {
+        this.storage.logAuditAction(
+          'INVOICE_GENERATED',
+          'serviceTickets',
+          ticket.id,
+          `Generated Customer Invoice ${savedInvoice.id} for ₹${amountBilled.toLocaleString('en-IN')}`
+        );
+      }
+    }
+    return savedInvoice;
+  }
+
+  // --- CUSTOMER NOTIFICATIONS ENGINE ---
+  sendCustomerNotification(ticketId, channel = 'WhatsApp', customMessage = '') {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket) return null;
+    if (!ticket.customerNotifications) ticket.customerNotifications = [];
+
+    const site = this.getSiteById(ticket.siteId);
+    const org = this.getOrganizationById(ticket.organizationId || (site ? site.organizationId : ''));
+    const recipientPhone = org ? org.phone : (site ? site.contactPhone : '+91 99544 93909');
+    const recipientEmail = org ? org.email : 'client@example.com';
+    const recipientName = org ? org.contactPerson : (site ? site.contactPerson : 'Facility Manager');
+
+    let messageText = customMessage;
+    if (!messageText) {
+      if (ticket.status === 'Dispatched') {
+        messageText = `MaxEco Facility Alert: Our field engineer ${ticket.assignedTech || 'Tamal Roy'} has been dispatched for ${ticket.title} (Ref: ${ticket.id}). Emergency Helpline: +91 99544 93909.`;
+      } else if (ticket.status === 'Resolved' || ticket.status === 'Closed') {
+        messageText = `MaxEco Service Complete: Maintenance work for "${ticket.title}" (Ref: ${ticket.id}) has been successfully executed and certified at ${site ? site.name : 'Facility'}.`;
+      } else if (ticket.chargeableWork && ticket.chargeableWork.isChargeable && ticket.chargeableWork.approvalStatus === 'Pending') {
+        messageText = `MaxEco Approval Request: Ticket ${ticket.id} requires replacement parts/work totaling ₹${(ticket.chargeableWork.estimatedAmount || 0).toLocaleString('en-IN')}. Please reply 'APPROVED' to authorize dispatch.`;
+      } else {
+        messageText = `MaxEco Facility Notice: Update on maintenance ticket ${ticket.id} (${ticket.title}) - Status: ${ticket.status}. Lead Tech: ${ticket.assignedTech || 'MaxEco'}.`;
+      }
+    }
+
+    const notif = {
+      id: "NOTIF-" + Date.now().toString().slice(-4),
+      timestamp: new Date().toISOString().slice(0, 16).replace('T', ' '),
+      channel,
+      recipient: channel === 'WhatsApp' ? `${recipientPhone} (${recipientName})` : recipientEmail,
+      message: messageText,
+      status: "Sent"
+    };
+
+    ticket.customerNotifications.unshift(notif);
+    this.saveTicket(ticket);
+
+    if (this.storage && this.storage.logAuditAction) {
+      this.storage.logAuditAction(
+        'CUSTOMER_NOTIFICATION',
+        'serviceTickets',
+        ticket.id,
+        `Sent ${channel} notice to ${notif.recipient}: "${messageText.slice(0, 60)}..."`
+      );
+    }
+
+    const cleanPhone = (recipientPhone || '').replace(/[^0-9]/g, '');
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
+    const mailtoUrl = `mailto:${recipientEmail}?subject=${encodeURIComponent('MaxEco Facility Maintenance Notice - ' + ticket.id)}&body=${encodeURIComponent(messageText)}`;
+
+    return { notif, whatsappUrl, mailtoUrl };
+  }
+
+  // --- SLA RESPONSE & TARGET TRACKING ---
+  calculateTicketSla(ticket) {
+    if (!ticket) return { slaStatus: 'N/A', remainingText: 'N/A', isBreached: false, remainingHours: 0, elapsedHours: 0, targetHours: 24 };
+
+    const targetHours = ticket.slaTargetHours || (ticket.priority === 'Critical' ? 4 : (ticket.priority === 'High' ? 12 : 24));
+    
+    // Reported base time
+    const repDateStr = ticket.reportedDate || new Date().toISOString().slice(0, 10);
+    const reportedTime = new Date(`${repDateStr}T09:00:00`).getTime();
+    const deadlineTime = reportedTime + targetHours * 3600 * 1000;
+    const now = Date.now();
+    const elapsedHours = Math.max(0, (now - reportedTime) / (3600 * 1000));
+    const remainingHours = Math.max(0, (deadlineTime - now) / (3600 * 1000));
+
+    const isResolved = ticket.status === 'Resolved' || ticket.status === 'Closed';
+    const resolvedTime = ticket.resolvedDate ? new Date(`${ticket.resolvedDate}T17:00:00`).getTime() : now;
+
+    if (isResolved) {
+      const metSla = resolvedTime <= deadlineTime;
+      return {
+        targetHours,
+        slaStatus: metSla ? 'Within SLA' : 'SLA Breached',
+        remainingText: metSla ? 'Resolved On Time' : 'Resolved Past Target',
+        isBreached: !metSla,
+        remainingHours: 0,
+        elapsedHours
+      };
+    }
+
+    if (now <= deadlineTime) {
+      const diffMs = deadlineTime - now;
+      const hoursLeft = Math.floor(diffMs / (3600 * 1000));
+      const minsLeft = Math.floor((diffMs % (3600 * 1000)) / (60 * 1000));
+      return {
+        targetHours,
+        slaStatus: 'Within SLA',
+        remainingText: `⏱️ ${hoursLeft}h ${minsLeft}m remaining`,
+        isBreached: false,
+        remainingHours,
+        elapsedHours
+      };
+    } else {
+      const breachMs = now - deadlineTime;
+      const hoursPast = Math.floor(breachMs / (3600 * 1000));
+      return {
+        targetHours,
+        slaStatus: 'SLA Breached',
+        remainingText: `🚨 Breached by ${hoursPast}h`,
+        isBreached: true,
+        remainingHours: 0,
+        elapsedHours
+      };
+    }
+  }
+
+  // --- AMC VISIT COMPLIANCE TRACKING ---
+  getAmcVisitCompliance(amcId) {
+    const amc = this.getAmcById(amcId);
+    if (!amc) return { percentage: 0, compliancePercent: 0, completed: 0, completedVisits: 0, total: 0, totalVisits: 0, statusText: 'No contract' };
+
+    const scheduled = amc.scheduledVisits || [];
+    const total = scheduled.length > 0 ? scheduled.length : (amc.scheduledVisitsPerYear || 4);
+    const completed = scheduled.length > 0 ? scheduled.filter(v => v.status === 'Completed').length : (amc.completedVisits || 0);
+    const percentage = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
+
+    let statusText = 'On Track';
+    if (percentage >= 100) statusText = 'Fully Fulfilled';
+    else if (percentage < 50 && new Date(amc.endDate).getTime() - Date.now() < 90 * 86400000) statusText = 'Behind Schedule';
+
+    return {
+      percentage,
+      compliancePercent: percentage,
+      completed,
+      completedVisits: completed,
+      total,
+      totalVisits: total,
+      statusText,
+      scheduledVisits: scheduled
+    };
+  }
+
+  // --- COMPREHENSIVE SERVICE REPORT GENERATOR (PRINTABLE A4) ---
+  generateServiceReportHtml(ticketId) {
+    const ticket = this.getTicketById(ticketId);
+    if (!ticket) return '<p>Service ticket not found.</p>';
+
+    const site = this.getSiteById(ticket.siteId);
+    const org = this.getOrganizationById(ticket.organizationId || (site ? site.organizationId : ''));
+    const asset = ticket.assetId ? this.getAssetById(ticket.assetId) : null;
+    const settings = this.storage ? this.storage.getSettings() : {};
+    const qrSvg = asset ? this.generateAssetQrSvg(asset.id, 90) : '';
+    const sla = this.calculateTicketSla(ticket);
+    const checklist = ticket.checklist || [];
+    const parts = ticket.partsUsed || [];
+
+    const logoUri = (typeof LOGO_WORDMARK_DATA_URI !== 'undefined') ? LOGO_WORDMARK_DATA_URI : 'assets/logo-wordmark.png';
+    const signUri = (typeof AUTHORISED_SIGNATURE_DATA_URI !== 'undefined') ? AUTHORISED_SIGNATURE_DATA_URI : 'assets/signature.png';
+
+    const billableTotal = parts.filter(p => p.isBillable || p.billable).reduce((acc, p) => acc + (p.totalCost || p.total || 0), 0);
+
+    return `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; line-height: 1.4; padding: 24px; max-width: 800px; margin: 0 auto; background: #ffffff;">
+        
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 14px;">
+          <div>
+            <img src="${logoUri}" alt="MaxEco Energy & Tech" style="height: 38px; max-width: 170px; object-fit: contain; margin-bottom: 4px;">
+            <div style="font-size: 10px; color: #475569;">
+              ${settings.location || 'Maligaon, Guwahati, Assam 781011'}<br>
+              Phone: ${settings.contactPhone || '+91 99544 93909'} • Email: ${settings.contactEmail || 'maxecoenergyit@gmail.com'}
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 15px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em;">TECHNICAL SERVICE &amp; SAFETY AUDIT REPORT</div>
+            <div style="font-size: 12px; font-weight: 700; color: #d97706; margin-top: 2px;">Report Ref: ${ticket.id}</div>
+            <div style="font-size: 10px; color: #64748b; margin-top: 2px;">
+              Date: <strong>${ticket.reportedDate}</strong> • Priority: <strong>${ticket.priority}</strong>
+            </div>
+            <div style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 9.5px; font-weight: 700; margin-top: 4px; background: ${sla.isBreached ? '#fee2e2' : '#ecfdf5'}; color: ${sla.isBreached ? '#b91c1c' : '#047857'}; border: 1px solid ${sla.isBreached ? '#fca5a5' : '#a7f3d0'};">
+              SLA Compliance: ${sla.slaStatus} (${ticket.slaTargetHours || 24}h Target)
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Col Scope Summary -->
+        <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 14px; margin-bottom: 14px;">
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 11px;">
+            <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px; font-size: 12px;">CLIENT &amp; FACILITY PREMISE</div>
+            <div><strong>Organization:</strong> ${org ? org.name : (site ? site.clientName : 'Client Organization')}</div>
+            <div><strong>Facility Site:</strong> ${site ? site.name : 'Client Facility'} (${site ? site.siteType : ''})</div>
+            <div><strong>Site Address:</strong> ${site ? site.location : 'Guwahati, Assam'}</div>
+            <div><strong>Contact:</strong> ${site ? site.contactPerson : ''} (${site ? site.contactPhone : ''})</div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 11px; display: flex; gap: 10px;">
+            <div style="flex: 1;">
+              <div style="font-weight: 700; color: #0f172a; margin-bottom: 4px; font-size: 12px;">EQUIPMENT DETAILS</div>
+              <div><strong>Asset:</strong> ${asset ? asset.name : 'General Facility'}</div>
+              <div><strong>Category:</strong> ${asset ? asset.category : 'General'}</div>
+              <div><strong>Serial No:</strong> <span style="font-family: monospace;">${asset ? asset.serialNumber : 'N/A'}</span></div>
+              <div><strong>Location:</strong> ${asset ? (asset.location || 'On-Site') : 'Site Wide'}</div>
+            </div>
+            ${qrSvg ? `<div style="text-align: center;">${qrSvg}<div style="font-size: 8px; color: #64748b;">Asset QR</div></div>` : ''}
+          </div>
+        </div>
+
+        <!-- Service Objective -->
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; font-size: 11.5px;">
+          <div style="font-weight: 700; color: #0f172a; font-size: 12px; margin-bottom: 3px;">SERVICE SUMMARY &amp; ISSUE DETAILS</div>
+          <div style="color: #1e293b; font-weight: 600;">${ticket.title}</div>
+          <div style="color: #475569; font-size: 10.5px; margin-top: 2px;">${ticket.issueDescription || 'Scheduled preventative servicing and diagnostic testing.'}</div>
+        </div>
+
+        <!-- Technical Checklist Table -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 6px; text-transform: uppercase;">
+            Technical Verification &amp; Safety Checklist
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1; text-align: left;">
+                <th style="padding: 6px 8px; width: 30px;">#</th>
+                <th style="padding: 6px 8px;">Inspection Task &amp; Safety Protocol</th>
+                <th style="padding: 6px 8px; width: 80px; text-align: center;">Status</th>
+                <th style="padding: 6px 8px; width: 120px;">Verified Timestamp</th>
+                <th style="padding: 6px 8px; width: 110px;">Engineer</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${checklist.length > 0 ? checklist.map((chk, i) => `
+                <tr style="border-bottom: 1px solid #e2e8f0; background: ${i % 2 === 0 ? '#fff' : '#fafafa'};">
+                  <td style="padding: 5px 8px; text-align: center; color: #64748b;">${i + 1}</td>
+                  <td style="padding: 5px 8px;">${chk.task || chk.text}</td>
+                  <td style="padding: 5px 8px; text-align: center; font-weight: 700; color: ${(chk.done || chk.completed) ? '#16a34a' : '#ea580c'};">
+                    ${(chk.done || chk.completed) ? '[ PASS ]' : '[ PENDING ]'}
+                  </td>
+                  <td style="padding: 5px 8px; color: #475569; font-size: 9.5px;">${chk.checkedAt || '—'}</td>
+                  <td style="padding: 5px 8px; color: #475569; font-size: 9.5px;">${chk.checkedBy || '—'}</td>
+                </tr>
+              `).join('') : `
+                <tr><td colspan="5" style="padding: 10px; text-align: center; color: #64748b;">No checklist tasks logged for this service event.</td></tr>
+              `}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Spare Parts & Consumables Logged -->
+        <div style="margin-bottom: 14px;">
+          <div style="font-size: 11.5px; font-weight: 700; color: #0f172a; margin-bottom: 6px; text-transform: uppercase;">
+            Components &amp; Consumables Logged
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; border: 1px solid #cbd5e1;">
+            <thead>
+              <tr style="background: #f1f5f9; border-bottom: 1px solid #cbd5e1; text-align: left;">
+                <th style="padding: 6px 8px; width: 30px;">#</th>
+                <th style="padding: 6px 8px;">Component Description / Part No</th>
+                <th style="padding: 6px 8px; width: 50px; text-align: center;">Qty</th>
+                <th style="padding: 6px 8px; width: 80px; text-align: right;">Unit Rate</th>
+                <th style="padding: 6px 8px; width: 85px; text-align: right;">Total Amount</th>
+                <th style="padding: 6px 8px; width: 110px; text-align: center;">Billing Tier</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${parts.length > 0 ? parts.map((p, i) => `
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <td style="padding: 5px 8px; text-align: center; color: #64748b;">${i + 1}</td>
+                  <td style="padding: 5px 8px;">
+                    <strong>${p.name || p.partName}</strong> ${p.partNumber ? `<span style="font-family: monospace; font-size: 9.5px; color: #64748b;">[${p.partNumber}]</span>` : ''}
+                    ${p.notes ? `<div style="font-size: 9.5px; color: #64748b;">${p.notes}</div>` : ''}
+                  </td>
+                  <td style="padding: 5px 8px; text-align: center;">${p.qty || p.quantity}</td>
+                  <td style="padding: 5px 8px; text-align: right;">₹${(p.unitCost || 0).toLocaleString('en-IN')}</td>
+                  <td style="padding: 5px 8px; text-align: right; font-weight: 600;">₹${(p.totalCost || p.total || 0).toLocaleString('en-IN')}</td>
+                  <td style="padding: 5px 8px; text-align: center;">
+                    <span style="display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 8.5px; font-weight: 700; background: ${(p.isBillable || p.billable) ? '#fef3c7' : '#f0fdf4'}; color: ${(p.isBillable || p.billable) ? '#b45309' : '#15803d'};">
+                      ${(p.isBillable || p.billable) ? 'Billable' : 'Included in AMC'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('') : `
+                <tr><td colspan="6" style="padding: 8px; text-align: center; color: #64748b;">Zero spare parts consumed; standard preventive cleaning & adjustment only.</td></tr>
+              `}
+            </tbody>
+          </table>
+          ${billableTotal > 0 ? `
+            <div style="text-align: right; font-size: 11px; margin-top: 4px;">
+              <strong>Chargeable Amount:</strong> ₹${billableTotal.toLocaleString('en-IN')} + GST (${ticket.chargeableWork ? ticket.chargeableWork.approvalStatus : 'Pending'})
+            </div>
+          ` : ''}
+        </div>
+
+        <!-- Field Resolution Remarks -->
+        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; margin-bottom: 16px;">
+          <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 2px;">Field Resolution Remarks &amp; Technical Observations</div>
+          <div style="font-size: 11px; color: #0f172a;">
+            ${ticket.resolutionNotes || 'All checklist parameters tested. Equipment verified within certified electrical tolerances.'}
+          </div>
+          <div style="font-size: 10px; color: #64748b; margin-top: 4px;">
+            Assigned Field Lead: <strong>${ticket.assignedTech || 'MaxEco Lead Engineer'}</strong> • Status: <strong>${ticket.status}</strong>
+          </div>
+        </div>
+
+        <!-- Signatory & Acceptance Block -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-top: 2px solid #0f172a; padding-top: 14px;">
+          <div>
+            <div style="font-size: 10px; font-weight: 700; color: #0f172a; text-transform: uppercase;">Customer Acceptance &amp; Sign-Off</div>
+            <div style="font-size: 9.5px; color: #475569; margin-top: 2px; line-height: 1.4;">
+              I confirm the servicing was completed satisfactorily, safety procedures observed, and asset returned to operational control.
+            </div>
+            <div style="font-size: 9.5px; color: #475569; margin-top: 6px;">
+              Approval Ref: <strong>${ticket.chargeableWork && ticket.chargeableWork.approvalReference ? ticket.chargeableWork.approvalReference : 'Confirmed on-site'}</strong>
+            </div>
+            <div style="border-top: 1px solid #0f172a; width: 170px; margin-top: 36px; padding-top: 3px; font-size: 9.5px; font-weight: 700;">
+              Customer Authorized Signatory &amp; Stamp
+            </div>
+          </div>
+
+          <div style="text-align: right;">
+            <div style="font-size: 10px; font-weight: 700; color: #0f172a; text-transform: uppercase;">For MaxEco Energy &amp; Tech</div>
+            <div style="display: inline-block; padding: 2px 8px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 4px; font-size: 9px; font-weight: 700; color: #047857; margin-top: 4px; margin-bottom: 6px;">
+              🛡️ DIGITALLY VERIFIED SERVICE REPORT
+            </div>
+            <div>
+              <img src="${signUri}" alt="Authorised Signature" style="height: 38px; max-width: 130px; object-fit: contain;">
+            </div>
+            <div style="font-size: 11px; font-weight: 700; color: #0f172a;">Tamal Roy</div>
+            <div style="font-size: 9.5px; color: #64748b;">Authorised Signatory • Guwahati Operations Hub</div>
+          </div>
+        </div>
+
+        <div style="text-align: center; font-size: 9px; color: #94a3b8; margin-top: 16px; border-top: 1px dashed #cbd5e1; padding-top: 6px;">
+          MaxEco Energy &amp; Tech ERP • Computer-Aided Facility Management • Computer-generated technical audit report
         </div>
 
       </div>

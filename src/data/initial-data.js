@@ -659,6 +659,90 @@ const initialSeedData = {
     }
   ],
 
+  // --- CAFM: SPARE PARTS & CONSUMABLES CATALOG ---
+  cafmPartsCatalog: [
+    {
+      id: "PRT-001",
+      name: "1000V 15A gPV Solar DC String Fuse (10x38mm)",
+      category: "Solar EPC",
+      partNumber: "FUSE-GPV-1000V-15A",
+      unitCost: 450,
+      stockQuantity: 40,
+      unit: "Nos",
+      compatibleOEM: "Schneider / Bussmann / Growatt"
+    },
+    {
+      id: "PRT-002",
+      name: "Type-2 DC Surge Protection Device (SPD) 1000V 40kA",
+      category: "Solar EPC",
+      partNumber: "SPD-DC-1000V-40KA",
+      unitCost: 2200,
+      stockQuantity: 12,
+      unit: "Nos",
+      compatibleOEM: "Dehn / CITEL / Suntree"
+    },
+    {
+      id: "PRT-003",
+      name: "MC4 Solar Photovoltaic Connector Pair (IP68 Waterproof)",
+      category: "Solar EPC",
+      partNumber: "MC4-CONN-IP68",
+      unitCost: 120,
+      stockQuantity: 150,
+      unit: "Pair",
+      compatibleOEM: "Staubli / Multicontact"
+    },
+    {
+      id: "PRT-004",
+      name: "Bentonite Earth Enhancing Chemical Slurry Compound (25kg Bag)",
+      category: "Electrical & CEIG",
+      partNumber: "EARTH-BENT-25KG",
+      unitCost: 1450,
+      stockQuantity: 18,
+      unit: "Bag",
+      compatibleOEM: "TruePower / Marconite"
+    },
+    {
+      id: "PRT-005",
+      name: "Cat6 Shielded RJ45 Modular Keystone Jacks (Pack of 10)",
+      category: "IT Infrastructure",
+      partNumber: "CAT6-STP-KEY-10PK",
+      unitCost: 850,
+      stockQuantity: 25,
+      unit: "Pack",
+      compatibleOEM: "D-Link / CommScope"
+    },
+    {
+      id: "PRT-006",
+      name: "12V 42Ah VRLA AGM Deep-Cycle Sealed Lead Acid Battery",
+      category: "IT Infrastructure",
+      partNumber: "BAT-VRLA-12V-42AH",
+      unitCost: 5800,
+      stockQuantity: 8,
+      unit: "Nos",
+      compatibleOEM: "Exide Powersafe / Amaron Quanta"
+    },
+    {
+      id: "PRT-007",
+      name: "High-Conductivity Thermal Interface Compound (30g Syringe)",
+      category: "IT Infrastructure",
+      partNumber: "THERM-PASTE-30G",
+      unitCost: 650,
+      stockQuantity: 15,
+      unit: "Tube",
+      compatibleOEM: "Arctic MX-4 / Noctua"
+    },
+    {
+      id: "PRT-008",
+      name: "Inverter High-CFM Ball Bearing DC Cooling Fan 120mm",
+      category: "Solar EPC",
+      partNumber: "FAN-DC12V-120MM-CFM",
+      unitCost: 1850,
+      stockQuantity: 10,
+      unit: "Nos",
+      compatibleOEM: "Growatt / Sungrow / Delta"
+    }
+  ],
+
   // --- CAFM: SERVICE TICKETS & MAINTENANCE HELPDESK ---
   serviceTickets: [
     {
@@ -670,12 +754,41 @@ const initialSeedData = {
       priority: "Normal",
       reportedDate: "2026-10-12",
       targetResponseDate: "2026-10-15",
+      slaTargetHours: 48,
+      slaStatus: "Within SLA",
       issueDescription: "Scheduled bi-weekly wash down of 65x PV modules to remove industrial dust.",
       assignedTech: "Romen Kalita (Solar Maintenance Crew)",
       status: "Dispatched",
       workOrderId: "WO-2026-001",
       resolutionNotes: "Dispatched under field work order WO-2026-001.",
-      resolvedDate: null
+      resolvedDate: null,
+      checklist: [
+        { id: "chk-01", text: "Lock-Out / Tag-Out (LOTO) safety protocol activated on DC isolator", done: true, checkedAt: "2026-10-12 09:30", checkedBy: "Romen Kalita" },
+        { id: "chk-02", text: "Visual inspection for glass cracks, delamination, or snail trails", done: true, checkedAt: "2026-10-12 10:15", checkedBy: "Romen Kalita" },
+        { id: "chk-03", text: "De-ionized water pressure wash without abrasive cleaning agents", done: true, checkedAt: "2026-10-12 11:30", checkedBy: "Romen Kalita" },
+        { id: "chk-04", text: "Verify module clamp tightness & aluminum torque integrity (9.5 Nm)", done: false, checkedAt: null, checkedBy: null },
+        { id: "chk-05", text: "Confirm inverter string input current recovery on cloud logger", done: false, checkedAt: null, checkedBy: null }
+      ],
+      partsUsed: [],
+      chargeableWork: {
+        isChargeable: false,
+        estimatedAmount: 0,
+        scopeDescription: "Standard bi-weekly wash included in Annual Comprehensive Solar O&M Retainer.",
+        approvalStatus: "N/A",
+        approvalReference: "Covered under AMC-2026-001",
+        approvedAt: null,
+        approvedBy: null
+      },
+      customerNotifications: [
+        {
+          id: "NOTIF-001",
+          timestamp: "2026-10-12 09:00",
+          channel: "WhatsApp",
+          recipient: "+91 98640 12345 (Pranab Barman)",
+          message: "MaxEco Facility Alert: Service crew led by Romen Kalita has been dispatched to Amingaon Hub for routine Solar Panel Washing (TCK-2026-001).",
+          status: "Sent"
+        }
+      ]
     },
     {
       id: "TCK-2026-002",
@@ -686,12 +799,53 @@ const initialSeedData = {
       priority: "High",
       reportedDate: "2026-10-10",
       targetResponseDate: "2026-10-14",
+      slaTargetHours: 12,
+      slaStatus: "Within SLA",
       issueDescription: "Pre-winter verification of earthing pit chemical compound and lightning protection continuity.",
       assignedTech: "Bikash Das (CEIG Certified Electrician)",
       status: "In Progress",
       workOrderId: "WO-2026-002",
       resolutionNotes: "Measuring earth resistance across all 4 bonded pits with calibrated megger.",
-      resolvedDate: null
+      resolvedDate: null,
+      checklist: [
+        { id: "chk-11", text: "Megger Earth Resistance 4-terminal test measured (< 2.0 Ohms)", done: true, checkedAt: "2026-10-11 11:00", checkedBy: "Bikash Das" },
+        { id: "chk-12", text: "Copper busbar terminal disconnect & oxide layer brushing", done: true, checkedAt: "2026-10-11 11:45", checkedBy: "Bikash Das" },
+        { id: "chk-13", text: "Replenish 2x bags chemical compound slurry into earth pit chambers", done: true, checkedAt: "2026-10-11 14:00", checkedBy: "Bikash Das" },
+        { id: "chk-14", text: "Verify lightning arrester down conductor continuity to roof finial", done: false, checkedAt: null, checkedBy: null },
+        { id: "chk-15", text: "Record readings on statutory CEIG Inspection Verification Slip", done: false, checkedAt: null, checkedBy: null }
+      ],
+      partsUsed: [
+        {
+          id: "PU-001",
+          partId: "PRT-004",
+          name: "Bentonite Earth Enhancing Chemical Slurry Compound (25kg Bag)",
+          partNumber: "EARTH-BENT-25KG",
+          qty: 2,
+          unitCost: 1450,
+          totalCost: 2900,
+          isBillable: false,
+          notes: "Replenished in Earthing Pit #2 and #4 under preventive contract."
+        }
+      ],
+      chargeableWork: {
+        isChargeable: false,
+        estimatedAmount: 0,
+        scopeDescription: "Earth compound replenishment covered under Comprehensive Solar O&M SLA.",
+        approvalStatus: "Approved",
+        approvalReference: "AMC-2026-001 SLA Clause 4.2",
+        approvedAt: "2026-10-10 10:30",
+        approvedBy: "Tamal Roy (Authorised Signatory)"
+      },
+      customerNotifications: [
+        {
+          id: "NOTIF-002",
+          timestamp: "2026-10-10 10:00",
+          channel: "Email",
+          recipient: "pranab@brahmaputrapack.com",
+          message: "MaxEco Technical Notice: Statutory CEIG Earthing Pit Megger testing scheduled at Amingaon Logistics Hub on 2026-10-11 by Bikash Das.",
+          status: "Sent"
+        }
+      ]
     },
     {
       id: "TCK-2026-003",
@@ -702,12 +856,61 @@ const initialSeedData = {
       priority: "Normal",
       reportedDate: "2026-10-05",
       targetResponseDate: "2026-10-08",
+      slaTargetHours: 24,
+      slaStatus: "Within SLA",
       issueDescription: "Quarterly preventative battery health test under full clinical analyzer load.",
       assignedTech: "Debajit Sarma (IT Infra Lead)",
       status: "Resolved",
       workOrderId: "WO-2026-003",
-      resolutionNotes: "All 16 battery blocks checked at 13.6V float charge. Total runtime tested at 45 minutes without voltage sag.",
-      resolvedDate: "2026-10-09"
+      resolutionNotes: "All 16 battery blocks checked at 13.6V float charge. Replaced 1 weak battery block under approved work order.",
+      resolvedDate: "2026-10-09",
+      checklist: [
+        { id: "chk-21", text: "Measurement of individual 16x 12V battery open circuit voltages", done: true, checkedAt: "2026-10-06 10:00", checkedBy: "Debajit Sarma" },
+        { id: "chk-22", text: "Internal resistance impedance test per block (< 15 mOhms)", done: true, checkedAt: "2026-10-06 10:45", checkedBy: "Debajit Sarma" },
+        { id: "chk-23", text: "Terminal torque tightening to 4.5 Nm with insulated wrench", done: true, checkedAt: "2026-10-06 11:30", checkedBy: "Debajit Sarma" },
+        { id: "chk-24", text: "Simulated utility power loss cutover test under 3kW analyzer load", done: true, checkedAt: "2026-10-06 12:15", checkedBy: "Debajit Sarma" },
+        { id: "chk-25", text: "Replaced 1x weak battery (Block #11 measured 10.8V sag)", done: true, checkedAt: "2026-10-08 14:00", checkedBy: "Debajit Sarma" }
+      ],
+      partsUsed: [
+        {
+          id: "PU-002",
+          partId: "PRT-006",
+          name: "12V 42Ah VRLA AGM Deep-Cycle Sealed Lead Acid Battery",
+          partNumber: "BAT-VRLA-12V-42AH",
+          qty: 1,
+          unitCost: 5800,
+          totalCost: 5800,
+          isBillable: true,
+          notes: "Block #11 battery replacement beyond free consumable threshold; client approved."
+        }
+      ],
+      chargeableWork: {
+        isChargeable: true,
+        estimatedAmount: 5800,
+        scopeDescription: "Replacement of 1x 12V 42Ah VRLA AGM battery block (Block #11) with 24-month OEM warranty.",
+        approvalStatus: "Approved",
+        approvalReference: "WhatsApp sign-off by Dr. Anamika Kalita on 2026-10-07",
+        approvedAt: "2026-10-07 16:15",
+        approvedBy: "Dr. Anamika Kalita (Director)"
+      },
+      customerNotifications: [
+        {
+          id: "NOTIF-003",
+          timestamp: "2026-10-07 14:30",
+          channel: "WhatsApp",
+          recipient: "+91 94350 98765 (Dr. Anamika Kalita)",
+          message: "MaxEco Approval Request: UPS Block #11 replacement required (₹5,800 + GST). Please reply 'APPROVED' to authorize replacement.",
+          status: "Sent"
+        },
+        {
+          id: "NOTIF-004",
+          timestamp: "2026-10-09 16:00",
+          channel: "WhatsApp",
+          recipient: "+91 94350 98765 (Dr. Anamika Kalita)",
+          message: "MaxEco Service Completed: UPS battery bank service verified. Total runtime calibrated at 48 mins under load. Service Slip ref: TCK-2026-003.",
+          status: "Sent"
+        }
+      ]
     }
   ],
 
@@ -731,7 +934,17 @@ const initialSeedData = {
       completedVisits: 16,
       emergencyResponseSlaHours: 4,
       status: "Active",
-      terms: "Includes 24x array washings per year, quarterly inverter thermography, 2x CEIG earthing audits, and guaranteed 4-hour breakdown on-site response in Kamrup."
+      terms: "Includes 24x array washings per year, quarterly inverter thermography, 2x CEIG earthing audits, and guaranteed 4-hour breakdown on-site response in Kamrup.",
+      scheduledVisits: [
+        { visitNumber: 1, quarter: "Q1-2026", dueDate: "2026-02-15", completedDate: "2026-02-14", status: "Completed", ticketId: "TCK-HIST-001", technician: "Raju Sharma" },
+        { visitNumber: 2, quarter: "Q1-2026", dueDate: "2026-03-15", completedDate: "2026-03-15", status: "Completed", ticketId: "TCK-HIST-002", technician: "Romen Kalita" },
+        { visitNumber: 3, quarter: "Q2-2026", dueDate: "2026-04-20", completedDate: "2026-04-20", status: "Completed", ticketId: "TCK-HIST-003", technician: "Bikash Das" },
+        { visitNumber: 4, quarter: "Q2-2026", dueDate: "2026-05-15", completedDate: "2026-05-16", status: "Completed", ticketId: "TCK-HIST-004", technician: "Raju Sharma" },
+        { visitNumber: 5, quarter: "Q3-2026", dueDate: "2026-08-15", completedDate: "2026-08-15", status: "Completed", ticketId: "TCK-HIST-005", technician: "Raju Sharma" },
+        { visitNumber: 6, quarter: "Q4-2026", dueDate: "2026-10-15", completedDate: null, status: "Scheduled", ticketId: "TCK-2026-001", technician: "Romen Kalita" },
+        { visitNumber: 7, quarter: "Q4-2026", dueDate: "2026-11-15", completedDate: null, status: "Scheduled", ticketId: null, technician: "Pending Assignment" },
+        { visitNumber: 8, quarter: "Q4-2026", dueDate: "2026-12-15", completedDate: null, status: "Scheduled", ticketId: null, technician: "Pending Assignment" }
+      ]
     },
     {
       id: "AMC-2026-002",
@@ -751,7 +964,16 @@ const initialSeedData = {
       completedVisits: 7,
       emergencyResponseSlaHours: 2,
       status: "Active",
-      terms: "Includes monthly preventive server maintenance, bi-monthly UPS battery impedance audits, managed switch firmware maintenance, and standby replacement hardware."
+      terms: "Includes monthly preventive server maintenance, bi-monthly UPS battery impedance audits, managed switch firmware maintenance, and standby replacement hardware.",
+      scheduledVisits: [
+        { visitNumber: 1, quarter: "Q1-2026", dueDate: "2026-03-10", completedDate: "2026-03-09", status: "Completed", ticketId: "TCK-HIST-010", technician: "Debajit Sarma" },
+        { visitNumber: 2, quarter: "Q2-2026", dueDate: "2026-05-10", completedDate: "2026-05-10", status: "Completed", ticketId: "TCK-HIST-011", technician: "Debajit Sarma" },
+        { visitNumber: 3, quarter: "Q3-2026", dueDate: "2026-07-10", completedDate: "2026-07-11", status: "Completed", ticketId: "TCK-HIST-012", technician: "Debajit Sarma" },
+        { visitNumber: 4, quarter: "Q3-2026", dueDate: "2026-09-01", completedDate: "2026-09-01", status: "Completed", ticketId: "TCK-HIST-013", technician: "Debajit Sarma" },
+        { visitNumber: 5, quarter: "Q4-2026", dueDate: "2026-10-05", completedDate: "2026-10-09", status: "Completed", ticketId: "TCK-2026-003", technician: "Debajit Sarma" },
+        { visitNumber: 6, quarter: "Q4-2026", dueDate: "2026-11-05", completedDate: null, status: "Scheduled", ticketId: null, technician: "Debajit Sarma" },
+        { visitNumber: 7, quarter: "Q4-2026", dueDate: "2026-12-05", completedDate: null, status: "Scheduled", ticketId: null, technician: "Debajit Sarma" }
+      ]
     }
   ]
 };

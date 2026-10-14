@@ -3389,7 +3389,7 @@ class AppController {
 
   setCafmSubTab(tab) {
     this.cafmSubTab = tab;
-    const tabs = ['orgs', 'sites', 'assets', 'ppm', 'tickets', 'amcs', 'audit'];
+    const tabs = ['orgs', 'sites', 'assets', 'ppm', 'tickets', 'amcs', 'parts', 'audit'];
 
     tabs.forEach(t => {
       const btn = document.getElementById(`cafm-tab-btn-${t}`);
@@ -3416,6 +3416,7 @@ class AppController {
       else if (tab === 'ppm') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '🎫 Log Maintenance Ticket'; }
       else if (tab === 'tickets') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '🎫 Log Service Ticket'; }
       else if (tab === 'amcs') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '📜 Add AMC Contract'; }
+      else if (tab === 'parts') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '📦 Add Spare Part'; }
       else if (tab === 'audit') { addBtn.style.display = 'none'; }
     }
 
@@ -3425,6 +3426,7 @@ class AppController {
     else if (tab === 'ppm') this.renderCafmPpm();
     else if (tab === 'tickets') this.renderCafmTickets();
     else if (tab === 'amcs') this.renderCafmAmcs();
+    else if (tab === 'parts') this.renderCafmParts();
     else if (tab === 'audit') this.renderCafmAudit();
   }
 
@@ -3435,6 +3437,7 @@ class AppController {
     else if (tab === 'assets') this.openAddFacilityAssetModal();
     else if (tab === 'ppm' || tab === 'tickets') this.openAddServiceTicketModal();
     else if (tab === 'amcs') this.openAddAmcModal();
+    else if (tab === 'parts') this.openAddPartModal();
   }
 
   // --- SUB-TAB 0: ORGANIZATIONS ---
@@ -3782,8 +3785,8 @@ class AppController {
             <thead>
               <tr>
                 <th>Ticket ID</th>
-                <th>Priority</th>
-                <th>Title &amp; Issue Scope</th>
+                <th>Priority &amp; SLA</th>
+                <th>Title &amp; Scope</th>
                 <th>Facility Premise &amp; Asset</th>
                 <th>Reported</th>
                 <th>Assigned Lead</th>
@@ -3796,21 +3799,47 @@ class AppController {
               ${tickets.map(t => {
                 const site = sites.find(s => s.id === t.siteId);
                 const asset = assets.find(a => a.id === t.assetId);
+                const sla = window.cafm.calculateTicketSla(t);
+                const checklist = t.checklist || [];
+                const completedTasks = checklist.filter(c => c.completed).length;
 
                 let prioBadge = `<span class="badge" style="background: #3b82f6; color: #fff;">Normal</span>`;
                 if (t.priority === 'Critical') prioBadge = `<span class="badge" style="background: #ef4444; color: #fff; font-weight: 800;">CRITICAL</span>`;
                 else if (t.priority === 'High') prioBadge = `<span class="badge" style="background: #f59e0b; color: #0f172a; font-weight: 700;">High</span>`;
                 else if (t.priority === 'Low') prioBadge = `<span class="badge" style="background: #64748b; color: #fff;">Low</span>`;
 
+                let slaBadge = '';
+                if (sla.slaStatus === 'Breached') {
+                  slaBadge = `<span class="badge" style="background: #ef4444; color: #fff; font-size: 10px; margin-top: 3px;" title="Target: ${sla.targetHours}h, Elapsed: ${sla.elapsedHours.toFixed(1)}h">⚠️ SLA Breached</span>`;
+                } else if (sla.slaStatus === 'Met') {
+                  slaBadge = `<span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; font-size: 10px; margin-top: 3px;">✅ SLA Met</span>`;
+                } else {
+                  slaBadge = `<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7; font-size: 10px; margin-top: 3px;">⏱️ ${sla.remainingHours.toFixed(1)}h left</span>`;
+                }
+
+                let chargeableBadge = '';
+                if (t.chargeableWork && t.chargeableWork.approvalStatus && t.chargeableWork.approvalStatus !== 'N/A') {
+                  const apprSt = t.chargeableWork.approvalStatus;
+                  const bg = apprSt === 'Approved' ? '#10b981' : (apprSt === 'Pending' ? '#f59e0b' : '#64748b');
+                  chargeableBadge = `<div style="margin-top: 3px;"><span class="badge" style="background: ${bg}; color: #fff; font-size: 10px;">💳 ${apprSt} (${formatINR(t.chargeableWork.estimatedAmount || 0)})</span></div>`;
+                }
+
                 return `
                   <tr>
                     <td class="font-mono font-bold" style="font-size: 12px; color: var(--solar-amber);">${t.id}</td>
-                    <td>${prioBadge}</td>
                     <td>
-                      <strong>${t.title}</strong>
+                      <div>${prioBadge}</div>
+                      ${slaBadge}
+                    </td>
+                    <td>
+                      <div class="flex items-center gap-1" style="flex-wrap: wrap;">
+                        <strong>${t.title}</strong>
+                        ${checklist.length > 0 ? `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 10px;" title="Inspection Checklist Progress">📋 ${completedTasks}/${checklist.length}</span>` : ''}
+                      </div>
                       <div style="font-size: 11px; color: var(--text-muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         ${t.issueDescription || ''}
                       </div>
+                      ${chargeableBadge}
                     </td>
                     <td>
                       <div style="font-weight: 600;">${site ? site.name : '—'}</div>
@@ -3827,9 +3856,10 @@ class AppController {
                       ${t.workOrderId ? `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700;">${t.workOrderId}</span>` : '<span class="text-muted" style="font-size: 11px;">—</span>'}
                     </td>
                     <td style="text-align: right;">
-                      <div class="flex gap-1" style="justify-content: flex-end;">
-                        ${!t.workOrderId ? `<button class="btn btn-primary btn-sm" onclick="app.dispatchCafmTicketToWorkOrder('${t.id}')" title="Dispatch to Field Work Order in Operations">🚀 Dispatch</button>` : ''}
-                        <button class="btn btn-secondary btn-sm" onclick="app.openViewCafmSlipModal('${t.id}')" title="Printable Service Inspection Slip">📄 Slip</button>
+                      <div class="flex gap-1" style="justify-content: flex-end; flex-wrap: wrap;">
+                        <button class="btn btn-primary btn-sm" onclick="app.openTicketOperationsModal('${t.id}')" title="Technician Checklist, Parts & Client Approvals">🛠️ Ops</button>
+                        <button class="btn btn-secondary btn-sm" onclick="app.openServiceReportModal('${t.id}')" title="Official A4 Service & Safety Audit Report">📄 Report</button>
+                        ${!t.workOrderId ? `<button class="btn btn-secondary btn-sm" onclick="app.dispatchCafmTicketToWorkOrder('${t.id}')" title="Dispatch to Field Work Order in Operations">🚀 WO</button>` : ''}
                         <button class="btn btn-secondary btn-sm" onclick="app.openEditServiceTicketModal('${t.id}')">✏️</button>
                         <button class="btn btn-danger btn-sm" onclick="app.deleteServiceTicket('${t.id}')">✕</button>
                       </div>
@@ -3860,6 +3890,7 @@ class AppController {
       const site = sites.find(s => s.id === a.siteId);
       const isExpired = a.status === 'Expired';
       const isSolar = (a.contractType || '').toLowerCase().includes('solar');
+      const compliance = window.cafm.getAmcVisitCompliance(a.id);
       
       const today = new Date();
       const endD = a.endDate ? new Date(a.endDate) : null;
@@ -3881,7 +3912,7 @@ class AppController {
               Facility: <strong>${site ? site.name : 'Client Site'}</strong> (${site ? site.clientName : ''})
             </div>
 
-            <div class="grid grid-cols-2 gap-2" style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 14px;">
+            <div class="grid grid-cols-2 gap-2" style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 12px;">
               <div>
                 <span style="font-size: 11px; color: var(--text-muted);">Annual Contract Value:</span>
                 <div class="font-mono text-amber" style="font-size: 18px; font-weight: 800;">${formatINR(a.annualFee)}</div>
@@ -3889,6 +3920,17 @@ class AppController {
               <div>
                 <span style="font-size: 11px; color: var(--text-muted);">Billing Cycle:</span>
                 <div style="font-weight: 700; font-size: 13px;">${a.billingFrequency} (${a.sacCode || 'SAC 995461'})</div>
+              </div>
+            </div>
+
+            <!-- Scheduled Maintenance Visits Progress -->
+            <div style="background: var(--bg-surface); padding: 8px 12px; border-radius: var(--radius-sm); margin-bottom: 12px;">
+              <div class="flex justify-between items-center" style="font-size: 11px; margin-bottom: 4px;">
+                <span style="color: var(--text-muted);">Preventive Visits Fulfilled:</span>
+                <strong style="color: ${compliance.compliancePercent === 100 ? '#10b981' : 'var(--solar-amber)'};">${compliance.completedVisits} of ${compliance.totalVisits} (${compliance.compliancePercent}%)</strong>
+              </div>
+              <div style="width: 100%; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;">
+                <div style="width: ${compliance.compliancePercent}%; height: 100%; background: ${compliance.compliancePercent === 100 ? '#10b981' : 'var(--solar-amber)'};"></div>
               </div>
             </div>
 
@@ -3902,7 +3944,10 @@ class AppController {
           </div>
 
           <div class="flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-            <button class="btn btn-primary btn-sm" onclick="app.createInvoiceFromAmc('${a.id}')" title="Generate periodic billing invoice with SAC code">🧾 Issue Invoice</button>
+            <div class="flex gap-1">
+              <button class="btn btn-primary btn-sm" onclick="app.createInvoiceFromAmc('${a.id}')" title="Generate periodic billing invoice with SAC code">🧾 Issue Invoice</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.openAmcVisitsModal('${a.id}')" title="View Scheduled Service Visits">📅 Visits (${compliance.completedVisits}/${compliance.totalVisits})</button>
+            </div>
             <div class="flex gap-1">
               <button class="btn btn-secondary btn-sm" onclick="app.openEditAmcModal('${a.id}')">✏️ Edit</button>
               <button class="btn btn-danger btn-sm" onclick="app.deleteAmc('${a.id}')">✕</button>
@@ -4559,6 +4604,554 @@ class AppController {
     } else {
       showToast(`Failed to export ${type}.`, 'error');
     }
+  }
+
+  // =========================================================================
+  // PHASE 2 OPERATIONS: SPARE PARTS CATALOG & INVENTORY CRUD
+  // =========================================================================
+
+  renderCafmParts() {
+    const category = document.getElementById('cafm-filter-part-category')?.value || 'all';
+    const parts = window.cafm.getPartsCatalog(category);
+    const container = document.getElementById('cafm-parts-table-container');
+    if (!container) return;
+
+    if (parts.length === 0) {
+      container.innerHTML = `<div class="card text-center text-muted" style="padding: 30px;">No spare parts or consumables found in catalog.</div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="card">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Part ID</th>
+                <th>Category</th>
+                <th>Component / Consumable Name</th>
+                <th>Part Number</th>
+                <th style="text-align: right;">Unit Cost (₹)</th>
+                <th style="text-align: center;">Stock Qty</th>
+                <th>Unit</th>
+                <th>Compatible OEM</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${parts.map(p => {
+                let catBadge = '';
+                if (p.category === 'Solar EPC') catBadge = '<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">☀️ Solar EPC</span>';
+                else if (p.category === 'IT Infrastructure') catBadge = '<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7;">🖥️ IT Infra</span>';
+                else if (p.category === 'Electrical & CEIG') catBadge = '<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">⚡ Electrical</span>';
+                else catBadge = '<span class="badge" style="background: rgba(148, 163, 184, 0.15); color: #cbd5e1;">🏢 Utility</span>';
+
+                return `
+                  <tr>
+                    <td class="font-mono font-bold" style="font-size: 12px; color: var(--solar-amber);">${p.id}</td>
+                    <td>${catBadge}</td>
+                    <td><strong>${p.name}</strong></td>
+                    <td class="font-mono" style="font-size: 11px; color: var(--sky-blue);">${p.partNumber || '—'}</td>
+                    <td class="font-mono" style="text-align: right; font-weight: 700; color: #10b981;">${formatINR(p.unitCost)}</td>
+                    <td style="text-align: center; font-weight: 700;">
+                      <span class="badge" style="background: ${p.stockQuantity > 5 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)'}; color: ${p.stockQuantity > 5 ? '#10b981' : '#ef4444'};">
+                        ${p.stockQuantity}
+                      </span>
+                    </td>
+                    <td style="font-size: 11.5px; color: var(--text-muted);">${p.unitMeasure || 'Nos'}</td>
+                    <td style="font-size: 11.5px; color: var(--text-secondary);">${p.compatibleOem || 'Standard Universal'}</td>
+                    <td style="text-align: right;">
+                      <div class="flex gap-1" style="justify-content: flex-end;">
+                        <button class="btn btn-secondary btn-sm" onclick="app.openEditPartModal('${p.id}')">✏️ Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="app.deletePartFromCatalog('${p.id}')">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  openAddPartModal() {
+    document.getElementById('part-modal-id').value = '';
+    document.getElementById('modal-cafm-part-title').textContent = '📦 Register Spare Part / Consumable';
+    document.getElementById('part-modal-name').value = '';
+    document.getElementById('part-modal-category').value = 'Solar EPC';
+    document.getElementById('part-modal-num').value = '';
+    document.getElementById('part-modal-cost').value = '';
+    document.getElementById('part-modal-qty').value = '10';
+    document.getElementById('part-modal-unit').value = 'Nos';
+    document.getElementById('part-modal-oem').value = '';
+    document.getElementById('modal-cafm-part').classList.remove('hidden');
+  }
+
+  openEditPartModal(id) {
+    const part = window.cafm.getPartById(id);
+    if (!part) return;
+
+    document.getElementById('part-modal-id').value = part.id;
+    document.getElementById('modal-cafm-part-title').textContent = `📦 Edit Spare Part (${part.id})`;
+    document.getElementById('part-modal-name').value = part.name || '';
+    document.getElementById('part-modal-category').value = part.category || 'Solar EPC';
+    document.getElementById('part-modal-num').value = part.partNumber || '';
+    document.getElementById('part-modal-cost').value = part.unitCost || 0;
+    document.getElementById('part-modal-qty').value = part.stockQuantity || 0;
+    document.getElementById('part-modal-unit').value = part.unitMeasure || 'Nos';
+    document.getElementById('part-modal-oem').value = part.compatibleOem || '';
+    document.getElementById('modal-cafm-part').classList.remove('hidden');
+  }
+
+  savePartFromModal() {
+    const name = document.getElementById('part-modal-name').value.trim();
+    const cost = Number(document.getElementById('part-modal-cost').value);
+
+    if (!name || isNaN(cost) || cost < 0) {
+      showToast('Part Name and a valid Unit Cost are required.', 'error');
+      return;
+    }
+
+    const partData = {
+      id: document.getElementById('part-modal-id').value || null,
+      name,
+      category: document.getElementById('part-modal-category').value,
+      partNumber: document.getElementById('part-modal-num').value.trim(),
+      unitCost: cost,
+      stockQuantity: Number(document.getElementById('part-modal-qty').value) || 0,
+      unitMeasure: document.getElementById('part-modal-unit').value,
+      compatibleOem: document.getElementById('part-modal-oem').value.trim()
+    };
+
+    window.cafm.savePart(partData);
+    this.closeAllModals();
+    showToast(`Spare part "${name}" saved to catalog!`, 'success');
+    this.renderCafmParts();
+  }
+
+  deletePartFromCatalog(id) {
+    if (confirm('Delete this spare part from inventory catalog?')) {
+      window.cafm.deletePart(id);
+      showToast('Spare part deleted.', 'info');
+      this.renderCafmParts();
+    }
+  }
+
+  // =========================================================================
+  // PHASE 2 OPERATIONS: TECHNICIAN WORKSPACE (CHECKLIST, PARTS, APPROVALS, NOTIFS)
+  // =========================================================================
+
+  openTicketOperationsModal(ticketId) {
+    const ticket = window.cafm.getTicketById(ticketId);
+    if (!ticket) return;
+
+    document.getElementById('ticket-op-active-id').value = ticketId;
+    document.getElementById('ticket-op-modal-header').textContent = `🛠️ Operations Workspace — ${ticket.id}`;
+    document.getElementById('ticket-op-modal-sub').textContent = `${ticket.title} • Assigned: ${ticket.assignedTech || 'Unassigned'}`;
+
+    const site = window.cafm.getSiteById(ticket.siteId);
+    const asset = window.cafm.getAssetById(ticket.assetId);
+    const sla = window.cafm.calculateTicketSla(ticket);
+
+    const metaBar = document.getElementById('ticket-op-meta-bar');
+    if (metaBar) {
+      metaBar.innerHTML = `
+        <div style="font-size: 12px; line-height: 1.4;">
+          <div>🏢 Premise: <strong>${site ? site.name : 'Client Site'}</strong> (${site ? site.clientName : ''})</div>
+          <div>⚙️ Asset: <strong>${asset ? asset.name : 'General Facility Asset'}</strong> ${asset && asset.serialNumber ? `(SN: ${asset.serialNumber})` : ''}</div>
+        </div>
+        <div style="font-size: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <span class="badge" style="background: ${ticket.priority === 'Critical' ? '#ef4444' : '#3b82f6'}; color: #fff;">Priority: ${ticket.priority}</span>
+          <span class="badge" style="background: ${sla.slaStatus === 'Breached' ? '#ef4444' : (sla.slaStatus === 'Met' ? '#10b981' : 'rgba(2, 132, 199, 0.15)')}; color: ${sla.slaStatus === 'Breached' || sla.slaStatus === 'Met' ? '#fff' : '#0284c7'}; font-weight: 700;">
+            ${sla.slaStatus === 'Breached' ? `⚠️ SLA Breached (${sla.elapsedHours.toFixed(1)}h)` : (sla.slaStatus === 'Met' ? `✅ SLA Met (${sla.elapsedHours.toFixed(1)}h)` : `⏱️ SLA Target: ${sla.targetHours}h (${sla.remainingHours.toFixed(1)}h left)`)}
+          </span>
+          <span class="badge" style="background: #10b981; color: #fff;">Status: ${ticket.status}</span>
+        </div>
+      `;
+    }
+
+    // Populate parts catalog dropdown
+    const partSelect = document.getElementById('ticket-op-part-select');
+    if (partSelect) {
+      const catalog = window.cafm.getPartsCatalog();
+      partSelect.innerHTML = `
+        <option value="">-- Choose Component from Catalog --</option>
+        ${catalog.map(c => `
+          <option value="${c.id}" data-cost="${c.unitCost}" data-partno="${c.partNumber || ''}">
+            ${c.name} (₹${c.unitCost} / ${c.unitMeasure || 'Nos'})
+          </option>
+        `).join('')}
+      `;
+    }
+
+    this.setTicketOpSubTab('checklist');
+    document.getElementById('modal-ticket-operations').classList.remove('hidden');
+  }
+
+  setTicketOpSubTab(tab) {
+    const tabs = ['checklist', 'parts', 'approval', 'notifs'];
+    tabs.forEach(t => {
+      const btn = document.getElementById(`top-tab-btn-${t}`);
+      const view = document.getElementById(`top-view-${t}`);
+      if (btn) {
+        if (t === tab) btn.className = 'btn btn-primary btn-sm';
+        else btn.className = 'btn btn-secondary btn-sm';
+      }
+      if (view) {
+        if (t === tab) view.classList.remove('hidden');
+        else view.classList.add('hidden');
+      }
+    });
+
+    if (tab === 'checklist') this.renderTicketOpChecklist();
+    else if (tab === 'parts') this.renderTicketOpParts();
+    else if (tab === 'approval') this.renderTicketOpApproval();
+    else if (tab === 'notifs') this.renderTicketOpNotifs();
+  }
+
+  // --- SUBTAB 1: CHECKLIST HANDLERS ---
+  renderTicketOpChecklist() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const items = window.cafm.getTicketChecklist(ticketId);
+    const container = document.getElementById('ticket-op-checklist-container');
+    const progEl = document.getElementById('ticket-op-checklist-progress');
+    if (!container) return;
+
+    const completed = items.filter(i => i.completed).length;
+    const total = items.length;
+    const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+    if (progEl) {
+      progEl.innerHTML = `
+        <span style="color: ${percent === 100 ? '#10b981' : 'var(--solar-amber)'}; font-weight: 700;">
+          ${completed} of ${total} Steps Completed (${percent}%)
+        </span>
+      `;
+    }
+
+    if (items.length === 0) {
+      container.innerHTML = `<div class="text-muted" style="font-size: 12px; padding: 12px; text-align: center;">No inspection checklist assigned to this ticket. Use box below to add steps.</div>`;
+      return;
+    }
+
+    container.innerHTML = items.map(item => `
+      <div style="background: #0f172a; border: 1px solid ${item.completed ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-color)'}; border-radius: 6px; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+          <input type="checkbox" id="chk-${item.id}" ${item.completed ? 'checked' : ''} onchange="app.toggleTicketChecklistItem('${item.id}')" style="width: 17px; height: 17px; cursor: pointer;">
+          <label for="chk-${item.id}" style="margin: 0; font-size: 13px; font-weight: ${item.completed ? '400' : '600'}; color: ${item.completed ? 'var(--text-muted)' : 'var(--text-main)'}; text-decoration: ${item.completed ? 'line-through' : 'none'}; cursor: pointer;">
+            ${item.task}
+          </label>
+        </div>
+        <div style="font-size: 11px; text-align: right; color: var(--text-muted);">
+          ${item.completed ? `<span style="color: #10b981;">✓ Verified by ${item.checkedBy || 'Technician'}</span><div style="font-size: 10px;">${item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''}</div>` : '<span style="color: #94a3b8;">Pending Check</span>'}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  toggleTicketChecklistItem(itemId) {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const currentUser = window.storage.getCurrentUser()?.name || 'Field Lead';
+    window.cafm.toggleChecklistItem(ticketId, itemId, currentUser);
+    this.renderTicketOpChecklist();
+    this.renderCafmTickets();
+  }
+
+  addCustomChecklistTask() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const input = document.getElementById('ticket-op-new-task-input');
+    const taskText = input.value.trim();
+    if (!taskText) {
+      showToast('Enter task or inspection step text.', 'error');
+      return;
+    }
+    const currentUser = window.storage.getCurrentUser()?.name || 'Field Lead';
+    window.cafm.addChecklistItem(ticketId, taskText, currentUser);
+    input.value = '';
+    this.renderTicketOpChecklist();
+    this.renderCafmTickets();
+    showToast('Inspection step added to checklist!', 'success');
+  }
+
+  // --- SUBTAB 2: PARTS & CONSUMABLES HANDLERS ---
+  renderTicketOpParts() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const parts = window.cafm.getTicketParts(ticketId);
+    const tbody = document.getElementById('ticket-op-parts-tbody');
+    const sumEl = document.getElementById('ticket-op-parts-summary');
+    if (!tbody) return;
+
+    let totalCost = 0;
+    let billableCost = 0;
+
+    if (parts.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted" style="padding: 16px;">No spare parts or consumables logged for this work order.</td></tr>`;
+    } else {
+      tbody.innerHTML = parts.map(p => {
+        totalCost += p.total;
+        if (p.billable) billableCost += p.total;
+
+        return `
+          <tr>
+            <td><strong>${p.partName}</strong></td>
+            <td class="font-mono" style="font-size: 11px; color: var(--sky-blue);">${p.partNumber || '—'}</td>
+            <td style="text-align: center; font-weight: 700;">${p.quantity}</td>
+            <td class="font-mono" style="text-align: right;">${formatINR(p.unitCost)}</td>
+            <td class="font-mono font-bold" style="text-align: right; color: #10b981;">${formatINR(p.total)}</td>
+            <td style="text-align: center;">
+              <span class="badge" style="background: ${p.billable ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)'}; color: ${p.billable ? '#f59e0b' : '#10b981'}; font-weight: 700; font-size: 10px;">
+                ${p.billable ? '💳 Billable' : '🛡️ AMC Free'}
+              </span>
+            </td>
+            <td style="text-align: right;">
+              <button class="btn btn-danger btn-sm" onclick="app.deletePartFromTicket('${p.id}')" style="padding: 2px 8px; font-size: 11px;">✕</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    if (sumEl) {
+      sumEl.innerHTML = `
+        <span>Total Consumed: <strong style="color: #f8fafc;">${formatINR(totalCost)}</strong></span>
+        ${billableCost > 0 ? `<span style="margin-left: 12px; color: var(--solar-amber); font-weight: 800;">Billable to Client: ${formatINR(billableCost)}</span>` : '<span style="margin-left: 12px; color: #10b981;">(100% AMC Covered)</span>'}
+      `;
+    }
+  }
+
+  onTicketPartSelected() {
+    const sel = document.getElementById('ticket-op-part-select');
+    const opt = sel.options[sel.selectedIndex];
+    if (opt && opt.dataset.cost) {
+      document.getElementById('ticket-op-part-cost').value = opt.dataset.cost;
+    }
+  }
+
+  logPartToTicket() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const sel = document.getElementById('ticket-op-part-select');
+    const opt = sel.options[sel.selectedIndex];
+    const qty = Number(document.getElementById('ticket-op-part-qty').value);
+    const unitCost = Number(document.getElementById('ticket-op-part-cost').value);
+    const billable = document.getElementById('ticket-op-part-billable').checked;
+
+    if (!sel.value || qty <= 0 || isNaN(unitCost) || unitCost < 0) {
+      showToast('Select a component, valid quantity, and unit cost.', 'error');
+      return;
+    }
+
+    const partData = {
+      partId: sel.value,
+      partName: opt.textContent.split('(')[0].trim(),
+      partNumber: opt.dataset.partno || '',
+      quantity: qty,
+      unitCost,
+      billable
+    };
+
+    window.cafm.addPartToTicket(ticketId, partData);
+    showToast(`Part logged to ticket!`, 'success');
+    this.renderTicketOpParts();
+    this.renderCafmTickets();
+  }
+
+  deletePartFromTicket(partUsageId) {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    window.cafm.removePartFromTicket(ticketId, partUsageId);
+    showToast('Part removed from ticket.', 'info');
+    this.renderTicketOpParts();
+    this.renderCafmTickets();
+  }
+
+  // --- SUBTAB 3: CLIENT APPROVAL & BILLING ---
+  renderTicketOpApproval() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const ticket = window.cafm.getTicketById(ticketId);
+    if (!ticket) return;
+
+    const appr = ticket.chargeableWork || {};
+    document.getElementById('ticket-op-appr-status').value = appr.approvalStatus || 'N/A';
+    document.getElementById('ticket-op-appr-amount').value = appr.estimatedAmount || 0;
+    document.getElementById('ticket-op-appr-desc').value = appr.scopeDescription || '';
+    document.getElementById('ticket-op-appr-by').value = appr.approvedBy || '';
+    document.getElementById('ticket-op-appr-ref').value = appr.approvalReference || '';
+
+    const invBtn = document.getElementById('ticket-op-invoice-btn');
+    if (invBtn) {
+      if (appr.invoiceId) {
+        invBtn.textContent = `✅ Invoiced: ${appr.invoiceId} (View)`;
+        invBtn.className = 'btn btn-secondary btn-sm';
+        invBtn.disabled = false;
+      } else if (appr.approvalStatus === 'Approved') {
+        invBtn.textContent = '🧾 Generate Customer Invoice Draft';
+        invBtn.className = 'btn btn-primary btn-sm';
+        invBtn.disabled = false;
+      } else {
+        invBtn.textContent = '🧾 Generate Invoice (Requires Approval)';
+        invBtn.className = 'btn btn-secondary btn-sm';
+        invBtn.disabled = true;
+      }
+    }
+  }
+
+  saveTicketApprovalStatus() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const status = document.getElementById('ticket-op-appr-status').value;
+    const amount = Number(document.getElementById('ticket-op-appr-amount').value) || 0;
+    const desc = document.getElementById('ticket-op-appr-desc').value.trim();
+    const approvedBy = document.getElementById('ticket-op-appr-by').value.trim();
+    const ref = document.getElementById('ticket-op-appr-ref').value.trim();
+
+    window.cafm.updateChargeableWorkApproval(ticketId, status, approvedBy, ref, desc, amount);
+    showToast(`Client authorization status updated to: ${status}!`, 'success');
+    this.renderTicketOpApproval();
+    this.renderCafmTickets();
+  }
+
+  convertTicketToInvoice() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const ticket = window.cafm.getTicketById(ticketId);
+    if (ticket && ticket.chargeableWork && ticket.chargeableWork.invoiceId) {
+      this.closeAllModals();
+      this.showView('quotes-invoices', true);
+      return;
+    }
+
+    const invoice = window.cafm.convertChargeableWorkToInvoice(ticketId);
+    if (invoice) {
+      showToast(`Tax invoice ${invoice.id} created for ₹${invoice.amountBilled}!`, 'success');
+      this.renderTicketOpApproval();
+      this.renderCafmTickets();
+    }
+  }
+
+  // --- SUBTAB 4: CUSTOMER NOTIFICATIONS ---
+  renderTicketOpNotifs() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const ticket = window.cafm.getTicketById(ticketId);
+    const container = document.getElementById('ticket-op-notifs-container');
+    if (!container || !ticket) return;
+
+    const notifs = ticket.customerNotifications || [];
+    if (notifs.length === 0) {
+      container.innerHTML = `<div class="text-muted" style="font-size: 12px; padding: 12px; text-align: center;">No customer notifications sent yet. Use composer below to dispatch updates.</div>`;
+      return;
+    }
+
+    container.innerHTML = notifs.map(n => `
+      <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 6px; padding: 10px 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 14px;">${n.channel === 'WhatsApp' ? '💬' : '✉️'}</span>
+            <strong style="font-size: 12px; color: ${n.channel === 'WhatsApp' ? '#10b981' : '#0284c7'};">${n.channel} Dispatch</strong>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 10px;">${n.status}</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted);">${new Date(n.sentAt).toLocaleString('en-IN')}</div>
+        </div>
+        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4; white-space: pre-wrap; font-family: sans-serif; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px;">${n.message}</div>
+      </div>
+    `).join('');
+  }
+
+  fillDefaultTicketNotificationMessage() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const ticket = window.cafm.getTicketById(ticketId);
+    const site = ticket ? window.cafm.getSiteById(ticket.siteId) : null;
+    if (!ticket) return;
+
+    const msg = `Dear ${site ? site.clientName : 'Customer'},\n\nUpdate on Service Ticket ${ticket.id} (${ticket.title}):\n• Facility: ${site ? site.name : 'Premises'}\n• Current Status: ${ticket.status}\n• Lead Engineer: ${ticket.assignedTech || 'MaxEco Field Operations'}\n\nOur team is actively maintaining scheduled SLA and safety compliance.\n\nWarm regards,\nMaxEco Energy & Tech, Guwahati, Assam`;
+    document.getElementById('ticket-op-notif-msg').value = msg;
+  }
+
+  dispatchTicketCustomerNotification() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    const channel = document.getElementById('ticket-op-notif-channel').value;
+    const msg = document.getElementById('ticket-op-notif-msg').value.trim();
+
+    const res = window.cafm.sendCustomerNotification(ticketId, channel, msg);
+    if (res && res.whatsappUrl) {
+      window.open(res.whatsappUrl, '_blank');
+    }
+
+    document.getElementById('ticket-op-notif-msg').value = '';
+    showToast(`${channel} notification logged and dispatched!`, 'success');
+    this.renderTicketOpNotifs();
+  }
+
+  // =========================================================================
+  // PHASE 2 OPERATIONS: A4 TECHNICAL SERVICE REPORT & AMC VISITS CONSOLE
+  // =========================================================================
+
+  openServiceReportModal(ticketId) {
+    const html = window.cafm.generateServiceReportHtml(ticketId);
+    const content = document.getElementById('cafm-service-report-view-content');
+    if (content) content.innerHTML = html;
+    document.getElementById('modal-cafm-service-report').classList.remove('hidden');
+  }
+
+  printCurrentTicketServiceReport() {
+    const ticketId = document.getElementById('ticket-op-active-id').value;
+    if (ticketId) {
+      this.openServiceReportModal(ticketId);
+    }
+  }
+
+  triggerServiceReportPrint() {
+    window.print();
+  }
+
+  openAmcVisitsModal(amcId) {
+    const amc = window.cafm.getAmcById(amcId);
+    if (!amc) return;
+
+    const compliance = window.cafm.getAmcVisitCompliance(amcId);
+    const site = window.cafm.getSiteById(amc.siteId);
+
+    document.getElementById('modal-amc-visits-title').textContent = `📅 Preventive Maintenance Visits: ${amc.title}`;
+    
+    const summaryBar = document.getElementById('amc-visits-summary-bar');
+    if (summaryBar) {
+      summaryBar.innerHTML = `
+        <div>
+          <div style="font-size: 13px; font-weight: 700; color: #f8fafc;">${amc.title} (${amc.id})</div>
+          <div style="font-size: 11.5px; color: #94a3b8;">${site ? site.name : 'Client Site'} • Frequency: ${amc.billingFrequency}</div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-size: 13px; font-weight: 800; color: ${compliance.compliancePercent === 100 ? '#10b981' : 'var(--solar-amber)'};">
+            Fulfillment: ${compliance.completedVisits} / ${compliance.totalVisits} (${compliance.compliancePercent}%)
+          </div>
+          <div style="font-size: 11px; color: #94a3b8;">Emergency SLA: &lt; ${amc.emergencyResponseSlaHours || 4}h response</div>
+        </div>
+      `;
+    }
+
+    const tbody = document.getElementById('amc-visits-table-body');
+    if (tbody) {
+      const visits = amc.scheduledVisits || [];
+      if (visits.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted" style="padding: 16px;">No visits scheduled.</td></tr>`;
+      } else {
+        tbody.innerHTML = visits.map((v, idx) => `
+          <tr>
+            <td style="font-weight: 700;">${idx + 1}</td>
+            <td style="font-weight: 600;">${v.quarter}</td>
+            <td>${formatDate(v.targetDate)}</td>
+            <td>${v.completedDate ? formatDate(v.completedDate) : '<span class="text-muted">—</span>'}</td>
+            <td>
+              <span class="badge" style="background: ${v.status === 'Completed' ? '#10b981' : '#f59e0b'}; color: ${v.status === 'Completed' ? '#fff' : '#0f172a'}; font-weight: 700;">
+                ${v.status}
+              </span>
+            </td>
+            <td>${v.technician || 'MaxEco Field Team'}</td>
+            <td class="font-mono" style="font-size: 11px; color: var(--solar-amber);">${v.ticketId || '—'}</td>
+          </tr>
+        `).join('');
+      }
+    }
+
+    document.getElementById('modal-amc-visits').classList.remove('hidden');
   }
 }
 

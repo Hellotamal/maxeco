@@ -53,6 +53,7 @@ class StorageController {
           serviceTickets: [],
           amcContracts: [],
           cafmOrganizations: [],
+          cafmPartsCatalog: [],
           cafmAuditLog: []
         });
       }
@@ -119,6 +120,10 @@ class StorageController {
           parsed.amcContracts = (seed && seed.amcContracts) ? JSON.parse(JSON.stringify(seed.amcContracts)) : [];
           updated = true;
         }
+        if (parsed && (!parsed.cafmPartsCatalog || parsed.cafmPartsCatalog.length === 0)) {
+          parsed.cafmPartsCatalog = (seed && seed.cafmPartsCatalog) ? JSON.parse(JSON.stringify(seed.cafmPartsCatalog)) : [];
+          updated = true;
+        }
         if (parsed && !parsed.cafmAuditLog) {
           parsed.cafmAuditLog = [];
           updated = true;
@@ -147,6 +152,53 @@ class StorageController {
             }
             if (!a.qrCodePayload) {
               a.qrCodePayload = `MAXECO-CAFM|${a.organizationId || 'ORG'}|${a.siteId || 'SITE'}|${a.id}|${a.serialNumber || 'SN'}`;
+              updated = true;
+            }
+          });
+        }
+
+        // Backfill checklist, partsUsed, notifications & SLA on cached tickets
+        if (parsed && parsed.serviceTickets) {
+          parsed.serviceTickets.forEach(t => {
+            if (!t.checklist) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.checklist = seedTicket && seedTicket.checklist ? JSON.parse(JSON.stringify(seedTicket.checklist)) : [];
+              updated = true;
+            }
+            if (!t.partsUsed) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.partsUsed = seedTicket && seedTicket.partsUsed ? JSON.parse(JSON.stringify(seedTicket.partsUsed)) : [];
+              updated = true;
+            }
+            if (!t.chargeableWork) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.chargeableWork = seedTicket && seedTicket.chargeableWork ? JSON.parse(JSON.stringify(seedTicket.chargeableWork)) : {
+                isChargeable: false, estimatedAmount: 0, scopeDescription: '', approvalStatus: 'N/A', approvalReference: '', approvedAt: null, approvedBy: null
+              };
+              updated = true;
+            }
+            if (!t.customerNotifications) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.customerNotifications = seedTicket && seedTicket.customerNotifications ? JSON.parse(JSON.stringify(seedTicket.customerNotifications)) : [];
+              updated = true;
+            }
+            if (!t.slaTargetHours) {
+              t.slaTargetHours = t.priority === 'Critical' ? 4 : (t.priority === 'High' ? 12 : (t.priority === 'Normal' ? 48 : 72));
+              updated = true;
+            }
+            if (!t.slaStatus) {
+              t.slaStatus = 'Within SLA';
+              updated = true;
+            }
+          });
+        }
+
+        // Backfill scheduledVisits on cached AMC contracts
+        if (parsed && parsed.amcContracts) {
+          parsed.amcContracts.forEach(c => {
+            if (!c.scheduledVisits) {
+              const seedAmc = (seed && seed.amcContracts) ? seed.amcContracts.find(sc => sc.id === c.id) : null;
+              c.scheduledVisits = seedAmc && seedAmc.scheduledVisits ? JSON.parse(JSON.stringify(seedAmc.scheduledVisits)) : [];
               updated = true;
             }
           });
@@ -795,6 +847,14 @@ class StorageController {
       ticket.id = `TCK-${year}-${count}`;
       ticket.reportedDate = ticket.reportedDate || new Date().toISOString().slice(0, 10);
       ticket.status = ticket.status || 'Open';
+      ticket.checklist = ticket.checklist || [];
+      ticket.partsUsed = ticket.partsUsed || [];
+      ticket.customerNotifications = ticket.customerNotifications || [];
+      ticket.chargeableWork = ticket.chargeableWork || {
+        isChargeable: false, estimatedAmount: 0, scopeDescription: '', approvalStatus: 'N/A', approvalReference: '', approvedAt: null, approvedBy: null
+      };
+      ticket.slaTargetHours = ticket.slaTargetHours || (ticket.priority === 'Critical' ? 4 : (ticket.priority === 'High' ? 12 : 48));
+      ticket.slaStatus = ticket.slaStatus || 'Within SLA';
       store.serviceTickets.unshift(ticket);
     } else {
       const idx = store.serviceTickets.findIndex(t => t.id === ticket.id);
@@ -826,6 +886,41 @@ class StorageController {
   deleteServiceTicket(id) {
     const store = this.getStore();
     store.serviceTickets = (store.serviceTickets || []).filter(t => t.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: SPARE PARTS & CONSUMABLES CATALOG ---
+  getPartsCatalog() {
+    const store = this.getStore();
+    return store && store.cafmPartsCatalog ? store.cafmPartsCatalog : [];
+  }
+
+  getPartById(id) {
+    return this.getPartsCatalog().find(p => p.id === id) || null;
+  }
+
+  savePart(part) {
+    const store = this.getStore();
+    if (!store.cafmPartsCatalog) store.cafmPartsCatalog = [];
+    if (!part.id) {
+      const count = (store.cafmPartsCatalog.length + 1).toString().padStart(3, '0');
+      part.id = `PRT-${count}`;
+      store.cafmPartsCatalog.push(part);
+    } else {
+      const idx = store.cafmPartsCatalog.findIndex(p => p.id === part.id);
+      if (idx !== -1) {
+        store.cafmPartsCatalog[idx] = { ...store.cafmPartsCatalog[idx], ...part };
+      } else {
+        store.cafmPartsCatalog.push(part);
+      }
+    }
+    this.saveStore(store);
+    return part;
+  }
+
+  deletePart(id) {
+    const store = this.getStore();
+    store.cafmPartsCatalog = (store.cafmPartsCatalog || []).filter(p => p.id !== id);
     this.saveStore(store);
   }
 
@@ -975,6 +1070,11 @@ class StorageController {
       csvContent = "Log ID,Timestamp,User,Role,Action,Entity Type,Entity ID,Details\n";
       (store.cafmAuditLog || []).forEach(l => {
         csvContent += `"${l.id}","${l.timestamp}","${l.user}","${l.role}","${l.action}","${l.entityType}","${l.entityId}","${(l.details || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'cafmPartsCatalog') {
+      csvContent = "Part ID,Part Name,Category,Part Number,Unit Cost (INR),Stock Qty,Unit,Compatible OEM\n";
+      (store.cafmPartsCatalog || []).forEach(p => {
+        csvContent += `"${p.id}","${(p.name || '').replace(/"/g, '""')}","${p.category || ''}","${p.partNumber || ''}",${p.unitCost || 0},${p.stockQuantity || 0},"${p.unit || ''}","${(p.compatibleOEM || '').replace(/"/g, '""')}"\n`;
       });
     } else {
       return false;

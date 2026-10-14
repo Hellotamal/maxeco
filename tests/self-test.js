@@ -717,6 +717,110 @@ const auditLogs = window.storage.getAuditLogs();
 assert(auditLogs && auditLogs.length >= 3, `Immutable CAFM audit journal tracks operations (found ${auditLogs.length} events)`);
 assert(auditLogs[0].timestamp && auditLogs[0].action, 'Audit log records ISO timestamp, user, role, and delta details');
 
+// --- VERIFYING PHASE 2: OPERATIONS, CHECKLISTS, PARTS, APPROVALS & SLA TRACKING ---
+console.log('\n--- VERIFYING PHASE 2: OPERATIONS, CHECKLISTS, PARTS, APPROVALS & SLA TRACKING ---');
+
+// 1. Spare Parts & Consumables Catalog CRUD
+const catalogParts = window.cafm.getPartsCatalog();
+assert(catalogParts && catalogParts.length >= 8, `Parts catalog loaded with standard components (found ${catalogParts.length}, expected >= 8)`);
+const newPart = window.cafm.savePart({
+  name: 'Schneider 63A 4P 30mA RCCB Circuit Breaker',
+  category: 'Electrical & CEIG',
+  partNumber: 'SCH-A9R11463',
+  unitCost: 3200,
+  stockQuantity: 6,
+  unitMeasure: 'Nos',
+  compatibleOem: 'Schneider Electric Acti9'
+});
+assert(newPart && newPart.id && (newPart.id.startsWith('PRT-') || newPart.id.startsWith('PART-')), `New spare part registered with ID: ${newPart.id}`);
+const fetchedPart = window.cafm.getPartById(newPart.id);
+assert(fetchedPart && fetchedPart.unitCost === 3200, 'Spare part retrieved by ID with correct unit cost');
+assert(window.storage.exportCsv('cafmPartsCatalog') === true, 'Spare Parts Catalog CSV export generated for storekeeper audit');
+
+// 2. Inspection Checklists & Technician Tasks
+const solarDefaultChecklist = window.cafm.getDefaultChecklist('Solar EPC');
+assert(solarDefaultChecklist.length >= 5, 'Default checklist generated for Solar EPC maintenance');
+assert(solarDefaultChecklist.some(item => (item.task || item.text).includes('Voc') || (item.task || item.text).includes('voltage')), 'Solar checklist includes open circuit string voltage verification');
+
+const ticketChecklist = window.cafm.getTicketChecklist('TCK-2026-001');
+assert(ticketChecklist && ticketChecklist.length >= 4, `Ticket checklist loaded (found ${ticketChecklist.length} steps)`);
+const pendingCheckItem = ticketChecklist.find(i => !(i.done || i.completed)) || ticketChecklist[0];
+const toggledItem = window.cafm.toggleChecklistItem('TCK-2026-001', pendingCheckItem.id, 'Raju Sharma (Senior Solar Tech)');
+assert(toggledItem && (toggledItem.completed === true || toggledItem.done === true), 'Technician checked off maintenance inspection item');
+assert(toggledItem.checkedBy && toggledItem.checkedBy.includes('Raju Sharma'), 'Inspector name recorded on checklist audit trail');
+
+const customChecklistItem = window.cafm.addChecklistItem('TCK-2026-001', 'Verify DC cable conduit UV protection and rodent sleeves', 'Raju Sharma');
+assert(customChecklistItem && customChecklistItem.task.includes('rodent sleeves'), 'Custom safety task dynamically added to ticket checklist');
+
+// 3. Spare Parts & Consumables Logging on Service Tickets
+const loggedPart = window.cafm.addPartToTicket('TCK-2026-001', {
+  partId: 'PART-2026-001',
+  partName: '1000V 15A gPV Solar DC String Fuse',
+  partNumber: 'FUSE-GPV-1000V-15A',
+  quantity: 2,
+  unitCost: 450,
+  billable: true
+});
+assert(loggedPart && loggedPart.id && loggedPart.id.startsWith('PU-'), `Part logged to service ticket with ID: ${loggedPart.id}`);
+assert(loggedPart.total === 900, `Part usage calculates total line cost (₹${loggedPart.total}, expected ₹900)`);
+const ticketPartsList = window.cafm.getTicketParts('TCK-2026-001');
+assert(ticketPartsList.some(p => p.id === loggedPart.id), 'Logged part listed in ticket consumption history');
+
+// 4. Customer Authorization for Chargeable Out-of-Scope Work & 1-Click Invoice
+const updatedApproval = window.cafm.updateChargeableWorkApproval(
+  'TCK-2026-001',
+  'Approved',
+  'Dr. Anamika Kalita',
+  'WhatsApp Confirmation 2026-10-14 14:30',
+  'Replaced lightning-damaged inverter surge suppressor SPD and string fuses',
+  3800
+);
+assert(updatedApproval.approvalStatus === 'Approved', 'Customer approval status recorded as Approved');
+assert(updatedApproval.estimatedAmount === 3800, 'Approved chargeable amount recorded as ₹3,800');
+
+const chargeableInvoice = window.cafm.convertChargeableWorkToInvoice('TCK-2026-001');
+assert(chargeableInvoice && chargeableInvoice.id && chargeableInvoice.id.startsWith('INV-'), `Chargeable out-of-scope work converted to Customer Invoice: ${chargeableInvoice.id}`);
+assert(chargeableInvoice.amountBilled === 3800, `Invoice amount billed matches authorized chargeable estimate (₹${chargeableInvoice.amountBilled})`);
+assert(chargeableInvoice.notes.includes('998713') || chargeableInvoice.notes.includes('995461'), 'Auto-assigns maintenance SAC code for chargeable service invoice');
+
+// 5. Automated Customer Notifications Dispatch
+const waNotification = window.cafm.sendCustomerNotification('TCK-2026-001', 'WhatsApp', 'Your rooftop solar inverter service and surge protector replacement is complete.');
+assert(waNotification && waNotification.whatsappUrl && waNotification.whatsappUrl.includes('wa.me'), 'Generates direct 1-click WhatsApp messaging URL with prefilled text');
+const notifTicket = window.cafm.getTicketById('TCK-2026-001');
+assert(notifTicket.customerNotifications && notifTicket.customerNotifications.length >= 1, 'Ticket records immutable history of customer notification dispatches');
+
+// 6. Dynamic SLA Deadline & Response Tracking
+const critSla = window.cafm.calculateTicketSla({
+  id: 'TCK-CRIT-TEST',
+  priority: 'Critical',
+  reportedDate: new Date().toISOString().slice(0, 10),
+  status: 'Open'
+});
+assert(critSla.targetHours === 4, `Critical ticket assigned 4-hour emergency SLA target (found ${critSla.targetHours}h)`);
+assert(typeof critSla.remainingHours === 'number', 'Calculates remaining hours before SLA breach');
+
+const normSla = window.cafm.calculateTicketSla({
+  id: 'TCK-NORM-TEST',
+  priority: 'Normal',
+  reportedDate: new Date().toISOString().slice(0, 10),
+  status: 'Open'
+});
+assert(normSla.targetHours === 24, `Normal ticket assigned 24-hour standard SLA target (found ${normSla.targetHours}h)`);
+
+// 7. AMC Scheduled Visit Compliance Tracking
+const amcCompliance = window.cafm.getAmcVisitCompliance('AMC-2026-001');
+assert(amcCompliance && amcCompliance.totalVisits >= 4, `AMC tracks scheduled quarterly visits (found ${amcCompliance.totalVisits})`);
+assert(typeof amcCompliance.compliancePercent === 'number', 'AMC visit compliance percentage calculated');
+
+// 8. Printable A4 Technical Service Report HTML Generation
+const reportHtml = window.cafm.generateServiceReportHtml('TCK-2026-001');
+assert(reportHtml.includes('MaxEco Energy &amp; Tech') || reportHtml.includes('MaxEco Energy & Tech'), 'Service report renders MaxEco corporate header');
+assert(reportHtml.includes('TECHNICAL SERVICE &amp; SAFETY AUDIT REPORT') || reportHtml.includes('TECHNICAL SERVICE & SAFETY AUDIT REPORT'), 'Service report displays official technical report title');
+assert(reportHtml.includes('Tamal Roy'), 'Service report renders Tamal Roy digital signature badge');
+assert(reportHtml.includes('DIGITALLY VERIFIED SERVICE REPORT'), 'Service report contains verification badge');
+assert(reportHtml.includes('Technical Verification &amp; Safety Checklist') || reportHtml.includes('Technical Verification & Safety Checklist'), 'Service report details full technician checklist verification');
+assert(reportHtml.includes('Components &amp; Consumables Logged') || reportHtml.includes('Components & Consumables Logged'), 'Service report details parts consumed and billable tier');
+
 // --- VERIFYING WEBSITE CAFM INTEGRATION & SECURITY ISOLATION ---
 console.log('\n--- VERIFYING WEBSITE CAFM INTEGRATION & SECURITY ISOLATION ---');
 const websiteHtml = fs.readFileSync(path.join(__dirname, '../public/website/index.html'), 'utf-8');

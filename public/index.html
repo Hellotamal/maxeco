@@ -1669,6 +1669,7 @@
               <button id="cafm-tab-btn-assets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('assets')">⚙️ Asset Inventory &amp; QR</button>
               <button id="cafm-tab-btn-ppm" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('ppm')">📅 PPM Service Calendar</button>
               <button id="cafm-tab-btn-tickets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('tickets')">🎫 Helpdesk &amp; Tickets</button>
+              <button id="cafm-tab-btn-parts" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('parts')">📦 Parts &amp; Consumables</button>
               <button id="cafm-tab-btn-amcs" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('amcs')">📜 AMC Contracts &amp; SLA</button>
               <button id="cafm-tab-btn-audit" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('audit')">📋 Audit Journal</button>
             </div>
@@ -1784,7 +1785,31 @@
           </div>
         </div>
 
-        <!-- SUB-TAB 5: AMC CONTRACTS -->
+        <!-- SUB-TAB 5: SPARE PARTS & CONSUMABLES CATALOG -->
+        <div id="cafm-view-parts" class="cafm-subview hidden">
+          <div class="card" style="margin-bottom: 16px; padding: 12px 16px;">
+            <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 10px;">
+              <div class="flex items-center gap-2">
+                <label class="form-label" style="margin: 0; font-size: 12px;">Category:</label>
+                <select id="cafm-filter-part-category" class="form-control" style="width: auto; padding: 4px 10px; font-size: 12px;" onchange="app.renderCafmParts()">
+                  <option value="all">All Categories</option>
+                  <option value="Solar EPC">Solar EPC</option>
+                  <option value="IT Infrastructure">IT Infrastructure</option>
+                  <option value="Electrical &amp; CEIG">Electrical &amp; CEIG</option>
+                </select>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('cafmPartsCatalog')">📥 Export Parts CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddPartModal()">➕ Add Spare Part</button>
+              </div>
+            </div>
+          </div>
+          <div id="cafm-parts-table-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- SUB-TAB 6: AMC CONTRACTS -->
         <div id="cafm-view-amcs" class="cafm-subview hidden">
           <div id="cafm-amcs-container" class="grid grid-cols-2 gap-4">
             <!-- Dynamically populated -->
@@ -3556,6 +3581,334 @@
         <div id="cafm-asset-tag-view-content">
           <!-- Dynamically populated -->
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 8: Ticket Operations Workspace (Checklists, Parts, Approvals, Notifications) -->
+  <div id="modal-ticket-operations" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 860px; max-height: 94vh; display: flex; flex-direction: column;">
+      <div class="modal-header flex justify-between items-center" style="background: #0f172a; padding: 14px 20px; border-bottom: 1px solid var(--border-color);">
+        <div class="flex items-center gap-2">
+          <span style="font-size: 20px;">🛠️</span>
+          <div>
+            <h3 id="ticket-op-modal-header" style="font-size: 16px; margin: 0; color: #f8fafc;">Maintenance Operations Workspace</h3>
+            <small id="ticket-op-modal-sub" style="color: #94a3b8;">Ticket Tasks, Parts, Client Approvals &amp; Notification Audit</small>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm" onclick="app.printCurrentTicketServiceReport()" title="Print Official A4 Service Report">🖨️ Service Report</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕ Close</button>
+        </div>
+      </div>
+
+      <!-- Ticket Metadata Top Bar -->
+      <div id="ticket-op-meta-bar" style="background: var(--bg-card); padding: 12px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <!-- Populated dynamically -->
+      </div>
+
+      <!-- Operations Tab Navigation -->
+      <div style="background: #1e293b; padding: 6px 20px; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px;">
+        <button id="top-tab-btn-checklist" class="btn btn-primary btn-sm" onclick="app.setTicketOpSubTab('checklist')">📋 Inspection Checklist</button>
+        <button id="top-tab-btn-parts" class="btn btn-secondary btn-sm" onclick="app.setTicketOpSubTab('parts')">📦 Parts &amp; Consumables</button>
+        <button id="top-tab-btn-approval" class="btn btn-secondary btn-sm" onclick="app.setTicketOpSubTab('approval')">💳 Client Approval &amp; Billing</button>
+        <button id="top-tab-btn-notifs" class="btn btn-secondary btn-sm" onclick="app.setTicketOpSubTab('notifs')">📱 Client Notifications</button>
+      </div>
+
+      <div class="modal-body" style="padding: 20px; overflow-y: auto; flex: 1;">
+        <input type="hidden" id="ticket-op-active-id">
+
+        <!-- Sub-Panel 1: Checklist & Tasks -->
+        <div id="top-view-checklist">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">
+              Standard Technical Safety &amp; Servicing Protocol
+            </div>
+            <div id="ticket-op-checklist-progress" style="font-size: 12px; font-weight: 700; color: var(--eco-green);">
+              <!-- 4/5 Completed -->
+            </div>
+          </div>
+          <div id="ticket-op-checklist-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+            <!-- Dynamically populated -->
+          </div>
+          <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="ticket-op-new-task-input" class="form-control" placeholder="Add custom inspection point or test step..." style="margin: 0;">
+            <button class="btn btn-primary btn-sm" onclick="app.addCustomChecklistTask()">➕ Add Task</button>
+          </div>
+        </div>
+
+        <!-- Sub-Panel 2: Parts & Consumables -->
+        <div id="top-view-parts" class="hidden">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="font-size: 13px; font-weight: 700; color: var(--text-main);">
+              Logged Components, Fuses, Batteries &amp; Consumables
+            </div>
+            <div id="ticket-op-parts-summary" style="font-size: 12px; font-weight: 700;">
+              <!-- Total: ₹... -->
+            </div>
+          </div>
+          <div class="table-container" style="margin-bottom: 16px;">
+            <table class="table" style="font-size: 12px;">
+              <thead>
+                <tr>
+                  <th>Component / Part</th>
+                  <th>Part Number</th>
+                  <th style="text-align: center;">Qty</th>
+                  <th style="text-align: right;">Unit Cost</th>
+                  <th style="text-align: right;">Total (₹)</th>
+                  <th style="text-align: center;">Billing Tier</th>
+                  <th style="text-align: right;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ticket-op-parts-tbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Add Part Form Box -->
+          <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--solar-amber); margin-bottom: 8px; text-transform: uppercase;">
+              Log Part from Inventory or Direct Requisition
+            </div>
+            <div class="grid grid-cols-3 gap-3" style="margin-bottom: 8px;">
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 11px;">Select Component *</label>
+                <select id="ticket-op-part-select" class="form-control" style="font-size: 12px;" onchange="app.onTicketPartSelected()">
+                  <!-- Populated from catalog -->
+                </select>
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 11px;">Quantity *</label>
+                <input type="number" id="ticket-op-part-qty" class="form-control" value="1" min="1" style="font-size: 12px;">
+              </div>
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 11px;">Unit Cost (₹) *</label>
+                <input type="number" id="ticket-op-part-cost" class="form-control" style="font-size: 12px;">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3" style="align-items: center;">
+              <div class="flex items-center gap-2" style="padding-top: 4px;">
+                <input type="checkbox" id="ticket-op-part-billable" style="width: 16px; height: 16px;">
+                <label for="ticket-op-part-billable" style="font-size: 12px; margin: 0; cursor: pointer;">
+                  <strong>Billable to Customer</strong> (Out of warranty or out-of-scope repair)
+                </label>
+              </div>
+              <div style="text-align: right;">
+                <button class="btn btn-primary btn-sm" onclick="app.logPartToTicket()">➕ Log Component</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-Panel 3: Client Approval & Billing -->
+        <div id="top-view-approval" class="hidden">
+          <div class="card" style="margin-bottom: 16px; background: #0f172a;">
+            <h4 style="font-size: 14px; margin-bottom: 6px;">Customer Authorization for Chargeable Out-of-Scope Repairs</h4>
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+              Per our AMC SLA guidelines, repairs exceeding free preventative scope or parts damaged by external lightning/surge require client authorization before procurement.
+            </p>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="form-group">
+                <label class="form-label">Approval Status *</label>
+                <select id="ticket-op-appr-status" class="form-control">
+                  <option value="N/A">N/A (Fully Covered Under AMC)</option>
+                  <option value="Pending">Pending Customer Approval</option>
+                  <option value="Approved">Approved by Customer</option>
+                  <option value="Rejected">Rejected / Deferred by Customer</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Estimated Chargeable Amount (₹)</label>
+                <input type="number" id="ticket-op-appr-amount" class="form-control" placeholder="0">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Chargeable Scope &amp; Component Justification</label>
+              <textarea id="ticket-op-appr-desc" class="form-control" rows="2" placeholder="e.g. Inverter surge protector destroyed by lightning surge; customer authorized emergency OEM replacement."></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="form-group">
+                <label class="form-label">Customer Approver Name</label>
+                <input type="text" id="ticket-op-appr-by" class="form-control" placeholder="e.g. Dr. Anamika Kalita / Pranab Barman">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Approval Reference / Proof</label>
+                <input type="text" id="ticket-op-appr-ref" class="form-control" placeholder="e.g. WhatsApp message on 2026-10-14 14:30 / PO-981">
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center" style="margin-top: 14px; border-top: 1px solid var(--border-color); padding-top: 12px;">
+              <button class="btn btn-secondary btn-sm" onclick="app.saveTicketApprovalStatus()">💾 Save Approval Record</button>
+              <button class="btn btn-primary btn-sm" id="ticket-op-invoice-btn" onclick="app.convertTicketToInvoice()">🧾 Generate Customer Invoice Draft</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-Panel 4: Customer Notifications -->
+        <div id="top-view-notifs" class="hidden">
+          <div style="font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">
+            Automated WhatsApp &amp; Email Dispatch Logs
+          </div>
+          <div id="ticket-op-notifs-container" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+            <!-- Dynamically populated -->
+          </div>
+
+          <!-- Notification Composer -->
+          <div style="background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--sky-blue); margin-bottom: 8px; text-transform: uppercase;">
+              Dispatch Live Customer Status Notification
+            </div>
+            <div class="grid grid-cols-2 gap-3" style="margin-bottom: 8px;">
+              <div class="form-group" style="margin: 0;">
+                <label class="form-label" style="font-size: 11px;">Notification Channel</label>
+                <select id="ticket-op-notif-channel" class="form-control" style="font-size: 12px;">
+                  <option value="WhatsApp">WhatsApp (Direct Mobile URL)</option>
+                  <option value="Email">Email (Mailto Client)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin: 0; display: flex; align-items: flex-end;">
+                <button class="btn btn-secondary btn-sm" onclick="app.fillDefaultTicketNotificationMessage()" style="width: 100%;">⚡ Load Status Template</button>
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label" style="font-size: 11px;">Custom Notification Text</label>
+              <textarea id="ticket-op-notif-msg" class="form-control" rows="2" style="font-size: 12px;" placeholder="Message to client..."></textarea>
+            </div>
+            <div style="text-align: right;">
+              <button class="btn btn-primary btn-sm" onclick="app.dispatchTicketCustomerNotification()">🚀 Send &amp; Log Notification</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer flex justify-between items-center" style="background: #0f172a;">
+        <button class="btn btn-outline btn-sm" onclick="app.printCurrentTicketServiceReport()">🖨️ Print Full Technical Report (A4)</button>
+        <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 9: Add / Edit Spare Part in Catalog -->
+  <div id="modal-cafm-part" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 id="modal-cafm-part-title" class="modal-title">📦 Register Spare Part / Consumable</h3>
+        <button class="modal-close" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="part-modal-id">
+        <div class="form-group">
+          <label class="form-label">Part / Consumable Name *</label>
+          <input type="text" id="part-modal-name" class="form-control" required placeholder="e.g. 1000V 15A gPV Solar DC String Fuse">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Category *</label>
+            <select id="part-modal-category" class="form-control" required>
+              <option value="Solar EPC">Solar EPC</option>
+              <option value="IT Infrastructure">IT Infrastructure</option>
+              <option value="Electrical &amp; CEIG">Electrical &amp; CEIG</option>
+              <option value="Facility Utility">Facility Utility</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">OEM Part Number</label>
+            <input type="text" id="part-modal-num" class="form-control" placeholder="e.g. FUSE-GPV-1000V-15A">
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="form-group">
+            <label class="form-label">Unit Cost (₹) *</label>
+            <input type="number" id="part-modal-cost" class="form-control" required placeholder="e.g. 450">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stock Quantity</label>
+            <input type="number" id="part-modal-qty" class="form-control" value="10" placeholder="e.g. 10">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Unit Measure</label>
+            <select id="part-modal-unit" class="form-control">
+              <option value="Nos">Nos</option>
+              <option value="Pair">Pair</option>
+              <option value="Bag">Bag (25kg)</option>
+              <option value="Tube">Tube (30g)</option>
+              <option value="Meters">Meters</option>
+              <option value="Pack">Pack (10 Nos)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Compatible OEM / Equipment</label>
+          <input type="text" id="part-modal-oem" class="form-control" placeholder="e.g. Growatt / APC / Schneider / TruePower">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.savePartFromModal()">Save Spare Part</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 10: Technical Service Report Viewer Console -->
+  <div id="modal-cafm-service-report" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 850px; max-height: 94vh; display: flex; flex-direction: column;">
+      <div class="modal-header flex justify-between items-center" style="background: #0f172a; padding: 12px 20px; border-bottom: 1px solid var(--border-color);">
+        <div class="flex items-center gap-2">
+          <span style="font-size: 18px;">📄</span>
+          <div>
+            <h3 style="font-size: 15px; margin: 0; color: #f8fafc;">Technical Service Report &amp; Safety Audit Slip</h3>
+            <small style="color: #94a3b8;">MaxEco CAFM ISO/CEIG-Conforming Service Sign-Off</small>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary btn-sm" onclick="app.triggerServiceReportPrint()" style="background: #0284c7; border-color: #0284c7;">🖨️ Print Report (A4)</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕ Close</button>
+        </div>
+      </div>
+      <div class="modal-body" style="background: #e2e8f0; padding: 20px; overflow-y: auto;">
+        <div id="cafm-service-report-view-content">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 11: AMC Scheduled Visits Schedule Viewer -->
+  <div id="modal-amc-visits" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 760px;">
+      <div class="modal-header">
+        <h3 id="modal-amc-visits-title" class="modal-title">📅 AMC Preventive Maintenance Visits Schedule</h3>
+        <button class="modal-close" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="amc-visits-summary-bar" style="background: #0f172a; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <!-- Dynamically populated -->
+        </div>
+        <div class="table-container">
+          <table class="table" style="font-size: 12px;">
+            <thead>
+              <tr>
+                <th style="width: 30px;">#</th>
+                <th>Quarter / Period</th>
+                <th>Target Due Date</th>
+                <th>Completion Date</th>
+                <th>Status</th>
+                <th>Lead Technician</th>
+                <th>Ticket Ref</th>
+              </tr>
+            </thead>
+            <tbody id="amc-visits-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Close</button>
       </div>
     </div>
   </div>
