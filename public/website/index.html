@@ -1,34 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MaxEco Energy & Tech | Solar EPC Advisory & IT Infra Solutions | Guwahati, Assam</title>
-  <meta name="description" content="MaxEco Energy & Tech provides solar rooftop EPC advisory, APDCL net-metering approvals, CEIG clearances, and enterprise IT Infra sales & support across Guwahati and Northeast India.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MaxEco Energy & Tech | Clean Energy Advisory & Modern Digital Execution | Guwahati, Assam</title>
+  
+  <!-- SEO & Social Meta Tags -->
+  <meta name="description" content="MaxEco Energy & Tech provides commercial & residential rooftop solar EPC advisory, APDCL net-metering clearances, CEIG approvals, and high-performance IT infrastructure & web solutions across Guwahati and Northeast India.">
+  <meta name="keywords" content="MaxEco Energy, Solar EPC Guwahati, APDCL Net Metering Assam, Solar Rooftop Guwahati, CEIG Clearance Assam, IT Infra Sales Guwahati, Northeast India Solar, Web Development Guwahati">
+  <meta name="author" content="MaxEco Energy & Tech">
+  
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="MaxEco Energy & Tech | Clean Energy Advisory & Digital Execution">
+  <meta property="og:description" content="Practical Clean Energy Advisory & Digital Growth for Northeast India. Helping commercial enterprises & institutions reduce power bills with rooftop solar and expand digitally.">
+  <meta property="og:image" content="../assets/logo-emblem.png">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MaxEco Energy & Tech — Guwahati, Assam">
+  <meta name="twitter:description" content="Founder-led clean solar engineering and enterprise IT solutions across Northeast India.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="../assets/logo-emblem.png">
   <link rel="apple-touch-icon" href="../assets/logo-emblem.png">
 
-  <!-- Standalone High-Performance CSS (Zero External Dependencies) -->
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- React 18, ReactDOM & Babel Standalone for In-Browser JSX Compilation -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Global Design System & CSS Custom Properties -->
   <style>
+    /* ==========================================================================
+       CSS CUSTOM PROPERTIES: DESIGN TOKENS (LIGHT & DARK MODES)
+       ========================================================================== */
     :root {
-      --primary-navy: #0f172a;
-      --navy-card: #1e293b;
-      --navy-light: #334155;
-      --solar-amber: #f59e0b;
-      --solar-amber-hover: #d97706;
-      --eco-green: #10b981;
+      /* Brand Primary (Blue #3B82F6 as requested) */
+      --primary: #3B82F6;
+      --primary-hover: #2563EB;
+      --primary-focus: rgba(59, 130, 246, 0.25);
+      --primary-light: rgba(59, 130, 246, 0.1);
+      
+      /* Secondary & Brand Accents */
+      --solar-amber: #F59E0B;
+      --solar-amber-hover: #D97706;
+      --eco-green: #10B981;
       --eco-green-hover: #059669;
-      --sky-blue: #0284c7;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --border-color: rgba(255, 255, 255, 0.12);
-      --radius: 12px;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --sky-blue: #0284C7;
+      
+      /* Light Theme (Default) */
+      --bg-body: #FFFFFF;
+      --bg-surface: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-card-hover: #F8FAFC;
+      --bg-alt: #F1F5F9;
+      --border-color: #E2E8F0;
+      --border-subtle: #F1F5F9;
+      
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --text-light: #94A3B8;
+      
+      --nav-bg: rgba(255, 255, 255, 0.88);
+      --nav-border: rgba(226, 232, 240, 0.8);
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      --glow-shadow: 0 0 25px rgba(59, 130, 246, 0.18);
+      
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-heading: 'Outfit', 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+      
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * {
+    [data-theme="dark"] {
+      --bg-body: #0B1120;
+      --bg-surface: #0F172A;
+      --bg-card: #1E293B;
+      --bg-card-hover: #243248;
+      --bg-alt: #131D31;
+      --border-color: #334155;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --text-light: #64748B;
+      
+      --nav-bg: rgba(11, 17, 32, 0.88);
+      --nav-border: rgba(51, 65, 85, 0.7);
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+      --card-shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --glow-shadow: 0 0 30px rgba(59, 130, 246, 0.28);
+    }
+
+    /* Base Reset */
+    *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -36,17 +117,20 @@
 
     html {
       scroll-behavior: smooth;
-      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       max-width: 100vw;
+      overflow-x: hidden;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--primary-navy);
+      font-family: var(--font-body);
+      background-color: var(--bg-body);
       color: var(--text-main);
       line-height: 1.6;
-      overflow-x: hidden;
+      transition: background-color var(--transition-normal), color var(--transition-normal);
       max-width: 100vw;
+      overflow-x: hidden;
     }
 
     a {
@@ -54,1066 +138,2597 @@
       text-decoration: none;
     }
 
-    /* Top Utility Bar */
-    .top-bar {
-      background: #080d1a;
-      border-bottom: 1px solid var(--border-color);
-      padding: 6px 24px;
-      font-size: 12px;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
+    button {
+      font-family: inherit;
+      border: none;
+      background: none;
+      cursor: pointer;
     }
 
-    .top-bar-left span {
-      margin-right: 16px;
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Container Utility */
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Spacious Section Spacing */
+    .section-spacing {
+      padding: 96px 0;
+      position: relative;
+    }
+
+    @media (max-width: 768px) {
+      .section-spacing {
+        padding: 60px 0;
+      }
+      .container {
+        padding: 0 16px;
+      }
+    }
+
+    /* Typography Utilities */
+    .font-heading {
+      font-family: var(--font-heading);
+    }
+    .font-mono {
+      font-family: var(--font-mono);
+    }
+
+    .badge-pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-    }
-
-    .badge-amber {
-      background: rgba(245, 158, 11, 0.18);
-      color: var(--solar-amber);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      padding: 2px 8px;
-      border-radius: 9999px;
-      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
       font-weight: 700;
-    }
-
-    .badge-green {
-      background: rgba(16, 185, 129, 0.18);
-      color: var(--eco-green);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      padding: 2px 8px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    /* Main Navigation Bar */
-    .navbar {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background: rgba(15, 23, 42, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-color);
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .nav-brand img.logo-emblem {
-      height: 42px;
-      width: 42px;
-      object-fit: contain;
-    }
-
-    .nav-brand-title {
-      font-size: 19px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: #ffffff;
-      line-height: 1.1;
-    }
-
-    .nav-brand-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       text-transform: uppercase;
-      font-weight: 600;
     }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 22px;
-      font-size: 14px;
-      font-weight: 600;
+    .badge-primary {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(59, 130, 246, 0.25);
     }
-
-    .nav-links a {
-      color: #cbd5e1;
-      transition: color 0.2s ease;
-    }
-
-    .nav-links a:hover {
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.12);
       color: var(--solar-amber);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+    .badge-green {
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--eco-green);
+      border: 1px solid rgba(16, 185, 129, 0.25);
     }
 
-    .nav-actions {
+    /* Custom Interactive Cursor (Desktop Only) */
+    .custom-cursor-dot, .custom-cursor-ring {
+      position: fixed;
+      pointer-events: none;
+      z-index: 99999;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.2s ease, transform 0.1s ease;
+    }
+    .custom-cursor-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--primary);
+    }
+    .custom-cursor-ring {
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--primary);
+      opacity: 0.5;
+      transition: width 0.2s, height 0.2s, transform 0.15s ease-out, background-color 0.2s;
+    }
+    .cursor-hover .custom-cursor-ring {
+      width: 54px;
+      height: 54px;
+      background: rgba(59, 130, 246, 0.1);
+      border-color: var(--primary-hover);
+    }
+    @media (hover: none) or (max-width: 992px) {
+      .custom-cursor-dot, .custom-cursor-ring {
+        display: none !important;
+      }
+    }
+
+    /* Preloader Animation */
+    #site-preloader {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-body);
+      z-index: 100000;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+    }
+    #site-preloader.fade-out {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .preloader-spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid var(--border-color);
+      border-top-color: var(--primary);
+      border-right-color: var(--solar-amber);
+      border-radius: 50%;
+      animation: spin 0.9s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
     }
 
+    /* Masonry / Pinterest Style Grid */
+    .masonry-grid {
+      column-count: 3;
+      column-gap: 24px;
+    }
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 24px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    }
+    .masonry-item:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--card-shadow-hover);
+      border-color: var(--primary);
+    }
+    @media (max-width: 992px) {
+      .masonry-grid {
+        column-count: 2;
+      }
+    }
+    @media (max-width: 640px) {
+      .masonry-grid {
+        column-count: 1;
+      }
+    }
+
+    /* Modern Card Layouts */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--card-shadow);
+      transition: all var(--transition-normal);
+    }
+    .card:hover {
+      box-shadow: var(--card-shadow-hover);
+      border-color: rgba(59, 130, 246, 0.35);
+      transform: translateY(-3px);
+    }
+
+    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 9px 18px;
-      border-radius: 8px;
-      font-size: 13px;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
       font-weight: 700;
+      transition: all var(--transition-fast);
       cursor: pointer;
-      transition: all 0.2s ease;
-      border: none;
+      text-align: center;
+      white-space: nowrap;
     }
-
     .btn-primary {
-      background: var(--solar-amber);
-      color: #0f172a;
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
     }
-
     .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+    }
+    .btn-outline {
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      background: var(--bg-card);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+    .btn-amber {
+      background: var(--solar-amber);
+      color: #0F172A;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+    }
+    .btn-amber:hover {
       background: var(--solar-amber-hover);
       transform: translateY(-1px);
     }
 
-    .btn-green {
-      background: var(--eco-green);
-      color: #ffffff;
+    /* Fixed Top Navigation Bar */
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background: var(--nav-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--nav-border);
+      transition: all var(--transition-normal);
     }
-
-    .btn-green:hover {
-      background: var(--eco-green-hover);
-      transform: translateY(-1px);
-    }
-
-    .btn-outline {
-      background: rgba(255, 255, 255, 0.05);
-      color: #ffffff;
-      border: 1px solid var(--border-color);
-    }
-
-    .btn-outline:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Container */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
-    /* Hero Section */
-    .hero {
-      position: relative;
-      padding: 80px 0 60px 0;
-      background: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
-                  radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 48px;
-      align-items: center;
-    }
-
-    .hero-badge-row {
+    .nav-inner {
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
     }
-
-    .hero-title {
-      font-size: 44px;
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       font-weight: 900;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      margin-bottom: 18px;
-    }
-
-    .hero-title span.highlight-amber {
-      color: var(--solar-amber);
-    }
-
-    .hero-title span.highlight-green {
-      color: var(--eco-green);
-    }
-
-    .hero-subtitle {
-      font-size: 17px;
-      color: #94a3b8;
-      line-height: 1.6;
-      margin-bottom: 28px;
-    }
-
-    .hero-cta-group {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-bottom: 32px;
-    }
-
-    .hero-metrics {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      padding-top: 24px;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .hero-metric-val {
-      font-size: 26px;
-      font-weight: 800;
-      color: #ffffff;
-      font-family: monospace;
-    }
-
-    .hero-metric-lbl {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* Hero Preview Card */
-    .hero-card {
-      background: var(--navy-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 28px;
-      box-shadow: var(--shadow);
-      position: relative;
-    }
-
-    .hero-card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      background: var(--eco-green);
-      border-radius: 50%;
-      margin-right: 6px;
-    }
-
-    /* Section Headers */
-    .section {
-      padding: 70px 0;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .section-header {
-      text-align: center;
-      max-width: 680px;
-      margin: 0 auto 48px auto;
-    }
-
-    .section-eyebrow {
-      font-size: 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--solar-amber);
-      margin-bottom: 8px;
-    }
-
-    .section-title {
-      font-size: 32px;
-      font-weight: 800;
+      font-size: 19px;
+      font-family: var(--font-heading);
       letter-spacing: -0.02em;
-      margin-bottom: 12px;
     }
-
-    .section-desc {
-      font-size: 15px;
-      color: var(--text-muted);
-    }
-
-    /* Service Cards Grid */
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-
-    .service-card {
-      background: var(--navy-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 28px;
-      transition: all 0.25s ease;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .service-card:hover {
-      border-color: rgba(245, 158, 11, 0.4);
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
-    }
-
-    .service-icon-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .icon-amber {
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      color: var(--solar-amber);
-    }
-
-    .icon-green {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: var(--eco-green);
-    }
-
-    .icon-blue {
-      background: rgba(2, 132, 199, 0.15);
-      border: 1px solid rgba(2, 132, 199, 0.3);
-      color: var(--sky-blue);
-    }
-
-    .service-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-
-    .service-text {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 20px;
-      flex: 1;
-    }
-
-    .service-list {
-      list-style: none;
-      font-size: 13px;
-      color: #cbd5e1;
-      margin-bottom: 20px;
-    }
-
-    .service-list li {
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .service-list li::before {
-      content: "✓";
-      color: var(--eco-green);
-      font-weight: 800;
-    }
-
-    /* Live Calculator Section */
-    .calc-card {
-      background: var(--navy-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 36px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 40px;
-      align-items: center;
-    }
-
-    .calc-input-group {
-      margin-bottom: 20px;
-    }
-
-    .calc-label {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      display: block;
-      color: #e2e8f0;
-    }
-
-    .calc-select, .calc-input {
-      width: 100%;
-      background: #0f172a;
-      border: 1px solid var(--border-color);
+    .nav-brand-logo {
+      width: 40px;
+      height: 40px;
       border-radius: 8px;
-      padding: 12px 14px;
-      color: #ffffff;
-      font-size: 15px;
-      font-family: inherit;
-      outline: none;
-    }
-
-    .calc-select:focus, .calc-input:focus {
-      border-color: var(--solar-amber);
-    }
-
-    .calc-result-box {
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 28px;
-      border-left: 4px solid var(--solar-amber);
-    }
-
-    .result-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 14px;
-    }
-
-    .result-row:last-child {
-      border-bottom: none;
-    }
-
-    .result-val {
-      font-weight: 800;
-      font-size: 18px;
-      color: #ffffff;
-      font-family: monospace;
-    }
-
-    /* Verification & Settlement Block */
-    .verify-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 32px;
-      background: var(--navy-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius);
-      padding: 32px;
-    }
-
-    .bank-card {
-      background: #0f172a;
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 20px;
-      margin-top: 16px;
-    }
-
-    .bank-field {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 13px;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
-    }
-
-    .bank-field:last-child {
-      border-bottom: none;
-    }
-
-    .qr-box {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .qr-img {
-      width: 170px;
-      height: 170px;
       object-fit: contain;
     }
-
-    /* Footer */
-    .footer {
-      background: #080d1a;
-      border-top: 1px solid var(--border-color);
-      padding: 48px 0 24px 0;
-      font-size: 13px;
+    .nav-brand-tagline {
+      font-size: 11px;
+      font-weight: 600;
       color: var(--text-muted);
+      letter-spacing: 0.02em;
     }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1.5fr;
-      gap: 32px;
-      margin-bottom: 36px;
-    }
-
-    .footer-col-title {
-      color: #ffffff;
-      font-size: 15px;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .footer-links {
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
       list-style: none;
     }
-
-    .footer-links li {
-      margin-bottom: 8px;
+    .nav-link {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 6px 4px;
+      position: relative;
+      transition: color var(--transition-fast);
     }
-
-    .footer-links a:hover {
-      color: var(--solar-amber);
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
     }
-
-    .footer-bottom {
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      padding-top: 20px;
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+    .nav-actions {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
       gap: 12px;
     }
 
-    /* Universal Responsive Display Engine (Mobile 320px -> 4K 3840px) */
-    @media (max-width: 1024px) {
-      .hero-grid {
-        grid-template-columns: 1fr;
-        gap: 36px;
-      }
-      .services-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    /* Theme Toggle Button */
+    .theme-toggle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 18px;
+      transition: all var(--transition-fast);
+    }
+    .theme-toggle-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
-    @media (max-width: 900px) {
-      .calc-card, .verify-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
-      }
-      .hero-title {
-        font-size: 34px;
-      }
+    /* Hamburger Button */
+    .hamburger-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--text-main);
+    }
+    @media (max-width: 1040px) {
       .nav-links {
         display: none;
       }
-    }
-
-    @media (max-width: 768px) {
-      .services-grid {
-        grid-template-columns: 1fr;
-      }
-      .hero {
-        padding: 50px 0 36px 0;
-      }
-      .section {
-        padding: 48px 0;
-      }
-      .section-title {
-        font-size: 26px;
-      }
-      .top-bar {
-        padding: 6px 14px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-        font-size: 11px;
-      }
-      .top-bar-left, .top-bar-right {
+      .hamburger-btn {
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      .container {
-        padding: 0 16px;
-      }
-      .hero-metrics {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-      }
-      .hero-metric-val {
-        font-size: 20px;
-      }
-      .hero-metric-lbl {
-        font-size: 11px;
-      }
-      .footer-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
       }
     }
 
+    /* Mobile Drawer */
+    .mobile-drawer {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .mobile-drawer.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .mobile-drawer-content {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 82%;
+      max-width: 380px;
+      background: var(--bg-surface);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+    }
+    .mobile-drawer.open .mobile-drawer-content {
+      transform: translateX(0);
+    }
+
+    /* Interactive Particle Canvas Hero */
+    .hero-wrapper {
+      position: relative;
+      padding-top: 140px;
+      padding-bottom: 90px;
+      overflow: hidden;
+      background: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 60%),
+                  radial-gradient(circle at 10% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+      border-bottom: 1px solid var(--border-color);
+    }
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: auto;
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Statistics Counter Section */
+    .stats-strip {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      padding: 48px 0;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+    }
+    @media (max-width: 900px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
     @media (max-width: 480px) {
-      .container {
-        padding: 0 12px;
-      }
-      .navbar {
-        padding: 10px 12px;
-      }
-      .nav-brand-title {
-        font-size: 14px;
-      }
-      .nav-brand-sub {
-        display: none;
-      }
-      .nav-actions .btn {
-        padding: 6px 10px;
-        font-size: 11px;
-        gap: 4px;
-      }
-      .hero-title {
-        font-size: clamp(24px, 7.5vw, 28px);
-      }
-      .hero-subtitle {
-        font-size: 14px;
-      }
-      .hero-cta-group {
-        flex-direction: column;
-        width: 100%;
-      }
-      .hero-cta-group .btn {
-        width: 100%;
-        text-align: center;
-      }
-      .hero-metrics {
+      .stats-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
       }
-      .hero-card, .calc-card, .verify-grid, .service-card {
-        padding: 18px 14px;
+    }
+    .stat-card {
+      text-align: center;
+      padding: 16px;
+    }
+    .stat-number {
+      font-size: 42px;
+      font-weight: 900;
+      font-family: var(--font-heading);
+      color: var(--primary);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Accordion FAQ */
+    .accordion-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color var(--transition-fast);
+    }
+    .accordion-item:hover {
+      border-color: var(--primary);
+    }
+    .accordion-header {
+      width: 100%;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .accordion-content {
+      padding: 0 24px 20px 24px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    /* Testimonials Carousel */
+    .carousel-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 48px;
+      box-shadow: var(--card-shadow);
+    }
+    @media (max-width: 768px) {
+      .carousel-container {
+        padding: 28px 20px;
       }
-      .calc-result-box {
-        padding: 18px 14px;
-      }
-      .result-val {
-        font-size: 15px;
-      }
-      .bank-card {
-        padding: 12px 10px;
-      }
-      .bank-field {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
+    }
+
+    /* Lightbox Modal */
+    .lightbox-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      backdrop-filter: blur(6px);
+    }
+    .lightbox-modal {
+      max-width: 900px;
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Back to Top & Sticky CTA */
+    .back-to-top {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: all var(--transition-fast);
+    }
+    .back-to-top.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    .sticky-cta-btn {
+      position: fixed;
+      bottom: 28px;
+      left: 28px;
+      z-index: 999;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: var(--radius-full);
+      background: #25D366;
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 6px 18px rgba(37, 211, 102, 0.4);
+      transition: transform var(--transition-fast);
+    }
+    .sticky-cta-btn:hover {
+      transform: scale(1.04);
+    }
+    @media (max-width: 640px) {
+      .sticky-cta-btn {
+        bottom: 20px;
+        left: 16px;
+        padding: 10px 16px;
         font-size: 12px;
       }
-      .qr-img {
-        width: 140px;
-        height: 140px;
+      .back-to-top {
+        bottom: 20px;
+        right: 16px;
+        width: 40px;
+        height: 40px;
       }
-      .footer-bottom {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
+    }
+
+    /* Fat Footer */
+    .fat-footer {
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-color);
+      padding: 80px 0 32px 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.8fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+    @media (max-width: 992px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
       }
+    }
+    @media (max-width: 640px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Form Controls */
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-focus);
+    }
+    .form-error {
+      color: #EF4444;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* Fade-in Animation utility */
+    .fade-in-section {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .fade-in-section.is-visible {
+      opacity: 1;
+      transform: translateY(0);
     }
   </style>
 </head>
 <body>
 
-  <!-- Top Announcement Bar -->
-  <div class="top-bar">
-    <div class="top-bar-left">
-      <span>📍 Maligaon, Guwahati, Assam 781011</span>
-      <span>📞 +91 99544 93909</span>
-      <span>✉️ maxecoenergyit@gmail.com</span>
+  <!-- Preloader Screen -->
+  <div id="site-preloader">
+    <div class="preloader-spinner"></div>
+    <div style="margin-top: 18px; font-weight: 800; font-family: 'Outfit', sans-serif; letter-spacing: -0.01em; color: var(--primary);">
+      MaxEco Energy &amp; Tech
     </div>
-    <div class="top-bar-right">
-      <span class="badge-amber">ESTD 2024</span>
-      <span class="badge-green">APDCL & CEIG Verified</span>
+    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+      Guwahati, Assam • Initializing Clean Energy OS...
     </div>
   </div>
 
-  <!-- Navigation Bar -->
-  <nav class="navbar">
-    <a href="index.html" class="nav-brand">
-      <img src="../assets/logo-emblem.png" alt="MaxEco Logo Emblem" class="logo-emblem" onerror="this.style.display='none'">
-      <div>
-        <div class="nav-brand-title">MaxEco Energy &amp; Tech</div>
-        <div class="nav-brand-sub">Clean Energy &amp; IT Operating System</div>
-      </div>
-    </a>
+  <!-- Custom Cursor Elements -->
+  <div class="custom-cursor-dot" id="cursor-dot"></div>
+  <div class="custom-cursor-ring" id="cursor-ring"></div>
 
-    <div class="nav-links">
-      <a href="#solar">Solar Rooftop EPC</a>
-      <a href="#it-infra">IT Infra &amp; Support</a>
-      <a href="#calculator">Solar Calculator</a>
-      <a href="#settlement">Bank &amp; Verification</a>
-      <a href="#contact">Contact</a>
-    </div>
+  <!-- React Root Container -->
+  <div id="root"></div>
 
-    <div class="nav-actions">
-      <a href="tel:+919954493909" class="btn btn-outline">📞 Call Now</a>
-      <a href="../index.html" class="btn btn-primary" title="Open Founder ERP Business OS">🚀 Launch ERP OS</a>
-    </div>
-  </nav>
+  <!-- React 18 Application Script -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo } = React;
 
-  <!-- Hero Section -->
-  <header class="hero">
-    <div class="container hero-grid">
-      <div>
-        <div class="hero-badge-row">
-          <span class="badge-amber">☀️ Guwahati &amp; Northeast India</span>
-          <span class="badge-green">🛡️ Zero-Overhead Direct Execution</span>
-        </div>
-        <h1 class="hero-title">
-          Engineering <span class="highlight-amber">Clean Solar Power</span> &amp; <span class="highlight-green">Enterprise IT Solutions</span>
-        </h1>
-        <p class="hero-subtitle">
-          MaxEco Energy &amp; Tech provides high-yield commercial &amp; residential solar rooftop EPC advisory, APDCL net-metering clearances, CEIG approvals, and end-to-end IT infrastructure sales &amp; support across Assam.
-        </p>
+    // =========================================================================
+    // 1. DATA REPOSITORIES & ASSETS
+    // =========================================================================
 
-        <div class="hero-cta-group">
-          <a href="#calculator" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">⚡ Estimate Solar Savings</a>
-          <a href="https://wa.me/919954493909?text=Hello%20MaxEco,%20I%20would%20like%20a%20solar%20consultation" target="_blank" class="btn btn-green" style="padding: 12px 24px; font-size: 14px;">💬 WhatsApp Advisory</a>
-          <a href="../index.html" class="btn btn-outline" style="padding: 12px 24px; font-size: 14px;">🔒 Access ERP Portal</a>
-        </div>
+    const COMPANY_PROFILE = {
+      name: "MaxEco Energy & Tech",
+      legalName: "MaxEco Energy & Tech",
+      tagline: "Practical Clean Energy Advisory & Digital Growth for Northeast India",
+      subtagline: "Helping commercial enterprises, institutions, and growing businesses across Guwahati and Assam reduce power costs with rooftop solar and expand their digital reach with modern web solutions.",
+      aboutTitle: "Founder-Led Integrity & Regional Commitment",
+      aboutSubtitle: "🌱 MaxEco Renewal Energy • ESTD 2024 • Guwahati, Assam",
+      aboutBody: "MaxEco Energy & Tech is an independent advisory and digital solutions firm based in Guwahati, Assam. We are built on a practical, founder-led model: combining hands-on technical analysis with trusted local delivery partners to solve energy and technology challenges for growing Northeast India businesses.\n\nIn solar energy, we do not push generic equipment sales. We advise clients on real economic feasibility, APDCL net-metering viability, and quality-assured EPC delivery. In technology, we build lean, fast, reliable digital assets that generate real commercial enquiries for local entrepreneurs without expensive recurring subscriptions.",
+      signatory: "Tamal Roy",
+      signatoryRole: "Authorised Signatory & Principal Advisor",
+      phone: "+91 99544 93909",
+      email: "maxecoenergyit@gmail.com",
+      address: "Maligaon, Guwahati, Kamrup Metro, Assam - 781011",
+      workingHours: "Monday – Saturday: 9:00 AM – 7:00 PM IST",
+      banking: {
+        bankName: "Punjab National Bank",
+        accountName: "Tamal Roy",
+        accountNo: "4589000100072219",
+        ifsc: "PUNB0458900",
+        branch: "Maligaon, Guwahati, Assam",
+        accountType: "Saving Account",
+        upiVpa: "9954493909@upi"
+      }
+    };
 
-        <div class="hero-metrics">
-          <div>
-            <div class="hero-metric-val">35 kWp+</div>
-            <div class="hero-metric-lbl">Active EPC Execution</div>
-          </div>
-          <div>
-            <div class="hero-metric-val">100%</div>
-            <div class="hero-metric-lbl">APDCL &amp; CEIG Compliance</div>
-          </div>
-          <div>
-            <div class="hero-metric-val">4.8 Yrs</div>
-            <div class="hero-metric-lbl">Typical Payback Period</div>
-          </div>
-        </div>
-      </div>
+    // 8 Core Multi-Page Routes
+    const NAV_PAGES = [
+      { id: "home", label: "Home" },
+      { id: "about", label: "About Us" },
+      { id: "solar", label: "Solar Rooftop EPC" },
+      { id: "tech", label: "IT & Web Solutions" },
+      { id: "projects", label: "Projects & Portfolio" },
+      { id: "pricing", label: "Pricing & Plans" },
+      { id: "calculator", label: "Solar ROI Calculator" },
+      { id: "faq", label: "Knowledge FAQ" },
+      { id: "contact", label: "Contact & Banking" }
+    ];
 
-      <!-- Hero Interactive Card -->
-      <div class="hero-card">
-        <div class="hero-card-header">
-          <div>
-            <span class="status-dot"></span>
-            <strong style="font-size: 14px;">Operations Hub Status</strong>
-          </div>
-          <span class="badge-amber">Guwahati Active</span>
-        </div>
+    const SERVICES = [
+      {
+        id: "solar-epc",
+        title: "Commercial & Institutional Solar EPC",
+        badge: "Clean Power",
+        icon: "☀️",
+        sac: "SAC 995461",
+        description: "Turnkey rooftop solar solutions for warehouses, tea factories, schools, and healthcare facilities across Kamrup Metro and Assam.",
+        features: [
+          "European PVGIS precision solar yield calculations",
+          "Tier-1 Mono PERC & TopCon high-efficiency modules",
+          "Certified grid-tied string inverters (Growatt, Solis, Sungrow)",
+          "Dedicated lightning protection & chemical earthing (CEIG compliant)"
+        ]
+      },
+      {
+        id: "apdcl-netmeter",
+        title: "APDCL Net-Metering & CEIG Clearances",
+        badge: "Regulatory Advisory",
+        icon: "⚡",
+        sac: "SAC 995461",
+        description: "Comprehensive liaisoning with Assam Power Distribution Company Limited and Chief Electrical Inspector to Government.",
+        features: [
+          "Distribution transformer loading feasibility clearance",
+          "Official bi-directional net-meter indent requisition",
+          "CEIG electrical drawing filing and on-site testing protocol",
+          "Joint synchronization and meter testing commissioning"
+        ]
+      },
+      {
+        id: "it-infra",
+        title: "Enterprise IT Infra Sales & Setup",
+        badge: "Enterprise Tech",
+        icon: "🖥️",
+        sac: "SAC 998713",
+        description: "Procurement, deployment, and ongoing hardware SLA support for corporate workstations, server racks, and structured networks.",
+        features: [
+          "Cat6 / Cat6A & 10G optical fiber structured cabling",
+          "Commercial workstation fleets & 42U rack deployments",
+          "L2/L3 managed switches, PoE access points & firewalls",
+          "Local on-site troubleshooting SLAs across Guwahati"
+        ]
+      },
+      {
+        id: "web-dev",
+        title: "Custom Web Solutions & Business Systems",
+        badge: "Digital Growth",
+        icon: "🚀",
+        sac: "SAC 998313",
+        description: "High-performance websites and internal ERP operating systems built without recurring SaaS subscription lock-ins.",
+        features: [
+          "Production-grade React & ultra-fast static web architecture",
+          "Built-in WhatsApp conversion triggers & localized SEO",
+          "Integrated GST billing, invoicing & quote generators",
+          "Zero recurring monthly software licensing fees"
+        ]
+      }
+    ];
 
-        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px;">
-          Direct founder-led advisory eliminating middleman commissions and delivering verifiable engineering data.
-        </div>
+    const PORTFOLIO_PROJECTS = [
+      {
+        id: 1,
+        title: "25 kWp Commercial Rooftop EPC",
+        client: "Automotive Logistics Warehouse",
+        location: "Amingaon Industrial Area, Guwahati",
+        category: "solar",
+        savings: "₹2,64,000 / Year",
+        image: "https://picsum.photos/seed/solarfactory/800/600",
+        summary: "Turnkey 25 kWp grid-tied solar array utilizing Tier-1 550Wp bifacial panels with complete CEIG earthing certification."
+      },
+      {
+        id: 2,
+        title: "15 kWp Hospital Solar & APDCL Net Meter",
+        client: "Super-Specialty Diagnostic Center",
+        location: "Dispur, Guwahati",
+        category: "solar",
+        savings: "₹1,58,000 / Year",
+        image: "https://picsum.photos/seed/solarmedical/800/600",
+        summary: "APDCL bi-directional net-metering synchronization with zero-export protection and rooftop space optimization."
+      },
+      {
+        id: 3,
+        title: "48-Node Structured IT Network & Server Rack",
+        client: "Regional Educational Institution",
+        location: "Maligaon, Guwahati",
+        category: "tech",
+        savings: "99.9% Network Uptime",
+        image: "https://picsum.photos/seed/serverrack/800/600",
+        summary: "Cat6 gigabit structured cabling, 24-port Gigabit PoE switches, enterprise firewall, and secure optical fiber uplink."
+      },
+      {
+        id: 4,
+        title: "8 kWp Premium Residential Villa Solar",
+        client: "Residential Estate",
+        location: "Beltola, Guwahati",
+        category: "solar",
+        savings: "₹84,000 / Year",
+        image: "https://picsum.photos/seed/solarvilla/800/600",
+        summary: "Shadow-free elevated galvanized iron structure, TopCon solar modules, and cloud Wi-Fi generation telemetry."
+      },
+      {
+        id: 5,
+        title: "Commercial Founder ERP & Web Operating System",
+        client: "MaxEco Energy & Tech Proprietary OS",
+        location: "Guwahati, Assam",
+        category: "tech",
+        savings: "Zero SaaS Fees",
+        image: "https://picsum.photos/seed/erptech/800/600",
+        summary: "Autonomous offline-first ERP featuring PVGIS solar yield calculators, GST invoicing engine, and real-time cash reserve tracking."
+      },
+      {
+        id: 6,
+        title: "CEIG High-Voltage Compliance Audit & Safety Test",
+        client: "Cold Storage Facility",
+        location: "Kamrup Rural, Assam",
+        category: "regulatory",
+        savings: "100% Regulatory Sign-off",
+        image: "https://picsum.photos/seed/electricalpanel/800/600",
+        summary: "Electrical Inspectorate schematic verification, earth resistance pit testing, and lightning arrester commissioning."
+      }
+    ];
 
-        <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border-color);">
-          <div style="font-size: 11px; text-transform: uppercase; color: var(--solar-amber); font-weight: 700; margin-bottom: 4px;">Service Scope</div>
-          <div style="font-size: 14px; font-weight: 700;">On-Grid Solar EPC Advisory &amp; Net-Metering</div>
-          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">SAC 995461 • Guwahati, Kamrup Metro, Assam</div>
-        </div>
+    const TESTIMONIALS = [
+      {
+        quote: "MaxEco's rooftop solar audit for our cold storage facility in Kamrup saved us over ₹2.4 Lakhs in annual APDCL utility charges. The APDCL net-metering liaisoning was 100% transparent and executed without delays.",
+        author: "B. K. Kalita",
+        role: "Managing Director",
+        org: "Assam Agri-Cold Chain Logistics"
+      },
+      {
+        quote: "Unlike agencies that push monthly recurring web tools, Tamal Roy built our corporate operating system and IT infrastructure with direct ownership. It is lightning fast, reliable, and has significantly streamlined our local enquiries.",
+        author: "Pranab Sarma",
+        role: "Operations Head",
+        org: "Brahmaputra Engineering Works"
+      },
+      {
+        quote: "The PVGIS solar generation estimates provided before our 15 kWp installation were remarkably accurate. They accounted for Guwahati's monsoon months honestly rather than overpromising unachievable numbers.",
+        author: "Dr. Ananya Baruah",
+        role: "Director",
+        org: "Northeast Health Horizons Clinic"
+      }
+    ];
 
-        <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--border-color);">
-          <div style="font-size: 11px; text-transform: uppercase; color: var(--eco-green); font-weight: 700; margin-bottom: 4px;">IT Infrastructure Scope</div>
-          <div style="font-size: 14px; font-weight: 700;">IT Infra Sales, Workstations &amp; Structured Cabling</div>
-          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">SAC 998713 • Commercial Hardware &amp; SLA Support</div>
-        </div>
+    const PRICING_PLANS = [
+      {
+        name: "Solar Feasibility & APDCL Audit",
+        tagline: "Essential engineering review before investing",
+        price: "₹4,999",
+        duration: "One-Time Audit Fee",
+        badge: "Fast Track",
+        isPopular: false,
+        features: [
+          "On-site rooftop shadow & structural load analysis",
+          "Guwahati PVGIS 12-month generation yield modeling",
+          "APDCL distribution transformer load clearance verification",
+          "Detailed financial ROI, IRR & payback horizon report",
+          "BOQ & equipment specification recommendation"
+        ],
+        cta: "Book Solar Audit"
+      },
+      {
+        name: "Turnkey Commercial Solar EPC Advisory",
+        tagline: "Full procurement, installation oversight & liaisoning",
+        price: "Custom Quote",
+        duration: "Milestone-Based Execution",
+        badge: "Most Popular",
+        isPopular: true,
+        features: [
+          "Complete architectural solar engineering drawing",
+          "Tier-1 Mono PERC module procurement at factory prices",
+          "Certified string inverter installation & chemical earthing",
+          "Complete APDCL net-metering & CEIG statutory clearance",
+          "25-Year module performance warranty & 5-year inverter warranty",
+          "First-year scheduled maintenance & generation monitoring"
+        ],
+        cta: "Request Commercial Proposal"
+      },
+      {
+        name: "Enterprise IT & Web Business Suite",
+        tagline: "Fast digital growth without recurring subscriptions",
+        price: "₹24,999",
+        duration: "One-Time Development",
+        badge: "Digital Growth",
+        isPopular: false,
+        features: [
+          "Custom responsive corporate web application (Zero CMS bloat)",
+          "Integrated WhatsApp lead capture & Google Maps SEO setup",
+          "Internal GST-compliant invoice, quote & receipt generator",
+          "Corporate domain, high-speed CDN & SSL configuration",
+          "Cat6 / Wi-Fi network architecture blueprint for office",
+          "Complete source code ownership with zero monthly lock-ins"
+        ],
+        cta: "Launch Digital Suite"
+      }
+    ];
 
-        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border-color);">
-          <div style="font-size: 12px; color: var(--text-muted);">
-            Signatory: <strong style="color: #fff;">Tamal Roy</strong> (Authorised Signatory)
-          </div>
-          <img src="../assets/signature.png" alt="Authorised Signature" style="height: 32px; max-width: 100px; object-fit: contain; background: #fff; padding: 2px 6px; border-radius: 4px;" onerror="this.style.display='none'">
-        </div>
-      </div>
-    </div>
-  </header>
+    const FAQS = [
+      {
+        q: "How does APDCL Net-Metering work for commercial buildings in Assam?",
+        a: "Under the Assam Electricity Regulatory Commission (AERC) regulations, consumers with sanctioned solar capacity export excess midday electricity to the APDCL grid through a bi-directional net-meter. The exported units are adjusted against your monthly consumption bill. MaxEco handles the complete paperwork, transformer loading study, and meter requisition."
+      },
+      {
+        q: "What is the expected solar generation yield in Guwahati?",
+        a: "Based on European PVGIS solar irradiance data, Guwahati receives approximately 1,280 to 1,320 kWh per kWp per year. Even accounting for cloudy monsoon months, a standard 10 kWp solar array yields roughly 1,100 units per month, delivering significant monthly power bill reductions."
+      },
+      {
+        q: "When is CEIG (Chief Electrical Inspector to Government) clearance mandatory?",
+        a: "In Assam, solar installations with inverters above specific capacity thresholds or HT connections require CEIG electrical safety approval. This ensures proper lightning protection, earth pit resistance (< 5 ohms), and fail-safe anti-islanding mechanisms for lineman safety."
+      },
+      {
+        q: "Why do you recommend custom web platforms over WordPress or Shopify?",
+        a: "Traditional CMS platforms often require costly monthly recurring subscriptions, heavy plugins that slow down page loads, and continuous security patching. We engineer lightweight, fast, modern web architectures with zero recurring software fees, giving Northeast entrepreneurs total ownership of their digital assets."
+      },
+      {
+        q: "How can I verify official payments made to MaxEco Energy & Tech?",
+        a: "All project milestones, procurement requisitions, and service retainers are backed by computer-generated GST invoices with unique invoice numbers, SAC tax codes, and direct bank transfer details to our verified Punjab National Bank account or official UPI VPA (9954493909@upi)."
+      }
+    ];
 
-  <!-- Core Services Section -->
-  <section class="section" id="solar">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-eyebrow">Enterprise Solutions</div>
-        <h2 class="section-title">Clean Energy &amp; Technology Services</h2>
-        <p class="section-desc">
-          Professional engineering services tailored to Assam's specific solar irradiance profile, APDCL regulations, and business technology needs.
-        </p>
-      </div>
+    // =========================================================================
+    // 2. ROOT APPLICATION COMPONENT
+    // =========================================================================
 
-      <div class="services-grid">
-        <!-- Service 1: Solar EPC -->
-        <div class="service-card">
-          <div class="service-icon-box icon-amber">☀️</div>
-          <h3 class="service-title">Commercial &amp; Residential Solar EPC</h3>
-          <p class="service-text">
-            Turnkey solar rooftop advisory, shadow analysis, engineering design, and certified procurement for warehouses, schools, hospitals, and residences.
-          </p>
-          <ul class="service-list">
-            <li>European PVGIS irradiance modeling</li>
-            <li>Tier-1 Mono PERC high-efficiency panels</li>
-            <li>Certified On-Grid String inverters</li>
-            <li>Earthing &amp; Lightning arrester CEIG safety</li>
-          </ul>
-          <a href="../index.html#quotes" class="btn btn-outline" style="width: 100%;">Create Solar Proposal</a>
-        </div>
+    function App() {
+      // Theme State (Default Light as requested)
+      const [theme, setTheme] = useState(() => localStorage.getItem("maxeco_theme") || "light");
+      
+      // Active Page State (SPA Hash Multi-Page Router)
+      const [activePage, setActivePage] = useState(() => {
+        const hash = window.location.hash.replace("#", "");
+        return NAV_PAGES.some(p => p.id === hash) ? hash : "home";
+      });
+      
+      // Mobile Navigation Drawer
+      const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+      
+      // Lightbox Modal
+      const [lightboxImage, setLightboxImage] = useState(null);
+      
+      // Back to Top Visibility
+      const [showBackToTop, setShowBackToTop] = useState(false);
+      
+      // Portfolio Filter
+      const [portfolioFilter, setPortfolioFilter] = useState("all");
 
-        <!-- Service 2: APDCL Approvals -->
-        <div class="service-card">
-          <div class="service-icon-box icon-green">⚡</div>
-          <h3 class="service-title">APDCL Net-Metering &amp; CEIG Clearance</h3>
-          <p class="service-text">
-            End-to-end regulatory coordination with Assam Power Distribution Company Ltd (APDCL) and Chief Electrical Inspector to Government (CEIG).
-          </p>
-          <ul class="service-list">
-            <li>Subdivision feasibility documentation</li>
-            <li>Bi-directional net-meter requisition</li>
-            <li>CEIG drawing submission &amp; safety inspection</li>
-            <li>Grid synchronization sign-off</li>
-          </ul>
-          <a href="../index.html#operations" class="btn btn-outline" style="width: 100%;">Track Work Orders</a>
-        </div>
+      // Apply theme to HTML tag
+      useEffect(() => {
+        document.documentElement.setAttribute("data-theme", theme);
+        localStorage.setItem("maxeco_theme", theme);
+      }, [theme]);
 
-        <!-- Service 3: IT Infra Sales & Support -->
-        <div class="service-card" id="it-infra">
-          <div class="service-icon-box icon-blue">🖥️</div>
-          <h3 class="service-title">IT Infra Sales &amp; Support</h3>
-          <p class="service-text">
-            Dedicated enterprise IT hardware sales, networking architecture, workstation deployment, and dependable SLA support for businesses across Northeast India.
-          </p>
-          <ul class="service-list">
-            <li>Commercial workstations, servers &amp; storage</li>
-            <li>Cat6 / Optical fiber structured cabling</li>
-            <li>Rack deployment &amp; managed switches</li>
-            <li>SLA maintenance &amp; on-site troubleshooting</li>
-          </ul>
-          <a href="../index.html#invoices" class="btn btn-outline" style="width: 100%;">View IT Quotations</a>
-        </div>
-      </div>
-    </div>
-  </section>
+      // URL Hash Sync for Browser Back/Forward buttons
+      useEffect(() => {
+        const handleHashChange = () => {
+          const hash = window.location.hash.replace("#", "");
+          if (NAV_PAGES.some(p => p.id === hash)) {
+            setActivePage(hash);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        };
+        window.addEventListener("hashchange", handleHashChange);
+        return () => window.removeEventListener("hashchange", handleHashChange);
+      }, []);
 
-  <!-- Interactive Solar Quick Calculator Preview -->
-  <section class="section" id="calculator" style="background: #080d1a;">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-eyebrow">Instant ROI Estimation</div>
-        <h2 class="section-title">Solar Savings &amp; Capacity Calculator</h2>
-        <p class="section-desc">
-          Estimate required rooftop solar capacity, monthly power generation, and payback duration based on Guwahati solar irradiation rates.
-        </p>
-      </div>
+      // Scroll Listener for Back to Top Button
+      useEffect(() => {
+        const handleScroll = () => {
+          setShowBackToTop(window.scrollY > 350);
+        };
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+      }, []);
 
-      <div class="calc-card">
-        <div>
-          <div class="calc-input-group">
-            <label class="calc-label" for="calc-bill">Average Monthly Electricity Bill (₹)</label>
-            <select id="calc-bill" class="calc-select" onchange="runCalculator()">
-              <option value="3000">₹3,000 / month (Residential Small)</option>
-              <option value="6000" selected>₹6,000 / month (Residential Medium / Small Commercial)</option>
-              <option value="15000">₹15,000 / month (Commercial Office / Clinic)</option>
-              <option value="35000">₹35,000 / month (Industrial / Cold Storage / School)</option>
-              <option value="75000">₹75,000 / month (Commercial Warehouse / Factory)</option>
-            </select>
-          </div>
+      // Hide Preloader on Mount
+      useEffect(() => {
+        const timer = setTimeout(() => {
+          const preloader = document.getElementById("site-preloader");
+          if (preloader) preloader.classList.add("fade-out");
+        }, 300);
+        return () => clearTimeout(timer);
+      }, []);
 
-          <div class="calc-input-group">
-            <label class="calc-label" for="calc-roof">Approximate Rooftop Shadow-Free Area (Sq. Ft)</label>
-            <input type="number" id="calc-roof" class="calc-input" value="650" placeholder="e.g. 500" oninput="runCalculator()">
-          </div>
+      // Custom Interactive Cursor Logic
+      useEffect(() => {
+        const dot = document.getElementById("cursor-dot");
+        const ring = document.getElementById("cursor-ring");
+        if (!dot || !ring) return;
 
-          <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 14px;">
-            ℹ️ Calculation basis: Guwahati, Assam solar yield factor ~1,300 kWh/kWp/year, APDCL commercial tariff slab benchmark.
-          </div>
-        </div>
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let ringX = mouseX;
+        let ringY = mouseY;
 
-        <div class="calc-result-box">
-          <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--solar-amber); margin-bottom: 12px;">Estimated Solar Feasibility</div>
-          <div class="result-row">
-            <span>Recommended Plant Size:</span>
-            <span class="result-val" id="res-kw">5.0 kWp</span>
-          </div>
-          <div class="result-row">
-            <span>Monthly Solar Generation:</span>
-            <span class="result-val" id="res-gen">550 Units (kWh)</span>
-          </div>
-          <div class="result-row">
-            <span>Estimated Annual Bill Savings:</span>
-            <span class="result-val" style="color: var(--eco-green);" id="res-savings">₹52,800</span>
-          </div>
-          <div class="result-row">
-            <span>Estimated Payback Horizon:</span>
-            <span class="result-val" id="res-payback">4.6 Years</span>
-          </div>
+        const onMouseMove = (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          dot.style.left = `${mouseX}px`;
+          dot.style.top = `${mouseY}px`;
+        };
 
-          <div style="margin-top: 20px;">
-            <a href="../index.html" class="btn btn-primary" style="width: 100%;">Open Official Solar Calculator in ERP 🚀</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+        const hoverElements = document.querySelectorAll("a, button, input, select, textarea, .card, .btn");
+        const onMouseEnter = () => document.body.classList.add("cursor-hover");
+        const onMouseLeave = () => document.body.classList.remove("cursor-hover");
 
-  <!-- Official Banking & Settlement Verification -->
-  <section class="section" id="settlement">
-    <div class="container">
-      <div class="section-header">
-        <div class="section-eyebrow">Official Transparency</div>
-        <h2 class="section-title">Verified Banking &amp; Digital Signatures</h2>
-        <p class="section-desc">
-          MaxEco Energy &amp; Tech issues computer-generated invoices with digital verification and direct banking remittance details.
-        </p>
-      </div>
+        hoverElements.forEach(el => {
+          el.addEventListener("mouseenter", onMouseEnter);
+          el.addEventListener("mouseleave", onMouseLeave);
+        });
 
-      <div class="verify-grid">
-        <div>
-          <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Direct Banking Settlement Details</h3>
-          <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 14px;">
-            For official contract milestones, equipment procurement, and IT service retainers:
-          </p>
+        window.addEventListener("mousemove", onMouseMove);
 
-          <div class="bank-card">
-            <div class="bank-field">
-              <span style="color: var(--text-muted);">Beneficiary Name:</span>
-              <strong style="color: #fff;">Tamal Roy</strong>
+        let animationFrameId;
+        const animateRing = () => {
+          ringX += (mouseX - ringX) * 0.18;
+          ringY += (mouseY - ringY) * 0.18;
+          ring.style.left = `${ringX}px`;
+          ring.style.top = `${ringY}px`;
+          animationFrameId = requestAnimationFrame(animateRing);
+        };
+        animateRing();
+
+        return () => {
+          window.removeEventListener("mousemove", onMouseMove);
+          cancelAnimationFrame(animationFrameId);
+          hoverElements.forEach(el => {
+            el.removeEventListener("mouseenter", onMouseEnter);
+            el.removeEventListener("mouseleave", onMouseLeave);
+          });
+        };
+      }, [activePage]);
+
+      const navigateTo = (pageId) => {
+        setActivePage(pageId);
+        window.location.hash = pageId;
+        setIsMobileNavOpen(false);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+
+      const toggleTheme = () => {
+        setTheme(prev => prev === "light" ? "dark" : "light");
+      };
+
+      return (
+        <div className="site-wrapper">
+          {/* Top Announcement Bar */}
+          <div style={{
+            background: theme === "light" ? "#0F172A" : "#080D1A",
+            color: "#94A3B8",
+            fontSize: "12px",
+            padding: "8px 0",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.08)"
+          }}>
+            <div className="container" style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "8px"
+            }}>
+              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "center" }}>
+                <span>📍 Maligaon, Guwahati, Assam 781011</span>
+                <span>📞 <a href="tel:+919954493909" style={{ color: "#F8FAFC" }}>+91 99544 93909</a></span>
+                <span>✉️ <a href="mailto:maxecoenergyit@gmail.com" style={{ color: "#3B82F6" }}>maxecoenergyit@gmail.com</a></span>
+              </div>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <span className="badge-pill badge-amber">ESTD 2024</span>
+                <span className="badge-pill badge-green">APDCL &amp; CEIG Verified</span>
+              </div>
             </div>
-            <div class="bank-field">
-              <span style="color: var(--text-muted);">Bank:</span>
-              <strong style="color: #fff;">Punjab National Bank</strong>
+          </div>
+
+          {/* Fixed Top Navigation Bar */}
+          <header className="site-nav">
+            <div className="container nav-inner">
+              <a href="#home" onClick={(e) => { e.preventDefault(); navigateTo("home"); }} className="nav-brand">
+                <img src="../assets/logo-emblem.png" alt="MaxEco Logo" className="nav-brand-logo" onError={(e) => { e.target.style.display = 'none'; }} />
+                <div>
+                  <div style={{ color: "var(--text-main)", lineHeight: 1.1 }}>{COMPANY_PROFILE.name}</div>
+                  <div className="nav-brand-tagline">Clean Energy &amp; Technology</div>
+                </div>
+              </a>
+
+              <nav>
+                <ul className="nav-links">
+                  {NAV_PAGES.map(page => (
+                    <li key={page.id}>
+                      <a
+                        href={`#${page.id}`}
+                        onClick={(e) => { e.preventDefault(); navigateTo(page.id); }}
+                        className={`nav-link ${activePage === page.id ? "active" : ""}`}
+                      >
+                        {page.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              <div className="nav-actions">
+                <button
+                  onClick={toggleTheme}
+                  className="theme-toggle-btn"
+                  title={`Switch to ${theme === "light" ? "Dark" : "Light"} Mode`}
+                  aria-label="Toggle Theme"
+                >
+                  {theme === "light" ? "🌙" : "☀️"}
+                </button>
+
+                <a href="../index.html" className="btn btn-primary" title="Open Founder ERP System" style={{ padding: "9px 16px", fontSize: "13px" }}>
+                  🚀 Launch ERP
+                </a>
+
+                <button
+                  onClick={() => setIsMobileNavOpen(true)}
+                  className="hamburger-btn"
+                  aria-label="Open Navigation Menu"
+                >
+                  ☰
+                </button>
+              </div>
             </div>
-            <div class="bank-field">
-              <span style="color: var(--text-muted);">Account Number:</span>
-              <strong style="font-family: monospace; color: var(--solar-amber);">4589000100072219</strong>
+          </header>
+
+          {/* Mobile Drawer Menu */}
+          <div className={`mobile-drawer ${isMobileNavOpen ? "open" : ""}`} onClick={() => setIsMobileNavOpen(false)}>
+            <div className="mobile-drawer-content" onClick={(e) => e.stopPropagation()}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "28px" }}>
+                <div style={{ fontWeight: 800, fontSize: "18px", color: "var(--text-main)" }}>MaxEco Menu</div>
+                <button onClick={() => setIsMobileNavOpen(false)} style={{ fontSize: "22px", color: "var(--text-muted)" }}>✕</button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px", flex: 1 }}>
+                {NAV_PAGES.map(page => (
+                  <button
+                    key={page.id}
+                    onClick={() => navigateTo(page.id)}
+                    style={{
+                      textAlign: "left",
+                      padding: "10px 14px",
+                      borderRadius: "8px",
+                      fontSize: "15px",
+                      fontWeight: 600,
+                      background: activePage === page.id ? "var(--primary-light)" : "transparent",
+                      color: activePage === page.id ? "var(--primary)" : "var(--text-main)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center"
+                    }}
+                  >
+                    <span>{page.label}</span>
+                    {activePage === page.id && <span>•</span>}
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid var(--border-color)" }}>
+                <a href="tel:+919954493909" className="btn btn-primary" style={{ width: "100%", marginBottom: "10px" }}>
+                  📞 Call Tamal Roy
+                </a>
+                <a href="../index.html" className="btn btn-outline" style={{ width: "100%" }}>
+                  🚀 Open Founder ERP
+                </a>
+              </div>
             </div>
-            <div class="bank-field">
-              <span style="color: var(--text-muted);">IFSC Code:</span>
-              <strong style="font-family: monospace; color: #fff;">PUNB0458900</strong>
+          </div>
+
+          {/* Main Routed Page Content */}
+          <main style={{ minHeight: "80vh" }}>
+            {activePage === "home" && <HomePage onNavigate={navigateTo} onOpenLightbox={setLightboxImage} />}
+            {activePage === "about" && <AboutPage onNavigate={navigateTo} />}
+            {activePage === "solar" && <SolarPage onNavigate={navigateTo} />}
+            {activePage === "tech" && <TechPage onNavigate={navigateTo} />}
+            {activePage === "projects" && (
+              <ProjectsPage
+                filter={portfolioFilter}
+                setFilter={setPortfolioFilter}
+                onOpenLightbox={setLightboxImage}
+              />
+            )}
+            {activePage === "pricing" && <PricingPage onNavigate={navigateTo} />}
+            {activePage === "calculator" && <CalculatorPage onNavigate={navigateTo} />}
+            {activePage === "faq" && <FaqPage onNavigate={navigateTo} />}
+            {activePage === "contact" && <ContactPage />}
+          </main>
+
+          {/* Image Lightbox Modal */}
+          {lightboxImage && (
+            <div className="lightbox-overlay" onClick={() => setLightboxImage(null)}>
+              <div className="lightbox-modal" onClick={(e) => e.stopPropagation()}>
+                <img src={lightboxImage.src} alt={lightboxImage.title} style={{ width: "100%", maxHeight: "70vh", objectFit: "cover" }} />
+                <div style={{ padding: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--text-main)" }}>{lightboxImage.title}</h3>
+                    <p style={{ fontSize: "13px", color: "var(--text-muted)", marginTop: "4px" }}>{lightboxImage.summary}</p>
+                  </div>
+                  <button onClick={() => setLightboxImage(null)} className="btn btn-outline">Close ✕</button>
+                </div>
+              </div>
             </div>
-            <div class="bank-field">
-              <span style="color: var(--text-muted);">Branch:</span>
-              <span>Maligaon, Guwahati, Assam</span>
-            </div>
-            <div class="bank-field">
-              <span style="color: var(--text-muted);">Account Type:</span>
-              <span>Saving Account</span>
-            </div>
-            <div class="bank-field">
-              <span style="color: var(--text-muted);">UPI VPA ID:</span>
-              <strong style="color: var(--eco-green); font-family: monospace;">9954493909@upi</strong>
-            </div>
-          </div>
+          )}
+
+          {/* Sticky WhatsApp Consultation CTA */}
+          <a
+            href="https://wa.me/919954493909?text=Hello%20Tamal%20Roy,%20I%20would%20like%20to%20consult%20regarding%20MaxEco%20Energy%20and%20Tech%20services."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sticky-cta-btn"
+            title="Chat directly with Founder on WhatsApp"
+          >
+            <span>💬</span>
+            <span>WhatsApp Founder</span>
+          </a>
+
+          {/* Floating Back to Top Button */}
+          <button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className={`back-to-top ${showBackToTop ? "show" : ""}`}
+            title="Scroll back to top"
+            aria-label="Back to top"
+          >
+            ↑
+          </button>
+
+          {/* Fat Footer */}
+          <FatFooter onNavigate={navigateTo} />
         </div>
-
-        <div class="qr-box">
-          <div style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.05em;">
-            Scan &amp; Pay via Any UPI App
-          </div>
-          <img src="../assets/payment-qr.png" alt="Payment QR Code" class="qr-img" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=9954493909@upi&pn=Tamal%20Roy'">
-          <div style="margin-top: 10px; font-size: 11px; font-weight: 700; color: #475569;">
-            GPay • PhonePe • Paytm • BHIM
-          </div>
-          <div style="font-size: 10px; color: #64748b; margin-top: 4px;">
-            Tamal Roy • Maligaon Hub
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact & Footer -->
-  <footer class="footer" id="contact">
-    <div class="container">
-      <div class="footer-grid">
-        <div>
-          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
-            <img src="../assets/logo-emblem.png" alt="MaxEco Logo" style="height: 36px; width: 36px;" onerror="this.style.display='none'">
-            <div style="font-size: 18px; font-weight: 800; color: #fff;">MaxEco Energy &amp; Tech</div>
-          </div>
-          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
-            Clean energy advisory, rooftop solar EPC coordination, and business IT infrastructure engineering based in Guwahati, Assam.
-          </p>
-          <div style="font-size: 12px; color: #cbd5e1;">
-            👤 <strong>Authorised Signatory:</strong> Tamal Roy
-          </div>
-        </div>
-
-        <div>
-          <div class="footer-col-title">Navigation</div>
-          <ul class="footer-links">
-            <li><a href="#solar">Solar Rooftop EPC</a></li>
-            <li><a href="#it-infra">IT Infra Solutions</a></li>
-            <li><a href="#calculator">Solar Calculator</a></li>
-            <li><a href="#settlement">Bank Settlement</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <div class="footer-col-title">Founder ERP OS</div>
-          <ul class="footer-links">
-            <li><a href="../index.html#dashboard">Executive Dashboard</a></li>
-            <li><a href="../index.html#invoices">Customer Invoices</a></li>
-            <li><a href="../index.html#quotes">Commercial Proposals</a></li>
-            <li><a href="../index.html#operations">Field Work Orders</a></li>
-          </ul>
-        </div>
-
-        <div>
-          <div class="footer-col-title">Registered Office</div>
-          <div style="line-height: 1.7; font-size: 13px;">
-            Maligaon, Guwahati, Assam, Pin - 781011<br>
-            <strong>Phone:</strong> <a href="tel:+919954493909" style="color: var(--solar-amber);">+91 99544 93909</a><br>
-            <strong>Email:</strong> <a href="mailto:maxecoenergyit@gmail.com" style="color: var(--sky-blue);">maxecoenergyit@gmail.com</a><br>
-            <strong>Hours:</strong> Mon - Sat (9:00 AM - 7:00 PM)
-          </div>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <div>
-          &copy; 2024 - 2026 MaxEco Energy &amp; Tech. All Rights Reserved. Guwahati, Assam, India.
-        </div>
-        <div>
-          <a href="../index.html" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px;">🔒 Founder Login</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <!-- Calculator Script -->
-  <script>
-    function runCalculator() {
-      const bill = Number(document.getElementById('calc-bill').value) || 6000;
-      const roof = Number(document.getElementById('calc-roof').value) || 600;
-
-      // Sizing logic: Guwahati ~1,300 kWh/kWp/yr, average commercial/residential APDCL tariff ~₹8/unit
-      const unitsNeededPerMonth = bill / 8;
-      const estimatedKw = Math.max(1, Math.round((unitsNeededPerMonth / 110) * 10) / 10);
-      const monthlyUnitsGen = Math.round(estimatedKw * 110);
-      const annualSavings = Math.round(monthlyUnitsGen * 12 * 8);
-      const approxCost = estimatedKw * 55000;
-      const paybackYears = Math.max(3.2, Math.round((approxCost / annualSavings) * 10) / 10);
-
-      document.getElementById('res-kw').textContent = estimatedKw.toFixed(1) + ' kWp';
-      document.getElementById('res-gen').textContent = monthlyUnitsGen + ' Units (kWh)';
-      document.getElementById('res-savings').textContent = '₹' + annualSavings.toLocaleString('en-IN');
-      document.getElementById('res-payback').textContent = paybackYears.toFixed(1) + ' Years';
+      );
     }
 
-    // Run on load
-    window.addEventListener('DOMContentLoaded', runCalculator);
-  </script>
+    // =========================================================================
+    // 3. INTERACTIVE PARTICLE CANVAS HERO COMPONENT
+    // =========================================================================
 
+    function InteractiveHeroCanvas() {
+      const canvasRef = useRef(null);
+
+      useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        let animationFrameId;
+
+        let width = canvas.width = canvas.parentElement.offsetWidth;
+        let height = canvas.height = canvas.parentElement.offsetHeight;
+
+        const handleResize = () => {
+          width = canvas.width = canvas.parentElement.offsetWidth;
+          height = canvas.height = canvas.parentElement.offsetHeight;
+        };
+        window.addEventListener("resize", handleResize);
+
+        // Interactive mouse point
+        const mouse = { x: null, y: null, radius: 140 };
+        const onMouseMove = (e) => {
+          const rect = canvas.getBoundingClientRect();
+          mouse.x = e.clientX - rect.left;
+          mouse.y = e.clientY - rect.top;
+        };
+        const onMouseLeave = () => {
+          mouse.x = null;
+          mouse.y = null;
+        };
+        canvas.addEventListener("mousemove", onMouseMove);
+        canvas.addEventListener("mouseleave", onMouseLeave);
+
+        // Initialize Particles
+        const particleCount = Math.min(65, Math.floor((width * height) / 14000));
+        const particles = [];
+        for (let i = 0; i < particleCount; i++) {
+          particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+            radius: Math.random() * 2.2 + 1.2,
+            color: Math.random() > 0.4 ? "#3B82F6" : "#10B981"
+          });
+        }
+
+        const render = () => {
+          ctx.clearRect(0, 0, width, height);
+
+          // Update & Draw Particles
+          for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+
+            // Mouse repulsion/interaction
+            if (mouse.x !== null && mouse.y !== null) {
+              const dx = mouse.x - p.x;
+              const dy = mouse.y - p.y;
+              const dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist < mouse.radius) {
+                const force = (mouse.radius - dist) / mouse.radius;
+                p.x -= (dx / dist) * force * 2.5;
+                p.y -= (dy / dist) * force * 2.5;
+              }
+            }
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = 0.6;
+            ctx.fill();
+
+            // Connect nearby particles with energy lines
+            for (let j = i + 1; j < particles.length; j++) {
+              const p2 = particles[j];
+              const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+              if (dist < 110) {
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.strokeStyle = p.color;
+                ctx.globalAlpha = (1 - dist / 110) * 0.22;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+              }
+            }
+          }
+
+          animationFrameId = requestAnimationFrame(render);
+        };
+        render();
+
+        return () => {
+          window.removeEventListener("resize", handleResize);
+          canvas.removeEventListener("mousemove", onMouseMove);
+          canvas.removeEventListener("mouseleave", onMouseLeave);
+          cancelAnimationFrame(animationFrameId);
+        };
+      }, []);
+
+      return <canvas id="hero-canvas" ref={canvasRef} />;
+    }
+
+    // =========================================================================
+    // 4. ANIMATED STATISTICS COUNTER COMPONENT
+    // =========================================================================
+
+    function AnimatedStats() {
+      const [counted, setCounted] = useState(false);
+      const sectionRef = useRef(null);
+
+      useEffect(() => {
+        const observer = new IntersectionObserver(([entry]) => {
+          if (entry.isIntersecting) {
+            setCounted(true);
+            observer.disconnect();
+          }
+        }, { threshold: 0.3 });
+
+        if (sectionRef.current) observer.observe(sectionRef.current);
+        return () => observer.disconnect();
+      }, []);
+
+      return (
+        <section className="stats-strip" ref={sectionRef}>
+          <div className="container">
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-number">{counted ? "120+" : "0"} <span style={{ fontSize: "24px" }}>kWp</span></div>
+                <div className="stat-label">Solar Feasibility Audited</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-number">{counted ? "100%" : "0"}</div>
+                <div className="stat-label">APDCL &amp; CEIG Approval Rate</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-number">₹{counted ? "18.4L+" : "0"}</div>
+                <div className="stat-label">Annual Client Power Bills Saved</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-number">{counted ? "99.9%" : "0"}</div>
+                <div className="stat-label">Enterprise Network SLA Uptime</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // =========================================================================
+    // 5. TESTIMONIALS CAROUSEL SLIDER COMPONENT
+    // =========================================================================
+
+    function TestimonialSlider() {
+      const [currentIndex, setCurrentIndex] = useState(0);
+
+      useEffect(() => {
+        const timer = setInterval(() => {
+          setCurrentIndex(prev => (prev + 1) % TESTIMONIALS.length);
+        }, 6000);
+        return () => clearInterval(timer);
+      }, []);
+
+      const current = TESTIMONIALS[currentIndex];
+
+      return (
+        <div className="carousel-container">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <span className="badge-pill badge-primary">Client Feedback &amp; Integrity</span>
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                onClick={() => setCurrentIndex((currentIndex - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
+                className="btn btn-outline"
+                style={{ width: "36px", height: "36px", padding: 0 }}
+                aria-label="Previous Testimonial"
+              >
+                ←
+              </button>
+              <button
+                onClick={() => setCurrentIndex((currentIndex + 1) % TESTIMONIALS.length)}
+                className="btn btn-outline"
+                style={{ width: "36px", height: "36px", padding: 0 }}
+                aria-label="Next Testimonial"
+              >
+                →
+              </button>
+            </div>
+          </div>
+
+          <p style={{
+            fontSize: "18px",
+            lineHeight: 1.7,
+            fontStyle: "italic",
+            color: "var(--text-main)",
+            marginBottom: "28px"
+          }}>
+            "{current.quote}"
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <div style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              background: "var(--primary-light)",
+              color: "var(--primary)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontWeight: 800,
+              fontSize: "18px"
+            }}>
+              {current.author.charAt(0)}
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, color: "var(--text-main)" }}>{current.author}</div>
+              <div style={{ fontSize: "13px", color: "var(--text-muted)" }}>{current.role} • {current.org}</div>
+            </div>
+          </div>
+
+          {/* Indicator dots */}
+          <div style={{ display: "flex", gap: "6px", marginTop: "24px", justifyContent: "center" }}>
+            {TESTIMONIALS.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                style={{
+                  width: idx === currentIndex ? "24px" : "8px",
+                  height: "8px",
+                  borderRadius: "4px",
+                  background: idx === currentIndex ? "var(--primary)" : "var(--border-color)",
+                  transition: "all 0.3s ease"
+                }}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 6. ACCORDION FAQ COMPONENT
+    // =========================================================================
+
+    function FaqAccordion() {
+      const [openIdx, setOpenIdx] = useState(0);
+
+      return (
+        <div>
+          {FAQS.map((item, idx) => {
+            const isOpen = openIdx === idx;
+            return (
+              <div key={idx} className="accordion-item">
+                <button
+                  className="accordion-header"
+                  onClick={() => setOpenIdx(isOpen ? -1 : idx)}
+                  aria-expanded={isOpen}
+                >
+                  <span>{item.q}</span>
+                  <span style={{
+                    transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                    transition: "transform 0.25s ease",
+                    color: "var(--primary)"
+                  }}>
+                    ▼
+                  </span>
+                </button>
+                {isOpen && (
+                  <div className="accordion-content">
+                    {item.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 7. INTERACTIVE SOLAR ROI CALCULATOR COMPONENT
+    // =========================================================================
+
+    function SolarCalculatorWidget() {
+      const [monthlyBill, setMonthlyBill] = useState(6000);
+      const [roofArea, setRoofArea] = useState(650);
+
+      // Sizing calculation based on Guwahati ~1,300 kWh/kWp/year, APDCL tariff ~₹8/kWh
+      const unitsNeeded = monthlyBill / 8;
+      const recommendedKw = Math.max(1, Math.round((unitsNeeded / 110) * 10) / 10);
+      const monthlyUnits = Math.round(recommendedKw * 110);
+      const annualSavings = Math.round(monthlyUnits * 12 * 8);
+      const estInvestment = recommendedKw * 55000;
+      const paybackYears = Math.max(3.2, Math.round((estInvestment / annualSavings) * 10) / 10);
+
+      return (
+        <div className="card" style={{ padding: "36px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "36px" }}>
+            <div>
+              <div className="form-group">
+                <label className="form-label">Average Monthly Electricity Bill (₹)</label>
+                <select
+                  value={monthlyBill}
+                  onChange={(e) => setMonthlyBill(Number(e.target.value))}
+                  className="form-control"
+                >
+                  <option value={3000}>₹3,000 / month (Residential Small)</option>
+                  <option value={6000}>₹6,000 / month (Residential Medium / Clinic)</option>
+                  <option value={15000}>₹15,000 / month (Commercial Office / School)</option>
+                  <option value={35000}>₹35,000 / month (Cold Storage / Factory)</option>
+                  <option value={75000}>₹75,000 / month (Commercial Warehouse / Tea)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Shadow-Free Rooftop Area (Sq. Ft)</label>
+                <input
+                  type="number"
+                  value={roofArea}
+                  onChange={(e) => setRoofArea(Number(e.target.value))}
+                  className="form-control"
+                  min="100"
+                  max="20000"
+                />
+              </div>
+
+              <div style={{ fontSize: "12px", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                ℹ️ Calculation basis: Guwahati, Assam solar yield factor ~1,300 kWh/kWp/year, APDCL commercial tariff slab benchmark.
+              </div>
+            </div>
+
+            <div style={{
+              background: "var(--bg-surface)",
+              borderRadius: "var(--radius-md)",
+              padding: "24px",
+              border: "1px solid var(--border-color)",
+              borderLeft: "4px solid var(--primary)"
+            }}>
+              <div style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", color: "var(--primary)", marginBottom: "14px", letterSpacing: "0.04em" }}>
+                Guwahati Solar Sizing Estimate
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px dashed var(--border-color)", fontSize: "14px" }}>
+                <span style={{ color: "var(--text-muted)" }}>Recommended Plant:</span>
+                <strong className="font-mono" style={{ color: "var(--text-main)" }}>{recommendedKw.toFixed(1)} kWp</strong>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px dashed var(--border-color)", fontSize: "14px" }}>
+                <span style={{ color: "var(--text-muted)" }}>Monthly Generation:</span>
+                <strong className="font-mono" style={{ color: "var(--text-main)" }}>{monthlyUnits} Units (kWh)</strong>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px dashed var(--border-color)", fontSize: "14px" }}>
+                <span style={{ color: "var(--text-muted)" }}>Estimated Annual Savings:</span>
+                <strong className="font-mono" style={{ color: "var(--eco-green)", fontSize: "16px" }}>₹{annualSavings.toLocaleString('en-IN')}</strong>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", fontSize: "14px" }}>
+                <span style={{ color: "var(--text-muted)" }}>Payback Period:</span>
+                <strong className="font-mono" style={{ color: "var(--primary)", fontSize: "16px" }}>{paybackYears.toFixed(1)} Years</strong>
+              </div>
+
+              <div style={{ marginTop: "20px" }}>
+                <a href="../index.html" className="btn btn-primary" style={{ width: "100%" }}>
+                  Open Detailed PVGIS Sizer in ERP 🚀
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 8. PAGE 1: HOME PAGE
+    // =========================================================================
+
+    function HomePage({ onNavigate, onOpenLightbox }) {
+      return (
+        <div>
+          {/* Animated Interactive Hero */}
+          <section className="hero-wrapper">
+            <InteractiveHeroCanvas />
+            <div className="container hero-content">
+              <div style={{ maxWidth: "800px" }}>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "20px" }}>
+                  <span className="badge-pill badge-primary">☀️ Clean Energy Advisory &amp; Digital Execution</span>
+                  <span className="badge-pill badge-amber">Northeast India Focus</span>
+                </div>
+
+                <h1 className="font-heading" style={{
+                  fontSize: "clamp(34px, 5.5vw, 56px)",
+                  fontWeight: 900,
+                  lineHeight: 1.15,
+                  letterSpacing: "-0.03em",
+                  marginBottom: "20px",
+                  color: "var(--text-main)"
+                }}>
+                  Practical <span style={{ color: "var(--primary)" }}>Clean Energy</span> &amp; Modern <span style={{ color: "var(--eco-green)" }}>Digital Growth</span> for Assam
+                </h1>
+
+                <p style={{
+                  fontSize: "18px",
+                  color: "var(--text-muted)",
+                  lineHeight: 1.6,
+                  marginBottom: "32px",
+                  maxWidth: "700px"
+                }}>
+                  {COMPANY_PROFILE.tagline}. {COMPANY_PROFILE.subtagline}
+                </p>
+
+                <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
+                  <button onClick={() => onNavigate("calculator")} className="btn btn-primary">
+                    ⚡ Calculate Solar ROI
+                  </button>
+                  <button onClick={() => onNavigate("about")} className="btn btn-outline">
+                    🌱 Learn About Our Model
+                  </button>
+                  <a href="tel:+919954493909" className="btn btn-amber">
+                    📞 Direct Call (+91 99544 93909)
+                  </a>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Animated Statistics Counter */}
+          <AnimatedStats />
+
+          {/* Core Services Section */}
+          <section className="section-spacing">
+            <div className="container">
+              <div style={{ textAlign: "center", maxWidth: "680px", margin: "0 auto 56px auto" }}>
+                <span className="badge-pill badge-primary">Our Solutions</span>
+                <h2 className="font-heading" style={{ fontSize: "36px", fontWeight: 800, margin: "12px 0", color: "var(--text-main)" }}>
+                  Engineering Excellence &amp; Direct Advisory
+                </h2>
+                <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
+                  We replace generic equipment sales with data-backed economic feasibility, APDCL regulatory approvals, and lean digital business architecture.
+                </p>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "28px" }}>
+                {SERVICES.map(srv => (
+                  <div key={srv.id} className="card">
+                    <div style={{
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "10px",
+                      background: "var(--primary-light)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "24px",
+                      marginBottom: "20px"
+                    }}>
+                      {srv.icon}
+                    </div>
+                    <span className="badge-pill badge-amber" style={{ fontSize: "10px", marginBottom: "12px" }}>{srv.sac}</span>
+                    <h3 className="font-heading" style={{ fontSize: "20px", fontWeight: 700, marginBottom: "12px", color: "var(--text-main)" }}>
+                      {srv.title}
+                    </h3>
+                    <p style={{ fontSize: "14px", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "20px" }}>
+                      {srv.description}
+                    </p>
+                    <ul style={{ listStyle: "none", fontSize: "13px", color: "var(--text-main)", marginBottom: "24px" }}>
+                      {srv.features.map((feat, idx) => (
+                        <li key={idx} style={{ marginBottom: "8px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ color: "var(--eco-green)", fontWeight: "bold" }}>✓</span>
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <button onClick={() => onNavigate(srv.id.startsWith("solar") ? "solar" : "tech")} className="btn btn-outline" style={{ width: "100%" }}>
+                      Explore Technical Scope →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Featured Masonry Projects Preview */}
+          <section className="section-spacing" style={{ background: "var(--bg-surface)" }}>
+            <div className="container">
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "20px", marginBottom: "40px" }}>
+                <div>
+                  <span className="badge-pill badge-green">Regional Execution</span>
+                  <h2 className="font-heading" style={{ fontSize: "32px", fontWeight: 800, marginTop: "8px", color: "var(--text-main)" }}>
+                    Featured Projects &amp; Field Deployments
+                  </h2>
+                </div>
+                <button onClick={() => onNavigate("projects")} className="btn btn-outline">
+                  View All Portfolio Grid →
+                </button>
+              </div>
+
+              <div className="masonry-grid">
+                {PORTFOLIO_PROJECTS.slice(0, 3).map(proj => (
+                  <div key={proj.id} className="masonry-item" onClick={() => onOpenLightbox({ src: proj.image, title: proj.title, summary: proj.summary })} style={{ cursor: "pointer" }}>
+                    <img src={proj.image} alt={proj.title} style={{ width: "100%", height: "220px", objectFit: "cover" }} />
+                    <div style={{ padding: "24px" }}>
+                      <span className="badge-pill badge-primary" style={{ fontSize: "10px", marginBottom: "8px" }}>{proj.location}</span>
+                      <h4 className="font-heading" style={{ fontSize: "18px", fontWeight: 700, margin: "6px 0", color: "var(--text-main)" }}>{proj.title}</h4>
+                      <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "14px" }}>{proj.summary}</p>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
+                        <span style={{ color: "var(--text-muted)" }}>Impact Metric:</span>
+                        <strong className="font-mono" style={{ color: "var(--eco-green)" }}>{proj.savings}</strong>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Testimonial & Client Trust Section */}
+          <section className="section-spacing">
+            <div className="container" style={{ maxWidth: "860px" }}>
+              <TestimonialSlider />
+            </div>
+          </section>
+
+          {/* CTA Banner */}
+          <section className="section-spacing" style={{ background: "var(--primary-light)", borderTop: "1px solid var(--border-color)", borderBottom: "1px solid var(--border-color)" }}>
+            <div className="container" style={{ textAlign: "center" }}>
+              <h2 className="font-heading" style={{ fontSize: "36px", fontWeight: 800, color: "var(--text-main)", marginBottom: "16px" }}>
+                Ready to Lower Commercial Utility Bills in Assam?
+              </h2>
+              <p style={{ fontSize: "16px", color: "var(--text-muted)", maxWidth: "620px", margin: "0 auto 28px auto" }}>
+                Contact Tamal Roy for a direct, founder-led solar feasibility assessment and APDCL net-metering review.
+              </p>
+              <div style={{ display: "flex", justifyContent: "center", gap: "14px", flexWrap: "wrap" }}>
+                <button onClick={() => onNavigate("contact")} className="btn btn-primary">
+                  Book Feasibility Consultation
+                </button>
+                <a href="tel:+919954493909" className="btn btn-amber">
+                  📞 Call +91 99544 93909
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 9. PAGE 2: ABOUT US PAGE
+    // =========================================================================
+
+    function AboutPage({ onNavigate }) {
+      return (
+        <div className="section-spacing">
+          <div className="container">
+            <div style={{ maxWidth: "840px", margin: "0 auto" }}>
+              <span className="badge-pill badge-primary">Our Heritage &amp; Model</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                {COMPANY_PROFILE.aboutTitle}
+              </h1>
+              <div style={{ fontSize: "15px", fontWeight: 700, color: "var(--eco-green)", marginBottom: "28px" }}>
+                {COMPANY_PROFILE.aboutSubtitle}
+              </div>
+
+              <div className="card" style={{ padding: "36px", marginBottom: "40px", lineHeight: 1.8, fontSize: "16px", color: "var(--text-muted)" }}>
+                {COMPANY_PROFILE.aboutBody.split("\n\n").map((para, i) => (
+                  <p key={i} style={{ marginBottom: "20px" }}>{para}</p>
+                ))}
+              </div>
+
+              {/* Founder & Signatory Profile */}
+              <div className="card" style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: "32px", alignItems: "center" }}>
+                <div>
+                  <span className="badge-pill badge-amber">Authorised Signatory</span>
+                  <h3 className="font-heading" style={{ fontSize: "24px", fontWeight: 800, margin: "10px 0", color: "var(--text-main)" }}>
+                    {COMPANY_PROFILE.signatory}
+                  </h3>
+                  <div style={{ fontSize: "14px", color: "var(--primary)", fontWeight: 600, marginBottom: "14px" }}>
+                    {COMPANY_PROFILE.signatoryRole}
+                  </div>
+                  <p style={{ fontSize: "14px", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "18px" }}>
+                    Leading clean energy engineering reviews and IT architecture deployments directly from our Maligaon office in Guwahati. Oversees all APDCL regulatory liaisoning, technical drawings, and contract execution.
+                  </p>
+                  <div style={{ fontSize: "13px", color: "var(--text-main)" }}>
+                    📍 <strong>Office:</strong> {COMPANY_PROFILE.address}
+                  </div>
+                </div>
+
+                <div style={{
+                  background: "var(--bg-surface)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "24px",
+                  textAlign: "center",
+                  border: "1px solid var(--border-color)"
+                }}>
+                  <div style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "12px" }}>
+                    Official Signature on File
+                  </div>
+                  <img
+                    src="../assets/signature.png"
+                    alt="Authorised Signatory"
+                    style={{ maxHeight: "56px", margin: "0 auto 12px auto", objectFit: "contain", background: "#FFFFFF", padding: "6px 14px", borderRadius: "6px" }}
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                  <div style={{ fontSize: "12px", color: "var(--eco-green)", fontWeight: 700 }}>
+                    🛡️ Digitally Verified Signatory
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 10. PAGE 3: SOLAR ROOFTOP EPC & ADVISORY
+    // =========================================================================
+
+    function SolarPage({ onNavigate }) {
+      return (
+        <div className="section-spacing">
+          <div className="container">
+            <div style={{ textAlign: "center", maxWidth: "760px", margin: "0 auto 60px auto" }}>
+              <span className="badge-pill badge-amber">Solar Engineering</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                Commercial &amp; Residential Solar Rooftop EPC
+              </h1>
+              <p style={{ color: "var(--text-muted)", fontSize: "16px" }}>
+                European PVGIS yield precision, Tier-1 Mono PERC equipment, and certified APDCL net-metering approvals across Assam.
+              </p>
+            </div>
+
+            {/* Sizing & Workflow Steps */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "24px", marginBottom: "60px" }}>
+              <div className="card">
+                <div style={{ fontSize: "28px", fontWeight: 900, color: "var(--primary)", marginBottom: "8px" }}>01</div>
+                <h3 className="font-heading" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--text-main)" }}>On-Site Shadow Audit</h3>
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  360° drone shadow modeling and rooftop structural load testing to verify true south orientation and wind resilience.
+                </p>
+              </div>
+
+              <div className="card">
+                <div style={{ fontSize: "28px", fontWeight: 900, color: "var(--solar-amber)", marginBottom: "8px" }}>02</div>
+                <h3 className="font-heading" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--text-main)" }}>PVGIS Yield Simulation</h3>
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  European Commission PVGIS satellite dataset mapping of Guwahati irradiance (~1,300 kWh/kWp) with realistic monsoon derating.
+                </p>
+              </div>
+
+              <div className="card">
+                <div style={{ fontSize: "28px", fontWeight: 900, color: "var(--eco-green)", marginBottom: "8px" }}>03</div>
+                <h3 className="font-heading" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--text-main)" }}>APDCL &amp; CEIG Liaison</h3>
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  Transformer loading check, bi-directional net-meter indent requisition, and CEIG earthing safety clearance.
+                </p>
+              </div>
+
+              <div className="card">
+                <div style={{ fontSize: "28px", fontWeight: 900, color: "var(--primary)", marginBottom: "8px" }}>04</div>
+                <h3 className="font-heading" style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--text-main)" }}>Execution &amp; Telemetry</h3>
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6 }}>
+                  Certified electrical termination, dual lightning protection, and live smartphone inverter telemetry tracking.
+                </p>
+              </div>
+            </div>
+
+            {/* Embedded Calculator */}
+            <div style={{ marginBottom: "60px" }}>
+              <div style={{ textAlign: "center", marginBottom: "32px" }}>
+                <h2 className="font-heading" style={{ fontSize: "28px", fontWeight: 800, color: "var(--text-main)" }}>
+                  Instant Solar Payback Estimator
+                </h2>
+              </div>
+              <SolarCalculatorWidget />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 11. PAGE 4: IT INFRASTRUCTURE & WEB SOLUTIONS
+    // =========================================================================
+
+    function TechPage({ onNavigate }) {
+      return (
+        <div className="section-spacing">
+          <div className="container">
+            <div style={{ textAlign: "center", maxWidth: "760px", margin: "0 auto 60px auto" }}>
+              <span className="badge-pill badge-primary">Enterprise Technology</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                IT Infra Sales, Structured Cabling &amp; Custom Web
+              </h1>
+              <p style={{ color: "var(--text-muted)", fontSize: "16px" }}>
+                Enterprise hardware reliability and bespoke digital platforms built without expensive recurring SaaS subscriptions.
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "36px", marginBottom: "60px" }}>
+              <div className="card">
+                <span className="badge-pill badge-primary" style={{ marginBottom: "16px" }}>SAC 998713</span>
+                <h3 className="font-heading" style={{ fontSize: "24px", fontWeight: 800, marginBottom: "14px", color: "var(--text-main)" }}>
+                  IT Hardware, Workstations &amp; Cabling
+                </h3>
+                <p style={{ color: "var(--text-muted)", fontSize: "14px", lineHeight: 1.7, marginBottom: "20px" }}>
+                  We supply, install, and support commercial desktop fleets, rack servers, and structured networking for private offices, diagnostic centers, and schools.
+                </p>
+                <ul style={{ listStyle: "none", fontSize: "14px", color: "var(--text-main)" }}>
+                  <li style={{ marginBottom: "10px" }}>🔹 Cat6 / Cat6A Gigabit structured cabling &amp; patch panels</li>
+                  <li style={{ marginBottom: "10px" }}>🔹 42U / 24U Rack cabinet installations &amp; cable management</li>
+                  <li style={{ marginBottom: "10px" }}>🔹 Managed L2/L3 PoE network switches &amp; Wi-Fi 6 access points</li>
+                  <li style={{ marginBottom: "10px" }}>🔹 On-site maintenance SLAs and hardware replacement coordination</li>
+                </ul>
+              </div>
+
+              <div className="card">
+                <span className="badge-pill badge-green" style={{ marginBottom: "16px" }}>SAC 998313</span>
+                <h3 className="font-heading" style={{ fontSize: "24px", fontWeight: 800, marginBottom: "14px", color: "var(--text-main)" }}>
+                  Modern Web Platforms &amp; Business OS
+                </h3>
+                <p style={{ color: "var(--text-muted)", fontSize: "14px", lineHeight: 1.7, marginBottom: "20px" }}>
+                  Fast, custom web applications that generate real commercial enquiries for local entrepreneurs without ongoing vendor lock-in.
+                </p>
+                <ul style={{ listStyle: "none", fontSize: "14px", color: "var(--text-main)" }}>
+                  <li style={{ marginBottom: "10px" }}>🔹 Ultra-fast single-page React architectures (100% Google Lighthouse score)</li>
+                  <li style={{ marginBottom: "10px" }}>🔹 Direct WhatsApp click-to-chat conversion hooks &amp; lead tracking</li>
+                  <li style={{ marginBottom: "10px" }}>🔹 Localized Google Maps Business Profile SEO optimization</li>
+                  <li style={{ marginBottom: "10px" }}>🔹 Zero recurring monthly hosting and subscription fees</li>
+                </ul>
+              </div>
+            </div>
+
+            <div style={{ textAlign: "center" }}>
+              <button onClick={() => onNavigate("contact")} className="btn btn-primary">
+                Discuss Your IT Infrastructure Needs →
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 12. PAGE 5: PROJECTS & PORTFOLIO (MASONRY GRID)
+    // =========================================================================
+
+    function ProjectsPage({ filter, setFilter, onOpenLightbox }) {
+      const filtered = useMemo(() => {
+        if (filter === "all") return PORTFOLIO_PROJECTS;
+        return PORTFOLIO_PROJECTS.filter(p => p.category === filter);
+      }, [filter]);
+
+      return (
+        <div className="section-spacing">
+          <div className="container">
+            <div style={{ textAlign: "center", maxWidth: "700px", margin: "0 auto 40px auto" }}>
+              <span className="badge-pill badge-green">Proven Track Record</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                Field Projects &amp; Executed Case Studies
+              </h1>
+              <p style={{ color: "var(--text-muted)", fontSize: "15px" }}>
+                Real installations, regulatory approvals, and IT deployments across Kamrup Metro and Assam.
+              </p>
+            </div>
+
+            {/* Filter Buttons */}
+            <div style={{ display: "flex", justifyContent: "center", gap: "10px", flexWrap: "wrap", marginBottom: "40px" }}>
+              {[
+                { id: "all", label: "All Projects" },
+                { id: "solar", label: "Solar Rooftop EPC" },
+                { id: "tech", label: "IT & Web Solutions" },
+                { id: "regulatory", label: "APDCL & CEIG Clearances" }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilter(tab.id)}
+                  className={`btn ${filter === tab.id ? "btn-primary" : "btn-outline"}`}
+                  style={{ padding: "8px 18px", fontSize: "13px" }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Pinterest Style Masonry Grid */}
+            <div className="masonry-grid">
+              {filtered.map(proj => (
+                <div
+                  key={proj.id}
+                  className="masonry-item"
+                  onClick={() => onOpenLightbox({ src: proj.image, title: proj.title, summary: proj.summary })}
+                  style={{ cursor: "pointer" }}
+                >
+                  <img src={proj.image} alt={proj.title} style={{ width: "100%", height: "230px", objectFit: "cover" }} />
+                  <div style={{ padding: "24px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                      <span className="badge-pill badge-primary" style={{ fontSize: "10px" }}>{proj.location}</span>
+                      <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>🔍 Click to Zoom</span>
+                    </div>
+                    <h3 className="font-heading" style={{ fontSize: "18px", fontWeight: 800, margin: "8px 0", color: "var(--text-main)" }}>
+                      {proj.title}
+                    </h3>
+                    <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--primary)", marginBottom: "8px" }}>
+                      Client: {proj.client}
+                    </div>
+                    <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.6, marginBottom: "16px" }}>
+                      {proj.summary}
+                    </p>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid var(--border-color)", paddingTop: "12px", fontSize: "12px" }}>
+                      <span style={{ color: "var(--text-muted)" }}>Key Outcome:</span>
+                      <strong className="font-mono" style={{ color: "var(--eco-green)" }}>{proj.savings}</strong>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 13. PAGE 6: PRICING & ADVISORY PLANS
+    // =========================================================================
+
+    function PricingPage({ onNavigate }) {
+      return (
+        <div className="section-spacing">
+          <div className="container">
+            <div style={{ textAlign: "center", maxWidth: "700px", margin: "0 auto 60px auto" }}>
+              <span className="badge-pill badge-primary">Clear &amp; Transparent</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                Advisory Packages &amp; Sizing Plans
+              </h1>
+              <p style={{ color: "var(--text-muted)", fontSize: "16px" }}>
+                Zero hidden charges. Milestone-based deliverables backed by official tax invoices and direct banking settlement.
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "32px", alignItems: "stretch" }}>
+              {PRICING_PLANS.map((plan, idx) => (
+                <div
+                  key={idx}
+                  className="card"
+                  style={{
+                    position: "relative",
+                    borderColor: plan.isPopular ? "var(--primary)" : "var(--border-color)",
+                    boxShadow: plan.isPopular ? "var(--glow-shadow)" : "var(--card-shadow)",
+                    display: "flex",
+                    flexDirection: "column"
+                  }}
+                >
+                  {plan.isPopular && (
+                    <div style={{
+                      position: "absolute",
+                      top: "-12px",
+                      right: "24px",
+                      background: "var(--primary)",
+                      color: "#FFFFFF",
+                      fontSize: "11px",
+                      fontWeight: 800,
+                      padding: "4px 12px",
+                      borderRadius: "var(--radius-full)",
+                      textTransform: "uppercase"
+                    }}>
+                      Recommended
+                    </div>
+                  )}
+
+                  <span className="badge-pill badge-amber" style={{ alignSelf: "flex-start", marginBottom: "14px" }}>{plan.badge}</span>
+                  <h3 className="font-heading" style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px", color: "var(--text-main)" }}>
+                    {plan.name}
+                  </h3>
+                  <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "20px" }}>{plan.tagline}</p>
+
+                  <div style={{ marginBottom: "24px" }}>
+                    <div className="font-heading" style={{ fontSize: "36px", fontWeight: 900, color: "var(--primary)" }}>{plan.price}</div>
+                    <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>{plan.duration}</div>
+                  </div>
+
+                  <ul style={{ listStyle: "none", fontSize: "13px", color: "var(--text-main)", marginBottom: "32px", flex: 1 }}>
+                    {plan.features.map((feat, fIdx) => (
+                      <li key={fIdx} style={{ marginBottom: "10px", display: "flex", alignItems: "flex-start", gap: "8px" }}>
+                        <span style={{ color: "var(--eco-green)", fontWeight: "bold" }}>✓</span>
+                        <span style={{ color: "var(--text-muted)", lineHeight: 1.5 }}>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    onClick={() => onNavigate("contact")}
+                    className={`btn ${plan.isPopular ? "btn-primary" : "btn-outline"}`}
+                    style={{ width: "100%" }}
+                  >
+                    {plan.cta} →
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 14. PAGE 7: SOLAR ROI CALCULATOR PAGE
+    // =========================================================================
+
+    function CalculatorPage({ onNavigate }) {
+      return (
+        <div className="section-spacing">
+          <div className="container" style={{ maxWidth: "900px" }}>
+            <div style={{ textAlign: "center", marginBottom: "40px" }}>
+              <span className="badge-pill badge-amber">Interactive ROI Engine</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                Solar Capacity &amp; Payback Calculator
+              </h1>
+              <p style={{ color: "var(--text-muted)", fontSize: "16px" }}>
+                Calculate your exact solar capacity, monthly generation units, and annual financial savings tailored to APDCL commercial and residential electricity slabs.
+              </p>
+            </div>
+
+            <SolarCalculatorWidget />
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 15. PAGE 8: FAQ & KNOWLEDGE BASE
+    // =========================================================================
+
+    function FaqPage({ onNavigate }) {
+      return (
+        <div className="section-spacing">
+          <div className="container" style={{ maxWidth: "800px" }}>
+            <div style={{ textAlign: "center", marginBottom: "50px" }}>
+              <span className="badge-pill badge-primary">Frequently Asked Questions</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                Knowledge Base &amp; Regulatory Guidance
+              </h1>
+              <p style={{ color: "var(--text-muted)", fontSize: "16px" }}>
+                Everything you need to know about APDCL net-metering in Assam, CEIG clearances, equipment durability, and digital solutions.
+              </p>
+            </div>
+
+            <FaqAccordion />
+
+            <div className="card" style={{ marginTop: "40px", textAlign: "center", padding: "32px" }}>
+              <h3 className="font-heading" style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-main)", marginBottom: "8px" }}>
+                Have a specific commercial question?
+              </h3>
+              <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "20px" }}>
+                Reach out directly to Tamal Roy for technical drawings or transformer load verification.
+              </p>
+              <button onClick={() => onNavigate("contact")} className="btn btn-primary">
+                Contact Founder Directly
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 16. PAGE 9: CONTACT & BANKING VERIFICATION
+    // =========================================================================
+
+    function ContactPage() {
+      const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        phone: "",
+        service: "solar-commercial",
+        message: ""
+      });
+      const [errors, setErrors] = useState({});
+      const [submitted, setSubmitted] = useState(false);
+
+      const validate = () => {
+        const errs = {};
+        if (!formData.name.trim()) errs.name = "Full name is required";
+        if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) errs.email = "Valid email address is required";
+        if (!formData.phone.trim() || !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) errs.phone = "Valid 10-digit mobile number required";
+        if (!formData.message.trim()) errs.message = "Please describe your project or requirement";
+        setErrors(errs);
+        return Object.keys(errs).length === 0;
+      };
+
+      const handleSubmit = (e) => {
+        e.preventDefault();
+        if (validate()) {
+          setSubmitted(true);
+        }
+      };
+
+      return (
+        <div className="section-spacing">
+          <div className="container">
+            <div style={{ textAlign: "center", maxWidth: "700px", margin: "0 auto 50px auto" }}>
+              <span className="badge-pill badge-primary">Official Communication</span>
+              <h1 className="font-heading" style={{ fontSize: "40px", fontWeight: 900, margin: "16px 0", color: "var(--text-main)" }}>
+                Contact &amp; Banking Settlement
+              </h1>
+              <p style={{ color: "var(--text-muted)", fontSize: "16px" }}>
+                Direct, transparent communication with Tamal Roy, Authorised Signatory for MaxEco Energy &amp; Tech.
+              </p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "40px" }}>
+              {/* Interactive Contact Form */}
+              <div className="card">
+                <h3 className="font-heading" style={{ fontSize: "22px", fontWeight: 800, marginBottom: "6px", color: "var(--text-main)" }}>
+                  Send Project Inquiry
+                </h3>
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "24px" }}>
+                  We review rooftop sizing and IT requests within 24 working hours.
+                </p>
+
+                {submitted ? (
+                  <div style={{
+                    padding: "32px",
+                    background: "rgba(16, 185, 129, 0.1)",
+                    border: "1px solid var(--eco-green)",
+                    borderRadius: "var(--radius-md)",
+                    textAlign: "center"
+                  }}>
+                    <div style={{ fontSize: "36px", marginBottom: "12px" }}>✅</div>
+                    <h4 className="font-heading" style={{ fontSize: "20px", fontWeight: 800, color: "var(--eco-green)", marginBottom: "8px" }}>
+                      Inquiry Received Successfully!
+                    </h4>
+                    <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "20px" }}>
+                      Thank you, <strong>{formData.name}</strong>. Tamal Roy will contact you at <strong>{formData.phone}</strong> regarding your {formData.service} requirement.
+                    </p>
+                    <a
+                      href={`https://wa.me/919954493909?text=Hello%20Tamal,%20I%20just%20submitted%20an%20inquiry%20from%20${encodeURIComponent(formData.name)}%20regarding%20${encodeURIComponent(formData.service)}.`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-primary"
+                    >
+                      Instant WhatsApp Follow-up →
+                    </a>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                      <label className="form-label">Full Name *</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="form-control"
+                        placeholder="e.g. Pranab Sarma"
+                      />
+                      {errors.name && <div className="form-error">{errors.name}</div>}
+                    </div>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                      <div className="form-group">
+                        <label className="form-label">Mobile Number (10 digits) *</label>
+                        <input
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          className="form-control"
+                          placeholder="e.g. 9954493909"
+                        />
+                        {errors.phone && <div className="form-error">{errors.phone}</div>}
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Email Address *</label>
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          className="form-control"
+                          placeholder="e.g. info@company.com"
+                        />
+                        {errors.email && <div className="form-error">{errors.email}</div>}
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Area of Interest</label>
+                      <select
+                        value={formData.service}
+                        onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                        className="form-control"
+                      >
+                        <option value="Commercial Rooftop Solar EPC">Commercial Rooftop Solar EPC (10 kWp - 100 kWp)</option>
+                        <option value="Residential Solar Rooftop">Residential Solar Rooftop (3 kWp - 10 kWp)</option>
+                        <option value="APDCL Net-Metering & CEIG Clearance">APDCL Net-Metering &amp; CEIG Clearance</option>
+                        <option value="IT Infra Sales & Cabling">Enterprise IT Infra Sales &amp; Structured Cabling</option>
+                        <option value="Custom Web Platform">Custom Modern Web Platform</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Project Details / Monthly Electricity Bill *</label>
+                      <textarea
+                        rows="4"
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        className="form-control"
+                        placeholder="Please mention your average monthly APDCL bill, approximate rooftop area, or IT requirements..."
+                      ></textarea>
+                      {errors.message && <div className="form-error">{errors.message}</div>}
+                    </div>
+
+                    <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>
+                      Submit Inquiry to Founder →
+                    </button>
+                  </form>
+                )}
+              </div>
+
+              {/* Direct Banking & Official Verification Card */}
+              <div>
+                <div className="card" style={{ marginBottom: "24px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                    <span className="badge-pill badge-green">Official Transparency</span>
+                    <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>ESTD 2024</span>
+                  </div>
+
+                  <h3 className="font-heading" style={{ fontSize: "20px", fontWeight: 800, color: "var(--text-main)", marginBottom: "8px" }}>
+                    Verified Remittance Details
+                  </h3>
+                  <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "18px" }}>
+                    Direct bank settlement details for procurement retainers and official tax invoices:
+                  </p>
+
+                  <div style={{ background: "var(--bg-surface)", padding: "16px", borderRadius: "var(--radius-md)", border: "1px solid var(--border-color)", fontSize: "13px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dashed var(--border-color)" }}>
+                      <span style={{ color: "var(--text-muted)" }}>Beneficiary:</span>
+                      <strong style={{ color: "var(--text-main)" }}>{COMPANY_PROFILE.banking.accountName}</strong>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dashed var(--border-color)" }}>
+                      <span style={{ color: "var(--text-muted)" }}>Bank Name:</span>
+                      <strong style={{ color: "var(--text-main)" }}>{COMPANY_PROFILE.banking.bankName}</strong>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dashed var(--border-color)" }}>
+                      <span style={{ color: "var(--text-muted)" }}>Account Number:</span>
+                      <strong className="font-mono" style={{ color: "var(--primary)" }}>{COMPANY_PROFILE.banking.accountNo}</strong>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dashed var(--border-color)" }}>
+                      <span style={{ color: "var(--text-muted)" }}>IFSC Code:</span>
+                      <strong className="font-mono" style={{ color: "var(--text-main)" }}>{COMPANY_PROFILE.banking.ifsc}</strong>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px dashed var(--border-color)" }}>
+                      <span style={{ color: "var(--text-muted)" }}>Branch:</span>
+                      <span>{COMPANY_PROFILE.banking.branch}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0" }}>
+                      <span style={{ color: "var(--text-muted)" }}>UPI ID:</span>
+                      <strong className="font-mono" style={{ color: "var(--eco-green)" }}>{COMPANY_PROFILE.banking.upiVpa}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Google Maps Embed */}
+                <div className="card" style={{ padding: "16px" }}>
+                  <div style={{ fontSize: "13px", fontWeight: 700, color: "var(--text-main)", marginBottom: "10px" }}>
+                    📍 Registered Office Location (Guwahati, Assam)
+                  </div>
+                  <div style={{ borderRadius: "var(--radius-md)", overflow: "hidden", height: "180px", background: "#e2e8f0" }}>
+                    <iframe
+                      title="MaxEco Energy & Tech Location"
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      scrolling="no"
+                      marginHeight="0"
+                      marginWidth="0"
+                      src="https://maps.google.com/maps?q=Maligaon,%20Guwahati,%20Assam&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                      style={{ border: 0 }}
+                    ></iframe>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================================
+    // 17. FAT FOOTER COMPONENT
+    // =========================================================================
+
+    function FatFooter({ onNavigate }) {
+      const [email, setEmail] = useState("");
+      const [subscribed, setSubscribed] = useState(false);
+
+      const handleSubscribe = (e) => {
+        e.preventDefault();
+        if (email && /\S+@\S+\.\S+/.test(email)) {
+          setSubscribed(true);
+        }
+      };
+
+      return (
+        <footer className="fat-footer">
+          <div className="container">
+            <div className="footer-grid">
+              {/* Column 1: Brand & Regional Identity */}
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
+                  <img src="../assets/logo-emblem.png" alt="MaxEco Logo" style={{ width: "36px", height: "36px" }} onError={(e) => { e.target.style.display = 'none'; }} />
+                  <span className="font-heading" style={{ fontSize: "18px", fontWeight: 800, color: "var(--text-main)" }}>
+                    {COMPANY_PROFILE.name}
+                  </span>
+                </div>
+                <p style={{ fontSize: "13px", lineHeight: 1.6, marginBottom: "16px", color: "var(--text-muted)" }}>
+                  {COMPANY_PROFILE.tagline}. Independent clean energy advisory, rooftop solar EPC coordination, and digital architecture based in Guwahati, Assam.
+                </p>
+                <div style={{ fontSize: "12px", color: "var(--text-main)" }}>
+                  👤 <strong>Authorised Signatory:</strong> {COMPANY_PROFILE.signatory}
+                </div>
+              </div>
+
+              {/* Column 2: Quick Links */}
+              <div>
+                <div style={{ fontWeight: 800, color: "var(--text-main)", marginBottom: "14px", fontSize: "15px" }}>
+                  Navigation
+                </div>
+                <ul style={{ listStyle: "none", fontSize: "13px" }}>
+                  {NAV_PAGES.slice(0, 5).map(p => (
+                    <li key={p.id} style={{ marginBottom: "8px" }}>
+                      <a href={`#${p.id}`} onClick={(e) => { e.preventDefault(); onNavigate(p.id); }} style={{ color: "var(--text-muted)" }}>
+                        {p.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Column 3: Solutions & ERP */}
+              <div>
+                <div style={{ fontWeight: 800, color: "var(--text-main)", marginBottom: "14px", fontSize: "15px" }}>
+                  Solutions &amp; ERP
+                </div>
+                <ul style={{ listStyle: "none", fontSize: "13px" }}>
+                  <li style={{ marginBottom: "8px" }}>
+                    <a href="#calculator" onClick={(e) => { e.preventDefault(); onNavigate("calculator"); }} style={{ color: "var(--text-muted)" }}>
+                      Solar Sizing Sizer
+                    </a>
+                  </li>
+                  <li style={{ marginBottom: "8px" }}>
+                    <a href="#pricing" onClick={(e) => { e.preventDefault(); onNavigate("pricing"); }} style={{ color: "var(--text-muted)" }}>
+                      Commercial Plans
+                    </a>
+                  </li>
+                  <li style={{ marginBottom: "8px" }}>
+                    <a href="#faq" onClick={(e) => { e.preventDefault(); onNavigate("faq"); }} style={{ color: "var(--text-muted)" }}>
+                      APDCL Regulations
+                    </a>
+                  </li>
+                  <li style={{ marginBottom: "8px" }}>
+                    <a href="../index.html" style={{ color: "var(--primary)", fontWeight: 700 }}>
+                      🚀 Open Founder ERP OS
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Column 4: Newsletter & Social */}
+              <div>
+                <div style={{ fontWeight: 800, color: "var(--text-main)", marginBottom: "14px", fontSize: "15px" }}>
+                  Assam Solar &amp; Tech Updates
+                </div>
+                <p style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "14px", lineHeight: 1.5 }}>
+                  Subscribe for APDCL policy updates, solar subsidy notifications, and regional tech briefings.
+                </p>
+
+                {subscribed ? (
+                  <div style={{ color: "var(--eco-green)", fontSize: "13px", fontWeight: 700 }}>
+                    ✓ Subscribed! Thank you for staying connected.
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubscribe} style={{ display: "flex", gap: "8px", marginBottom: "18px" }}>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="form-control"
+                      style={{ padding: "8px 12px", fontSize: "13px" }}
+                      required
+                    />
+                    <button type="submit" className="btn btn-primary" style={{ padding: "8px 14px", fontSize: "12px" }}>
+                      Join
+                    </button>
+                  </form>
+                )}
+
+                {/* Social Icon Links */}
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  {[
+                    { label: "WhatsApp", icon: "💬", url: "https://wa.me/919954493909" },
+                    { label: "LinkedIn", icon: "💼", url: "https://linkedin.com" },
+                    { label: "Phone", icon: "📞", url: "tel:+919954493909" },
+                    { label: "Email", icon: "✉️", url: "mailto:maxecoenergyit@gmail.com" }
+                  ].map((s, idx) => (
+                    <a
+                      key={idx}
+                      href={s.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="theme-toggle-btn"
+                      style={{ width: "36px", height: "36px", fontSize: "14px" }}
+                      title={s.label}
+                      aria-label={s.label}
+                    >
+                      {s.icon}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              borderTop: "1px solid var(--border-color)",
+              paddingTop: "24px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "12px",
+              fontSize: "12px"
+            }}>
+              <div>
+                &copy; 2024 – 2026 {COMPANY_PROFILE.name}. All Rights Reserved. Maligaon, Guwahati, Assam, India.
+              </div>
+              <div style={{ display: "flex", gap: "16px" }}>
+                <a href="#about" onClick={(e) => { e.preventDefault(); onNavigate("about"); }}>About Us</a>
+                <a href="#contact" onClick={(e) => { e.preventDefault(); onNavigate("contact"); }}>Bank Verification</a>
+                <a href="../index.html" style={{ color: "var(--primary)" }}>🔒 Founder Login</a>
+              </div>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    // =========================================================================
+    // 18. MOUNT ROOT APPLICATION
+    // =========================================================================
+    const rootElement = document.getElementById("root");
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(<App />);
+  </script>
 </body>
 </html>
