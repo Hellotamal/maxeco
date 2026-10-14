@@ -205,6 +205,7 @@ class AppController {
     else if (view === 'quotes-invoices') this.renderQuotesInvoicesTab();
     else if (view === 'finance') this.renderFinanceTab();
     else if (view === 'projects') this.renderProjectsTab();
+    else if (view === 'cafm') this.renderCafmTab();
     else if (view === 'settings') this.renderSettingsTab();
     else if (view === 'solar-feasibility') this.renderSolarFeasibilityTab();
   }
@@ -2799,6 +2800,14 @@ class AppController {
       items = (window.storage.getProcurements() || []).map(p => ({ id: p.id, label: `[${p.id}] ${p.itemName} — ${formatINR(p.actualCost || p.estimatedCost)} (${p.status})` }));
     } else if (type === 'workorder') {
       items = (window.storage.getWorkOrders() || []).map(w => ({ id: w.id, label: `[${w.id}] ${w.title} — ${w.assignedTo} (${w.status})` }));
+    } else if (type === 'site') {
+      items = (window.storage.getFacilitySites() || []).map(s => ({ id: s.id, label: `[${s.id}] ${s.name} — ${s.clientName} (${s.siteType})` }));
+    } else if (type === 'facilityAsset') {
+      items = (window.storage.getFacilityAssets() || []).map(a => ({ id: a.id, label: `[${a.id}] ${a.name} — ${a.category} (${a.status})` }));
+    } else if (type === 'serviceTicket') {
+      items = (window.storage.getServiceTickets() || []).map(t => ({ id: t.id, label: `[${t.id}] ${t.title} — Priority: ${t.priority} (${t.status})` }));
+    } else if (type === 'amcContract') {
+      items = (window.storage.getAmcContracts() || []).map(c => ({ id: c.id, label: `[${c.id}] ${c.title} — ${formatINR(c.annualFee)}/yr (${c.status})` }));
     }
 
     if (items.length === 0) {
@@ -2849,6 +2858,18 @@ class AppController {
     } else if (type === 'workorder') {
       const w = (window.storage.getWorkOrders() || []).find(x => x.id === id);
       if (w) details = `<strong>${w.title}</strong> • Assigned: ${w.assignedTo} (${w.contactPhone || ''}) • Fee: <strong>${formatINR(w.contractorFee)}</strong> • Status: ${w.status}`;
+    } else if (type === 'site') {
+      const s = (window.storage.getFacilitySites() || []).find(x => x.id === id);
+      if (s) details = `<strong>[Facility] ${s.name}</strong> • Client: ${s.clientName} • Location: ${s.location} • Solar: ${s.solarCapacityKwp || 0} kWp • APDCL: ${s.apdclConsumerNo || '—'}`;
+    } else if (type === 'facilityAsset') {
+      const a = (window.storage.getFacilityAssets() || []).find(x => x.id === id);
+      if (a) details = `<strong>[Asset] ${a.name}</strong> • Cat: ${a.category} • Model: ${a.modelNumber || '—'} • Serial: ${a.serialNumber || '—'} • Next Due: ${formatDate(a.nextServiceDate)} • Status: ${a.status}`;
+    } else if (type === 'serviceTicket') {
+      const t = (window.storage.getServiceTickets() || []).find(x => x.id === id);
+      if (t) details = `<strong>[Ticket] ${t.title}</strong> • Priority: <strong>${t.priority}</strong> • Tech: ${t.assignedTech || 'Unassigned'} • Status: ${t.status}`;
+    } else if (type === 'amcContract') {
+      const c = (window.storage.getAmcContracts() || []).find(x => x.id === id);
+      if (c) details = `<strong>[AMC] ${c.title}</strong> • Annual: <strong>${formatINR(c.annualFee)}</strong> • Cycle: ${c.billingFrequency} • Next Bill: ${formatDate(c.nextBillingDate)} • Status: ${c.status}`;
     }
     previewEl.innerHTML = details || '<span class="text-muted">Record details loaded. Click below to modify.</span>';
   }
@@ -2882,6 +2903,14 @@ class AppController {
       this.openEditProcurementModal(id);
     } else if (type === 'workorder') {
       this.openEditWorkOrderModal(id);
+    } else if (type === 'site') {
+      this.openEditFacilitySiteModal(id);
+    } else if (type === 'facilityAsset') {
+      this.openEditFacilityAssetModal(id);
+    } else if (type === 'serviceTicket') {
+      this.openEditServiceTicketModal(id);
+    } else if (type === 'amcContract') {
+      this.openEditAmcModal(id);
     }
   }
 
@@ -3007,6 +3036,14 @@ class AppController {
       items = (window.storage.getProcurements() || []).map(p => ({ id: p.id, label: `[${p.id}] ${p.itemName} — ${formatINR(p.actualCost || p.estimatedCost)} (${p.status})` }));
     } else if (type === 'workorder') {
       items = (window.storage.getWorkOrders() || []).map(w => ({ id: w.id, label: `[${w.id}] ${w.title} — ${w.assignedTo} (${w.status})` }));
+    } else if (type === 'site') {
+      items = (window.storage.getFacilitySites() || []).map(s => ({ id: s.id, label: `[${s.id}] ${s.name} — ${s.clientName} (${s.siteType})` }));
+    } else if (type === 'facilityAsset') {
+      items = (window.storage.getFacilityAssets() || []).map(a => ({ id: a.id, label: `[${a.id}] ${a.name} — ${a.category} (${a.status})` }));
+    } else if (type === 'serviceTicket') {
+      items = (window.storage.getServiceTickets() || []).map(t => ({ id: t.id, label: `[${t.id}] ${t.title} — Priority: ${t.priority} (${t.status})` }));
+    } else if (type === 'amcContract') {
+      items = (window.storage.getAmcContracts() || []).map(c => ({ id: c.id, label: `[${c.id}] ${c.title} — ${formatINR(c.annualFee)}/yr (${c.status})` }));
     }
 
     if (items.length === 0) {
@@ -3057,6 +3094,18 @@ class AppController {
     } else if (type === 'workorder') {
       const w = (window.storage.getWorkOrders() || []).find(x => x.id === id);
       if (w) details = `<strong style="color: var(--accent-rose);">[Work Order] ${w.title}</strong> • Assigned: ${w.assignedTo} • Fee: ${formatINR(w.contractorFee)} • Status: ${w.status}`;
+    } else if (type === 'site') {
+      const s = (window.storage.getFacilitySites() || []).find(x => x.id === id);
+      if (s) details = `<strong style="color: var(--accent-rose);">[Facility Site] ${s.name}</strong> • Client: ${s.clientName} • Location: ${s.location}`;
+    } else if (type === 'facilityAsset') {
+      const a = (window.storage.getFacilityAssets() || []).find(x => x.id === id);
+      if (a) details = `<strong style="color: var(--accent-rose);">[Facility Asset] ${a.name}</strong> • Cat: ${a.category} • Serial: ${a.serialNumber || '—'}`;
+    } else if (type === 'serviceTicket') {
+      const t = (window.storage.getServiceTickets() || []).find(x => x.id === id);
+      if (t) details = `<strong style="color: var(--accent-rose);">[Service Ticket] ${t.title}</strong> • Priority: ${t.priority} • Tech: ${t.assignedTech || 'Unassigned'}`;
+    } else if (type === 'amcContract') {
+      const c = (window.storage.getAmcContracts() || []).find(x => x.id === id);
+      if (c) details = `<strong style="color: var(--accent-rose);">[AMC Contract] ${c.title}</strong> • Annual: ${formatINR(c.annualFee)} • Cycle: ${c.billingFrequency}`;
     }
     previewEl.innerHTML = details || '<span class="text-muted">Record details loaded.</span>';
   }
@@ -3090,6 +3139,14 @@ class AppController {
       this.deleteProcurement(id);
     } else if (type === 'workorder') {
       this.deleteWorkOrder(id);
+    } else if (type === 'site') {
+      this.deleteFacilitySite(id);
+    } else if (type === 'facilityAsset') {
+      this.deleteFacilityAsset(id);
+    } else if (type === 'serviceTicket') {
+      this.deleteServiceTicket(id);
+    } else if (type === 'amcContract') {
+      this.deleteAmc(id);
     }
   }
 
@@ -3267,6 +3324,877 @@ class AppController {
 
     // Reset form
     document.getElementById('public-contact-form').reset();
+  }
+
+  // =========================================================================
+  // CAFM (COMPUTER-AIDED FACILITY MANAGEMENT) APP METHODS
+  // =========================================================================
+
+  renderCafmTab() {
+    if (!window.cafm) return;
+    const summary = window.cafm.getSummary();
+
+    // Update KPI counters
+    const elSites = document.getElementById('cafm-kpi-sites');
+    if (elSites) elSites.textContent = summary.totalSites;
+
+    const elSolar = document.getElementById('cafm-kpi-solar-kwp');
+    if (elSolar) elSolar.textContent = `${summary.totalSolarCapacityKwp.toFixed(1)} kWp`;
+
+    const elAssets = document.getElementById('cafm-kpi-assets');
+    if (elAssets) elAssets.textContent = summary.totalAssets;
+
+    const elDue = document.getElementById('cafm-kpi-due-tasks');
+    if (elDue) elDue.textContent = summary.dueAssetsCount;
+
+    const elTickets = document.getElementById('cafm-kpi-open-tickets');
+    if (elTickets) elTickets.textContent = summary.openTicketsCount;
+
+    const elCrit = document.getElementById('cafm-kpi-critical-tickets');
+    if (elCrit) elCrit.textContent = summary.criticalTicketsCount;
+
+    const elAmcVal = document.getElementById('cafm-kpi-amc-value');
+    if (elAmcVal) elAmcVal.textContent = formatINR(summary.totalAnnualAmcValue);
+
+    const elActiveAmcs = document.getElementById('cafm-kpi-active-amcs');
+    if (elActiveAmcs) elActiveAmcs.textContent = summary.activeAmcCount;
+
+    // Sub-tab selection
+    this.setCafmSubTab(this.cafmSubTab || 'sites');
+  }
+
+  setCafmSubTab(tab) {
+    this.cafmSubTab = tab;
+    const tabs = ['sites', 'assets', 'ppm', 'tickets', 'amcs'];
+
+    tabs.forEach(t => {
+      const btn = document.getElementById(`cafm-tab-btn-${t}`);
+      if (btn) {
+        if (t === tab) {
+          btn.className = 'btn btn-primary btn-sm';
+        } else {
+          btn.className = 'btn btn-secondary btn-sm';
+        }
+      }
+
+      const view = document.getElementById(`cafm-view-${t}`);
+      if (view) {
+        if (t === tab) view.classList.remove('hidden');
+        else view.classList.add('hidden');
+      }
+    });
+
+    const addBtn = document.getElementById('cafm-subtab-add-btn');
+    if (addBtn) {
+      if (tab === 'sites') addBtn.textContent = '➕ Add Facility Site';
+      else if (tab === 'assets') addBtn.textContent = '⚙️ Register Facility Asset';
+      else if (tab === 'ppm') addBtn.textContent = '🎫 Log Maintenance Ticket';
+      else if (tab === 'tickets') addBtn.textContent = '🎫 Log Service Ticket';
+      else if (tab === 'amcs') addBtn.textContent = '📜 Add AMC Contract';
+    }
+
+    if (tab === 'sites') this.renderCafmSites();
+    else if (tab === 'assets') this.renderCafmAssets();
+    else if (tab === 'ppm') this.renderCafmPpm();
+    else if (tab === 'tickets') this.renderCafmTickets();
+    else if (tab === 'amcs') this.renderCafmAmcs();
+  }
+
+  handleCafmSubTabAddAction() {
+    const tab = this.cafmSubTab || 'sites';
+    if (tab === 'sites') this.openAddFacilitySiteModal();
+    else if (tab === 'assets') this.openAddFacilityAssetModal();
+    else if (tab === 'ppm' || tab === 'tickets') this.openAddServiceTicketModal();
+    else if (tab === 'amcs') this.openAddAmcModal();
+  }
+
+  // --- SITES SUB-TAB ---
+  renderCafmSites() {
+    const sites = window.storage.getFacilitySites() || [];
+    const container = document.getElementById('cafm-sites-container');
+    if (!container) return;
+
+    if (sites.length === 0) {
+      container.innerHTML = `
+        <div class="card text-center text-muted" style="grid-column: 1 / -1; padding: 30px;">
+          No facility sites recorded yet. Click <strong>"➕ Add Facility Site"</strong> above to register client commercial premises.
+        </div>`;
+      return;
+    }
+
+    const allAssets = window.storage.getFacilityAssets() || [];
+    const allAmcs = window.storage.getAmcContracts() || [];
+
+    container.innerHTML = sites.map(s => {
+      const siteAssets = allAssets.filter(a => a.siteId === s.id);
+      const siteAmcs = allAmcs.filter(c => c.siteId === s.id && c.status === 'Active');
+
+      return `
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div class="flex justify-between items-center" style="margin-bottom: 8px;">
+              <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700;">${s.siteType || 'Commercial Site'}</span>
+              <span class="badge" style="background: ${s.status === 'Active' ? '#10b981' : '#f59e0b'}; color: #fff;">${s.status || 'Active'}</span>
+            </div>
+            <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 4px; color: #f8fafc;">${s.name}</h3>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 10px;">
+              Client: <strong>${s.clientName}</strong>
+            </div>
+
+            <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px; border-bottom: 1px dashed var(--border-color); padding-bottom: 10px;">
+              <div>📍 ${s.location}</div>
+              <div>📞 ${s.contactPerson ? `${s.contactPerson} (${s.contactPhone})` : s.contactPhone || '—'}</div>
+              ${s.apdclConsumerNo ? `<div style="color: var(--sky-blue);">⚡ APDCL: <strong>${s.apdclConsumerNo}</strong> (Load: ${s.sanctionedLoadKw || '—'} kW)</div>` : ''}
+            </div>
+
+            <div class="grid grid-cols-2 gap-2" style="margin-bottom: 12px; font-size: 11px;">
+              <div style="background: var(--bg-surface); padding: 6px 10px; border-radius: var(--radius-sm);">
+                <div style="color: var(--text-muted);">Solar Capacity:</div>
+                <strong style="color: var(--solar-amber); font-size: 13px;">${s.solarCapacityKwp || 0} kWp</strong>
+              </div>
+              <div style="background: var(--bg-surface); padding: 6px 10px; border-radius: var(--radius-sm);">
+                <div style="color: var(--text-muted);">Registered Assets:</div>
+                <strong style="font-size: 13px;">${siteAssets.length} Units</strong>
+              </div>
+            </div>
+
+            ${s.itScope ? `<div style="font-size: 11px; color: #94a3b8; margin-bottom: 12px;">💻 <strong>IT Scope:</strong> ${s.itScope}</div>` : ''}
+            ${siteAmcs.length > 0 ? `<div style="font-size: 11px; color: #10b981; font-weight: 600; margin-bottom: 12px;">🛡️ Active AMC: ${siteAmcs.map(a => formatINR(a.annualFee) + '/yr').join(', ')}</div>` : ''}
+          </div>
+
+          <div class="flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 10px; justify-content: space-between; flex-wrap: wrap;">
+            <div class="flex gap-1">
+              <button class="btn btn-secondary btn-sm" onclick="app.openAddFacilityAssetModal('${s.id}')" title="Register New Asset for this Site">⚙️ +Asset</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.openAddServiceTicketModal('', '${s.id}')" title="Log Ticket for this Site">🎫 +Ticket</button>
+            </div>
+            <div class="flex gap-1">
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditFacilitySiteModal('${s.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteFacilitySite('${s.id}')">✕</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // --- ASSETS SUB-TAB ---
+  renderCafmAssets() {
+    const category = document.getElementById('cafm-filter-asset-category')?.value || 'all';
+    const status = document.getElementById('cafm-filter-asset-status')?.value || 'all';
+    const assets = window.cafm.getAssets(category, status);
+    const sites = window.storage.getFacilitySites() || [];
+    const container = document.getElementById('cafm-assets-table-container');
+    if (!container) return;
+
+    if (assets.length === 0) {
+      container.innerHTML = `<div class="card text-center text-muted" style="padding: 30px;">No facility assets found matching filters.</div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="card">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Asset ID</th>
+                <th>Category</th>
+                <th>Asset Name &amp; Model</th>
+                <th>Site Premise</th>
+                <th>Serial Number</th>
+                <th>Warranty Expiry</th>
+                <th>Next Service Due</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${assets.map(a => {
+                const site = sites.find(s => s.id === a.siteId);
+                const isDue = a.status === 'Service Due' || (a.nextServiceDate && a.nextServiceDate <= new Date(Date.now() + 15*86400000).toISOString().slice(0, 10));
+
+                let catBadge = '';
+                if (a.category === 'Solar EPC') catBadge = '<span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;">☀️ Solar EPC</span>';
+                else if (a.category === 'IT Infrastructure') catBadge = '<span class="badge" style="background: rgba(2, 132, 199, 0.15); color: #0284c7;">🖥️ IT Infra</span>';
+                else catBadge = '<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">⚡ Electrical</span>';
+
+                let statusBadge = `<span class="badge" style="background: #10b981; color: #fff;">${a.status}</span>`;
+                if (a.status === 'Service Due' || isDue) {
+                  statusBadge = `<span class="badge" style="background: #f59e0b; color: #0f172a; font-weight: 700;">Service Due</span>`;
+                } else if (a.status === 'Under Repair') {
+                  statusBadge = `<span class="badge" style="background: #ef4444; color: #fff;">Under Repair</span>`;
+                }
+
+                return `
+                  <tr>
+                    <td class="font-mono font-bold" style="font-size: 12px; color: var(--solar-amber);">${a.id}</td>
+                    <td>${catBadge}</td>
+                    <td>
+                      <strong>${a.name}</strong>
+                      ${a.modelNumber ? `<div style="font-size: 11px; color: var(--text-muted);">${a.modelNumber}</div>` : ''}
+                    </td>
+                    <td>${site ? site.name : '—'}</td>
+                    <td class="font-mono" style="font-size: 11px;">${a.serialNumber || '—'}</td>
+                    <td style="font-size: 11px;">${formatDate(a.warrantyExpiry)}</td>
+                    <td style="font-size: 11.5px; font-weight: 600; color: ${isDue ? 'var(--solar-amber)' : 'inherit'};">
+                      ${formatDate(a.nextServiceDate)}
+                    </td>
+                    <td>${statusBadge}</td>
+                    <td style="text-align: right;">
+                      <div class="flex gap-1" style="justify-content: flex-end;">
+                        <button class="btn btn-secondary btn-sm" onclick="app.markAssetServiced('${a.id}')" title="Record Preventive Service Completed Today">✅ Serviced</button>
+                        <button class="btn btn-secondary btn-sm" onclick="app.openAddServiceTicketModal('${a.id}')" title="Log Helpdesk / Breakdown Ticket">🎫</button>
+                        <button class="btn btn-secondary btn-sm" onclick="app.openEditFacilityAssetModal('${a.id}')">✏️</button>
+                        <button class="btn btn-danger btn-sm" onclick="app.deleteFacilityAsset('${a.id}')">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- PPM SUB-TAB ---
+  renderCafmPpm() {
+    const summary = window.cafm.getSummary();
+    const assets = window.storage.getFacilityAssets() || [];
+    const sites = window.storage.getFacilitySites() || [];
+
+    const alertContainer = document.getElementById('cafm-ppm-alerts-container');
+    if (alertContainer) {
+      if (summary.dueAssetsCount > 0) {
+        alertContainer.innerHTML = `
+          <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid var(--solar-amber); border-radius: var(--radius-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <strong style="color: var(--solar-amber); font-size: 14px;">⚠️ ${summary.dueAssetsCount} Preventive Maintenance Tasks Due:</strong>
+              <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                Critical solar array washings, inverter heat-sink clearing, or CEIG earth pit tests scheduled within the 15-day service window.
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="app.openAddServiceTicketModal()">🎫 Dispatch PPM Crew</button>
+          </div>`;
+      } else {
+        alertContainer.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; border-radius: var(--radius-md); padding: 14px 18px; color: #10b981; font-size: 13px;">
+            ✅ All facility assets and solar equipment are currently compliant with scheduled maintenance cycles.
+          </div>`;
+      }
+    }
+
+    const tbody = document.getElementById('cafm-ppm-table-body');
+    if (!tbody) return;
+
+    if (assets.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding: 24px;">No facility assets registered.</td></tr>`;
+      return;
+    }
+
+    // Sort by nextServiceDate ascending
+    const sorted = [...assets].sort((a, b) => (a.nextServiceDate || '9999').localeCompare(b.nextServiceDate || '9999'));
+
+    tbody.innerHTML = sorted.map(a => {
+      const site = sites.find(s => s.id === a.siteId);
+      const isDue = a.status === 'Service Due' || (a.nextServiceDate && a.nextServiceDate <= new Date(Date.now() + 15*86400000).toISOString().slice(0, 10));
+
+      return `
+        <tr style="${isDue ? 'background: rgba(245, 158, 11, 0.04);' : ''}">
+          <td class="font-mono font-bold" style="color: var(--solar-amber);">${a.id}</td>
+          <td>
+            <strong>${a.name}</strong>
+            <div style="font-size: 10.5px; color: var(--text-muted);">${a.category}</div>
+          </td>
+          <td>${site ? site.name : '—'}</td>
+          <td>Every ${a.maintenanceCycleDays || 90} Days</td>
+          <td>${formatDate(a.lastServicedDate)}</td>
+          <td style="font-weight: 700; color: ${isDue ? 'var(--solar-amber)' : 'inherit'};">
+            ${formatDate(a.nextServiceDate)}
+          </td>
+          <td>
+            <span class="badge" style="background: ${isDue ? '#f59e0b' : '#10b981'}; color: ${isDue ? '#0f172a' : '#fff'};">
+              ${isDue ? 'Due' : 'Compliant'}
+            </span>
+          </td>
+          <td style="text-align: right;">
+            <div class="flex gap-1" style="justify-content: flex-end;">
+              <button class="btn btn-secondary btn-sm" onclick="app.markAssetServiced('${a.id}')" title="Mark Serviced Today">✅ Done</button>
+              <button class="btn btn-primary btn-sm" onclick="app.openAddServiceTicketModal('${a.id}')" title="Create Field Service Ticket">🎫 Ticket</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // --- TICKETS SUB-TAB ---
+  renderCafmTickets() {
+    const status = document.getElementById('cafm-filter-ticket-status')?.value || 'all';
+    const priority = document.getElementById('cafm-filter-ticket-priority')?.value || 'all';
+    const tickets = window.cafm.getTickets(status, priority);
+    const sites = window.storage.getFacilitySites() || [];
+    const assets = window.storage.getFacilityAssets() || [];
+    const container = document.getElementById('cafm-tickets-table-container');
+    if (!container) return;
+
+    if (tickets.length === 0) {
+      container.innerHTML = `<div class="card text-center text-muted" style="padding: 30px;">No service tickets found matching filters.</div>`;
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="card">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Priority</th>
+                <th>Title &amp; Issue Scope</th>
+                <th>Facility Premise &amp; Asset</th>
+                <th>Reported</th>
+                <th>Assigned Lead</th>
+                <th>Status</th>
+                <th>Linked WO</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tickets.map(t => {
+                const site = sites.find(s => s.id === t.siteId);
+                const asset = assets.find(a => a.id === t.assetId);
+
+                let prioBadge = `<span class="badge" style="background: #3b82f6; color: #fff;">Normal</span>`;
+                if (t.priority === 'Critical') prioBadge = `<span class="badge" style="background: #ef4444; color: #fff; font-weight: 800;">CRITICAL</span>`;
+                else if (t.priority === 'High') prioBadge = `<span class="badge" style="background: #f59e0b; color: #0f172a; font-weight: 700;">High</span>`;
+                else if (t.priority === 'Low') prioBadge = `<span class="badge" style="background: #64748b; color: #fff;">Low</span>`;
+
+                return `
+                  <tr>
+                    <td class="font-mono font-bold" style="font-size: 12px; color: var(--solar-amber);">${t.id}</td>
+                    <td>${prioBadge}</td>
+                    <td>
+                      <strong>${t.title}</strong>
+                      <div style="font-size: 11px; color: var(--text-muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        ${t.issueDescription || ''}
+                      </div>
+                    </td>
+                    <td>
+                      <div style="font-weight: 600;">${site ? site.name : '—'}</div>
+                      <div style="font-size: 11px; color: var(--text-muted);">${asset ? asset.name : 'General Asset'}</div>
+                    </td>
+                    <td style="font-size: 11px;">${formatDate(t.reportedDate)}</td>
+                    <td style="font-size: 11px;">${t.assignedTech || 'Unassigned'}</td>
+                    <td>
+                      <span class="badge" style="background: ${t.status === 'Resolved' || t.status === 'Closed' ? '#10b981' : '#f59e0b'}; color: ${t.status === 'Resolved' || t.status === 'Closed' ? '#fff' : '#0f172a'}; font-weight: 600;">
+                        ${t.status}
+                      </span>
+                    </td>
+                    <td>
+                      ${t.workOrderId ? `<span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700;">${t.workOrderId}</span>` : '<span class="text-muted" style="font-size: 11px;">—</span>'}
+                    </td>
+                    <td style="text-align: right;">
+                      <div class="flex gap-1" style="justify-content: flex-end;">
+                        ${!t.workOrderId ? `<button class="btn btn-primary btn-sm" onclick="app.dispatchCafmTicketToWorkOrder('${t.id}')" title="Dispatch to Field Work Order in Operations">🚀 Dispatch</button>` : ''}
+                        <button class="btn btn-secondary btn-sm" onclick="app.openViewCafmSlipModal('${t.id}')" title="Printable Service Inspection Slip">📄 Slip</button>
+                        <button class="btn btn-secondary btn-sm" onclick="app.openEditServiceTicketModal('${t.id}')">✏️</button>
+                        <button class="btn btn-danger btn-sm" onclick="app.deleteServiceTicket('${t.id}')">✕</button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // --- AMCS SUB-TAB ---
+  renderCafmAmcs() {
+    const amcs = window.storage.getAmcContracts() || [];
+    const sites = window.storage.getFacilitySites() || [];
+    const container = document.getElementById('cafm-amcs-container');
+    if (!container) return;
+
+    if (amcs.length === 0) {
+      container.innerHTML = `<div class="card text-center text-muted" style="grid-column: 1 / -1; padding: 30px;">No AMC service contracts registered. Click <strong>"➕ Add AMC Contract"</strong> to record recurring O&M retainers.</div>`;
+      return;
+    }
+
+    container.innerHTML = amcs.map(a => {
+      const site = sites.find(s => s.id === a.siteId);
+      const isExpired = a.status === 'Expired';
+      const isSolar = (a.contractType || '').toLowerCase().includes('solar');
+
+      return `
+        <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid ${isSolar ? 'var(--solar-amber)' : 'var(--sky-blue)'};">
+          <div>
+            <div class="flex justify-between items-center" style="margin-bottom: 8px;">
+              <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; font-weight: 700;">${a.contractType}</span>
+              <span class="badge" style="background: ${isExpired ? '#ef4444' : '#10b981'}; color: #fff;">${a.status}</span>
+            </div>
+            <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 4px;">${a.title}</h3>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+              Facility: <strong>${site ? site.name : 'Client Site'}</strong> (${site ? site.clientName : ''})
+            </div>
+
+            <div class="grid grid-cols-2 gap-2" style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 14px;">
+              <div>
+                <span style="font-size: 11px; color: var(--text-muted);">Annual Contract Value:</span>
+                <div class="font-mono text-amber" style="font-size: 18px; font-weight: 800;">${formatINR(a.annualFee)}</div>
+              </div>
+              <div>
+                <span style="font-size: 11px; color: var(--text-muted);">Billing Cycle:</span>
+                <div style="font-weight: 700; font-size: 13px;">${a.billingFrequency}</div>
+              </div>
+            </div>
+
+            <div style="font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin-bottom: 12px;">
+              <div>📅 <strong>Period:</strong> ${formatDate(a.startDate)} to ${formatDate(a.endDate)}</div>
+              <div>💳 <strong>Next Billing:</strong> <strong style="color: var(--solar-amber);">${formatDate(a.nextBillingDate)}</strong></div>
+            </div>
+
+            ${a.terms ? `<div style="font-size: 11px; color: #94a3b8; line-height: 1.4; border-top: 1px dashed var(--border-color); padding-top: 8px; margin-bottom: 12px;"><strong>SLA Scope:</strong> ${a.terms}</div>` : ''}
+          </div>
+
+          <div class="flex gap-2" style="border-top: 1px solid var(--border-color); padding-top: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <button class="btn btn-primary btn-sm" onclick="app.createInvoiceFromAmc('${a.id}')" title="Generate periodic billing invoice with SAC code">🧾 Issue Invoice</button>
+            <div class="flex gap-1">
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditAmcModal('${a.id}')">✏️ Edit</button>
+              <button class="btn btn-danger btn-sm" onclick="app.deleteAmc('${a.id}')">✕</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // --- ACTION HANDLERS: SITES ---
+  openAddFacilitySiteModal() {
+    document.getElementById('site-modal-id').value = '';
+    document.getElementById('modal-facility-site-title').textContent = '🏢 Add Client Facility Premise';
+    document.getElementById('site-modal-name').value = '';
+    document.getElementById('site-modal-client').value = '';
+    document.getElementById('site-modal-type').value = 'Commercial Factory & Warehouse';
+    document.getElementById('site-modal-status').value = 'Active';
+    document.getElementById('site-modal-location').value = 'Guwahati, Assam';
+    document.getElementById('site-modal-contact').value = '';
+    document.getElementById('site-modal-phone').value = '';
+    document.getElementById('site-modal-apdcl').value = '';
+    document.getElementById('site-modal-sanctioned-kw').value = '';
+    document.getElementById('site-modal-solar-kwp').value = '';
+    document.getElementById('site-modal-it-scope').value = '';
+    document.getElementById('modal-facility-site').classList.remove('hidden');
+  }
+
+  openEditFacilitySiteModal(id) {
+    const site = window.cafm.getSiteById(id);
+    if (!site) return;
+    document.getElementById('site-modal-id').value = site.id;
+    document.getElementById('modal-facility-site-title').textContent = `🏢 Edit Facility Site (${site.id})`;
+    document.getElementById('site-modal-name').value = site.name || '';
+    document.getElementById('site-modal-client').value = site.clientName || '';
+    document.getElementById('site-modal-type').value = site.siteType || 'Commercial Factory & Warehouse';
+    document.getElementById('site-modal-status').value = site.status || 'Active';
+    document.getElementById('site-modal-location').value = site.location || '';
+    document.getElementById('site-modal-contact').value = site.contactPerson || '';
+    document.getElementById('site-modal-phone').value = site.contactPhone || '';
+    document.getElementById('site-modal-apdcl').value = site.apdclConsumerNo || '';
+    document.getElementById('site-modal-sanctioned-kw').value = site.sanctionedLoadKw || '';
+    document.getElementById('site-modal-solar-kwp').value = site.solarCapacityKwp || '';
+    document.getElementById('site-modal-it-scope').value = site.itScope || '';
+    document.getElementById('modal-facility-site').classList.remove('hidden');
+  }
+
+  saveFacilitySiteFromModal() {
+    const name = document.getElementById('site-modal-name').value.trim();
+    const clientName = document.getElementById('site-modal-client').value.trim();
+    const location = document.getElementById('site-modal-location').value.trim();
+
+    if (!name || !clientName) {
+      showToast('Facility Name and Client Name are required.', 'error');
+      return;
+    }
+
+    const siteData = {
+      id: document.getElementById('site-modal-id').value || null,
+      name,
+      clientName,
+      siteType: document.getElementById('site-modal-type').value,
+      status: document.getElementById('site-modal-status').value,
+      location,
+      contactPerson: document.getElementById('site-modal-contact').value.trim(),
+      contactPhone: document.getElementById('site-modal-phone').value.trim(),
+      apdclConsumerNo: document.getElementById('site-modal-apdcl').value.trim(),
+      sanctionedLoadKw: Number(document.getElementById('site-modal-sanctioned-kw').value) || 0,
+      solarCapacityKwp: Number(document.getElementById('site-modal-solar-kwp').value) || 0,
+      itScope: document.getElementById('site-modal-it-scope').value.trim()
+    };
+
+    window.cafm.saveSite(siteData);
+    this.closeAllModals();
+    showToast(`Facility premise "${name}" saved!`, 'success');
+    this.renderCafmTab();
+  }
+
+  deleteFacilitySite(id) {
+    if (confirm('Are you sure you want to delete this facility site? All associated assets remain intact.')) {
+      window.cafm.deleteSite(id);
+      showToast('Facility site deleted.', 'info');
+      this.renderCafmTab();
+    }
+  }
+
+  // --- ACTION HANDLERS: ASSETS ---
+  populateSiteSelectOptions(selectId, selectedSiteId = '') {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const sites = window.storage.getFacilitySites() || [];
+    sel.innerHTML = sites.map(s => `
+      <option value="${s.id}" ${s.id === selectedSiteId ? 'selected' : ''}>
+        ${s.name} (${s.clientName})
+      </option>
+    `).join('');
+  }
+
+  openAddFacilityAssetModal(preselectedSiteId = '') {
+    this.populateSiteSelectOptions('asset-modal-site-id', preselectedSiteId);
+    document.getElementById('asset-modal-id').value = '';
+    document.getElementById('modal-facility-asset-title').textContent = '⚙️ Register Facility Asset';
+    document.getElementById('asset-modal-category').value = 'Solar EPC';
+    document.getElementById('asset-modal-name').value = '';
+    document.getElementById('asset-modal-model').value = '';
+    document.getElementById('asset-modal-serial').value = '';
+    document.getElementById('asset-modal-install-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('asset-modal-warranty-expiry').value = '';
+    document.getElementById('asset-modal-cycle-days').value = '90';
+    document.getElementById('asset-modal-last-service').value = new Date().toISOString().slice(0, 10);
+    const nextDate = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
+    document.getElementById('asset-modal-next-service').value = nextDate;
+    document.getElementById('asset-modal-status').value = 'Operational';
+    document.getElementById('asset-modal-notes').value = '';
+    document.getElementById('modal-facility-asset').classList.remove('hidden');
+  }
+
+  openEditFacilityAssetModal(id) {
+    const asset = window.cafm.getAssetById(id);
+    if (!asset) return;
+    this.populateSiteSelectOptions('asset-modal-site-id', asset.siteId);
+    document.getElementById('asset-modal-id').value = asset.id;
+    document.getElementById('modal-facility-asset-title').textContent = `⚙️ Edit Facility Asset (${asset.id})`;
+    document.getElementById('asset-modal-category').value = asset.category || 'Solar EPC';
+    document.getElementById('asset-modal-name').value = asset.name || '';
+    document.getElementById('asset-modal-model').value = asset.modelNumber || '';
+    document.getElementById('asset-modal-serial').value = asset.serialNumber || '';
+    document.getElementById('asset-modal-install-date').value = asset.installDate || '';
+    document.getElementById('asset-modal-warranty-expiry').value = asset.warrantyExpiry || '';
+    document.getElementById('asset-modal-cycle-days').value = asset.maintenanceCycleDays || 90;
+    document.getElementById('asset-modal-last-service').value = asset.lastServicedDate || '';
+    document.getElementById('asset-modal-next-service').value = asset.nextServiceDate || '';
+    document.getElementById('asset-modal-status').value = asset.status || 'Operational';
+    document.getElementById('asset-modal-notes').value = asset.notes || '';
+    document.getElementById('modal-facility-asset').classList.remove('hidden');
+  }
+
+  saveFacilityAssetFromModal() {
+    const name = document.getElementById('asset-modal-name').value.trim();
+    const siteId = document.getElementById('asset-modal-site-id').value;
+    const nextServiceDate = document.getElementById('asset-modal-next-service').value;
+
+    if (!name || !siteId || !nextServiceDate) {
+      showToast('Asset Name, Facility Site, and Next Service Date are required.', 'error');
+      return;
+    }
+
+    const assetData = {
+      id: document.getElementById('asset-modal-id').value || null,
+      siteId,
+      category: document.getElementById('asset-modal-category').value,
+      name,
+      modelNumber: document.getElementById('asset-modal-model').value.trim(),
+      serialNumber: document.getElementById('asset-modal-serial').value.trim(),
+      installDate: document.getElementById('asset-modal-install-date').value,
+      warrantyExpiry: document.getElementById('asset-modal-warranty-expiry').value,
+      maintenanceCycleDays: Number(document.getElementById('asset-modal-cycle-days').value) || 90,
+      lastServicedDate: document.getElementById('asset-modal-last-service').value,
+      nextServiceDate,
+      status: document.getElementById('asset-modal-status').value,
+      notes: document.getElementById('asset-modal-notes').value.trim()
+    };
+
+    window.cafm.saveAsset(assetData);
+    this.closeAllModals();
+    showToast(`Facility asset "${name}" registered!`, 'success');
+    this.renderCafmTab();
+  }
+
+  deleteFacilityAsset(id) {
+    if (confirm('Delete this facility asset record?')) {
+      window.cafm.deleteAsset(id);
+      showToast('Facility asset deleted.', 'info');
+      this.renderCafmTab();
+    }
+  }
+
+  markAssetServiced(id) {
+    const asset = window.cafm.getAssetById(id);
+    if (!asset) return;
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const cycle = Number(asset.maintenanceCycleDays) || 90;
+    const nextDate = new Date(Date.now() + cycle * 86400000).toISOString().slice(0, 10);
+
+    asset.lastServicedDate = todayStr;
+    asset.nextServiceDate = nextDate;
+    asset.status = 'Operational';
+
+    window.cafm.saveAsset(asset);
+    showToast(`Asset "${asset.name}" marked serviced! Next due: ${formatDate(nextDate)}`, 'success');
+    this.renderCafmTab();
+  }
+
+  // --- ACTION HANDLERS: SERVICE TICKETS ---
+  populateAssetSelectOptions(selectId, siteId, selectedAssetId = '') {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const allAssets = window.storage.getFacilityAssets() || [];
+    const filtered = siteId ? allAssets.filter(a => a.siteId === siteId) : allAssets;
+
+    if (filtered.length === 0) {
+      sel.innerHTML = '<option value="">(No specific asset - General facility issue)</option>';
+      return;
+    }
+
+    sel.innerHTML = `
+      <option value="">(General Facility Issue / Multiple Assets)</option>
+      ${filtered.map(a => `
+        <option value="${a.id}" ${a.id === selectedAssetId ? 'selected' : ''}>
+          ${a.name} [${a.category}]
+        </option>
+      `).join('')}
+    `;
+  }
+
+  onTicketSiteChanged() {
+    const siteId = document.getElementById('ticket-modal-site-id').value;
+    this.populateAssetSelectOptions('ticket-modal-asset-id', siteId);
+  }
+
+  openAddServiceTicketModal(preselectedAssetId = '', preselectedSiteId = '') {
+    let siteId = preselectedSiteId;
+    if (preselectedAssetId) {
+      const asset = window.cafm.getAssetById(preselectedAssetId);
+      if (asset) siteId = asset.siteId;
+    }
+
+    this.populateSiteSelectOptions('ticket-modal-site-id', siteId);
+    const currentSiteId = document.getElementById('ticket-modal-site-id').value;
+    this.populateAssetSelectOptions('ticket-modal-asset-id', currentSiteId, preselectedAssetId);
+
+    document.getElementById('ticket-modal-id').value = '';
+    document.getElementById('modal-service-ticket-title').textContent = '🎫 Log Maintenance Service Ticket';
+    document.getElementById('ticket-modal-title').value = '';
+    document.getElementById('ticket-modal-priority').value = 'Normal';
+    document.getElementById('ticket-modal-status').value = 'Open';
+    document.getElementById('ticket-modal-reported-date').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('ticket-modal-tech').value = '';
+    document.getElementById('ticket-modal-desc').value = '';
+    document.getElementById('ticket-modal-resolution').value = '';
+    document.getElementById('modal-service-ticket').classList.remove('hidden');
+  }
+
+  openEditServiceTicketModal(id) {
+    const ticket = window.cafm.getTicketById(id);
+    if (!ticket) return;
+
+    this.populateSiteSelectOptions('ticket-modal-site-id', ticket.siteId);
+    this.populateAssetSelectOptions('ticket-modal-asset-id', ticket.siteId, ticket.assetId);
+
+    document.getElementById('ticket-modal-id').value = ticket.id;
+    document.getElementById('modal-service-ticket-title').textContent = `🎫 Edit Service Ticket (${ticket.id})`;
+    document.getElementById('ticket-modal-title').value = ticket.title || '';
+    document.getElementById('ticket-modal-priority').value = ticket.priority || 'Normal';
+    document.getElementById('ticket-modal-status').value = ticket.status || 'Open';
+    document.getElementById('ticket-modal-reported-date').value = ticket.reportedDate || '';
+    document.getElementById('ticket-modal-tech').value = ticket.assignedTech || '';
+    document.getElementById('ticket-modal-desc').value = ticket.issueDescription || '';
+    document.getElementById('ticket-modal-resolution').value = ticket.resolutionNotes || '';
+    document.getElementById('modal-service-ticket').classList.remove('hidden');
+  }
+
+  saveServiceTicketFromModal() {
+    const title = document.getElementById('ticket-modal-title').value.trim();
+    const siteId = document.getElementById('ticket-modal-site-id').value;
+
+    if (!title || !siteId) {
+      showToast('Ticket Title and Facility Site are required.', 'error');
+      return;
+    }
+
+    const ticketData = {
+      id: document.getElementById('ticket-modal-id').value || null,
+      siteId,
+      assetId: document.getElementById('ticket-modal-asset-id').value || null,
+      title,
+      priority: document.getElementById('ticket-modal-priority').value,
+      status: document.getElementById('ticket-modal-status').value,
+      reportedDate: document.getElementById('ticket-modal-reported-date').value,
+      assignedTech: document.getElementById('ticket-modal-tech').value.trim(),
+      issueDescription: document.getElementById('ticket-modal-desc').value.trim(),
+      resolutionNotes: document.getElementById('ticket-modal-resolution').value.trim()
+    };
+
+    window.cafm.saveTicket(ticketData);
+    this.closeAllModals();
+    showToast(`Service ticket "${title}" saved!`, 'success');
+    this.renderCafmTab();
+  }
+
+  deleteServiceTicket(id) {
+    if (confirm('Delete this service ticket?')) {
+      window.cafm.deleteTicket(id);
+      showToast('Service ticket deleted.', 'info');
+      this.renderCafmTab();
+    }
+  }
+
+  dispatchCafmTicketToWorkOrder(ticketId) {
+    const wo = window.cafm.dispatchTicketToWorkOrder(ticketId);
+    if (wo) {
+      showToast(`CAFM Ticket dispatched to Field Work Order: ${wo.id}!`, 'success');
+      this.renderCafmTab();
+    }
+  }
+
+  // --- ACTION HANDLERS: AMCS ---
+  openAddAmcModal(preselectedSiteId = '') {
+    this.populateSiteSelectOptions('amc-modal-site-id', preselectedSiteId);
+    document.getElementById('amc-modal-id').value = '';
+    document.getElementById('modal-amc-contract-title').textContent = '📜 Add AMC Service Contract';
+    document.getElementById('amc-modal-type').value = 'Comprehensive Solar O&M';
+    document.getElementById('amc-modal-title').value = '';
+    document.getElementById('amc-modal-fee').value = '45000';
+    document.getElementById('amc-modal-freq').value = 'Quarterly';
+    document.getElementById('amc-modal-status').value = 'Active';
+    document.getElementById('amc-modal-start').value = new Date().toISOString().slice(0, 10);
+    const end = new Date(Date.now() + 365 * 86400000).toISOString().slice(0, 10);
+    const nextBill = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
+    document.getElementById('amc-modal-end').value = end;
+    document.getElementById('amc-modal-billing').value = nextBill;
+    document.getElementById('amc-modal-terms').value = 'Includes quarterly preventative maintenance visits, emergency breakdown response, and CEIG compliance audit.';
+    document.getElementById('modal-amc-contract').classList.remove('hidden');
+  }
+
+  openEditAmcModal(id) {
+    const amc = window.cafm.getAmcById(id);
+    if (!amc) return;
+
+    this.populateSiteSelectOptions('amc-modal-site-id', amc.siteId);
+    document.getElementById('amc-modal-id').value = amc.id;
+    document.getElementById('modal-amc-contract-title').textContent = `📜 Edit AMC Contract (${amc.id})`;
+    document.getElementById('amc-modal-type').value = amc.contractType || 'Comprehensive Solar O&M';
+    document.getElementById('amc-modal-title').value = amc.title || '';
+    document.getElementById('amc-modal-fee').value = amc.annualFee || 0;
+    document.getElementById('amc-modal-freq').value = amc.billingFrequency || 'Quarterly';
+    document.getElementById('amc-modal-status').value = amc.status || 'Active';
+    document.getElementById('amc-modal-start').value = amc.startDate || '';
+    document.getElementById('amc-modal-end').value = amc.endDate || '';
+    document.getElementById('amc-modal-billing').value = amc.nextBillingDate || '';
+    document.getElementById('amc-modal-terms').value = amc.terms || '';
+    document.getElementById('modal-amc-contract').classList.remove('hidden');
+  }
+
+  saveAmcFromModal() {
+    const title = document.getElementById('amc-modal-title').value.trim();
+    const siteId = document.getElementById('amc-modal-site-id').value;
+    const fee = Number(document.getElementById('amc-modal-fee').value);
+
+    if (!title || !siteId || !fee) {
+      showToast('Contract Title, Facility Site, and Annual Fee are required.', 'error');
+      return;
+    }
+
+    const amcData = {
+      id: document.getElementById('amc-modal-id').value || null,
+      siteId,
+      contractType: document.getElementById('amc-modal-type').value,
+      title,
+      annualFee: fee,
+      billingFrequency: document.getElementById('amc-modal-freq').value,
+      status: document.getElementById('amc-modal-status').value,
+      startDate: document.getElementById('amc-modal-start').value,
+      endDate: document.getElementById('amc-modal-end').value,
+      nextBillingDate: document.getElementById('amc-modal-billing').value,
+      terms: document.getElementById('amc-modal-terms').value.trim()
+    };
+
+    window.cafm.saveAmc(amcData);
+    this.closeAllModals();
+    showToast(`AMC contract "${title}" saved!`, 'success');
+    this.renderCafmTab();
+  }
+
+  deleteAmc(id) {
+    if (confirm('Delete this AMC contract?')) {
+      window.cafm.deleteAmc(id);
+      showToast('AMC contract deleted.', 'info');
+      this.renderCafmTab();
+    }
+  }
+
+  createInvoiceFromAmc(amcId) {
+    const inv = window.cafm.createInvoiceFromAmc(amcId);
+    if (inv) {
+      showToast(`Periodic AMC invoice ${inv.id} generated! Value: ${formatINR(inv.amountBilled)}`, 'success');
+      this.showView('quotes-invoices', true);
+    }
+  }
+
+  // --- INSPECTION SLIP CONSOLE ---
+  openViewCafmSlipModal(ticketId) {
+    const html = window.cafm.generateInspectionSlipHtml(ticketId);
+    document.getElementById('cafm-slip-view-content').innerHTML = html;
+    document.getElementById('cafm-active-slip-ticket-id').value = ticketId;
+    document.getElementById('modal-cafm-slip').classList.remove('hidden');
+  }
+
+  printCafmSlip() {
+    window.print();
+  }
+
+  shareCafmSlipWhatsApp() {
+    const ticketId = document.getElementById('cafm-active-slip-ticket-id').value;
+    const ticket = window.cafm.getTicketById(ticketId);
+    const site = ticket ? window.cafm.getSiteById(ticket.siteId) : null;
+
+    const phone = site && site.contactPhone ? site.contactPhone.replace(/[^0-9]/g, '') : '';
+    const text = encodeURIComponent(
+      `Hello ${site ? site.clientName : 'Customer'},\n\n` +
+      `Here is the verified MaxEco CAFM Service & Inspection Record:\n` +
+      `• Record ID: ${ticket ? ticket.id : 'N/A'}\n` +
+      `• Facility Premise: ${site ? site.name : 'Client Facility'}\n` +
+      `• Service Task: ${ticket ? ticket.title : 'Preventive Maintenance'}\n` +
+      `• Status: ${ticket ? ticket.status : 'Inspected'}\n` +
+      `• Lead Engineer: ${ticket ? ticket.assignedTech : 'MaxEco Technical Team'}\n\n` +
+      `Digitally verified by MaxEco Energy & Tech, Guwahati, Assam.`
+    );
+
+    const waUrl = phone ? `https://wa.me/${phone}?text=${text}` : `https://wa.me/?text=${text}`;
+    window.open(waUrl, '_blank');
+  }
+
+  // --- CSV EXPORT WRAPPER ---
+  exportCafmCsv(type) {
+    const ok = window.storage.exportCsv(type);
+    if (ok) {
+      showToast(`CAFM ${type} exported to CSV successfully!`, 'success');
+    } else {
+      showToast(`Failed to export ${type}.`, 'error');
+    }
   }
 }
 

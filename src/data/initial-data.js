@@ -370,6 +370,225 @@ const initialSeedData = {
       status: "In Progress",
       notes: "Verify mobile checkout response time across Airtel and Jio Northeast networks."
     }
+  ],
+
+  // --- CAFM: CLIENT FACILITY SITES & PREMISES REGISTRY ---
+  facilitySites: [
+    {
+      id: "SITE-2026-001",
+      name: "Brahmaputra Packaging & Logistics Hub",
+      clientName: "Brahmaputra Packaging & Logistics",
+      siteType: "Commercial Factory & Warehouse",
+      location: "Amingaon Industrial Area, Guwahati, Kamrup, Assam 781031",
+      contactPerson: "Pranab Barman",
+      contactPhone: "+91 98640 12345",
+      apdclConsumerNo: "10984729102",
+      sanctionedLoadKw: 40.0,
+      solarCapacityKwp: 35.0,
+      itScope: "Central Industrial Warehouse LAN & NVR Security",
+      status: "Active",
+      createdAt: "2026-01-10"
+    },
+    {
+      id: "SITE-2026-002",
+      name: "Pragjyotish Diagnostic Clinic & Lab",
+      clientName: "Pragjyotish Diagnostic Clinic",
+      siteType: "Healthcare & Diagnostic Laboratory",
+      location: "Zoo Road, Guwahati, Kamrup Metro, Assam 781024",
+      contactPerson: "Dr. Anamika Kalita",
+      contactPhone: "+91 94350 98765",
+      apdclConsumerNo: "20847190234",
+      sanctionedLoadKw: 15.0,
+      solarCapacityKwp: 10.0,
+      itScope: "Clinical Server, 10x Workstations & 5kVA Online UPS",
+      status: "Active",
+      createdAt: "2026-02-05"
+    },
+    {
+      id: "SITE-2026-003",
+      name: "Assam Craft & Loom Commercial Center",
+      clientName: "Assam Craft & Loom Traders",
+      siteType: "Commercial Retail & Showroom",
+      location: "Panbazar, Guwahati, Kamrup Metro, Assam 781001",
+      contactPerson: "Rupjyoti Deka",
+      contactPhone: "+91 97060 44556",
+      apdclConsumerNo: "10293847561",
+      sanctionedLoadKw: 8.0,
+      solarCapacityKwp: 5.0,
+      itScope: "POS Terminals, Wi-Fi 6 Routers & Inventory Server",
+      status: "Active",
+      createdAt: "2026-03-01"
+    }
+  ],
+
+  // --- CAFM: FACILITY ASSETS & EQUIPMENT INVENTORY ---
+  facilityAssets: [
+    {
+      id: "AST-2026-001",
+      siteId: "SITE-2026-001",
+      category: "Solar EPC",
+      name: "35 kWp Mono PERC Tier-1 Solar PV Array (65x 540Wp)",
+      modelNumber: "Waaree / Adani 540Wp High-Efficiency",
+      serialNumber: "WA-2026-0912-35K",
+      installDate: "2026-01-15",
+      warrantyExpiry: "2051-01-15",
+      maintenanceCycleDays: 30,
+      lastServicedDate: "2026-09-25",
+      nextServiceDate: "2026-10-25",
+      status: "Service Due",
+      notes: "Bi-weekly washing required to remove industrial highway particulate matter."
+    },
+    {
+      id: "AST-2026-002",
+      siteId: "SITE-2026-001",
+      category: "Solar EPC",
+      name: "30kW Three-Phase On-Grid Solar Inverter with Wi-Fi Logger",
+      modelNumber: "Growatt MID 30KTL3-X",
+      serialNumber: "GW-MID-30K-8812",
+      installDate: "2026-01-15",
+      warrantyExpiry: "2031-01-15",
+      maintenanceCycleDays: 90,
+      lastServicedDate: "2026-08-15",
+      nextServiceDate: "2026-11-15",
+      status: "Operational",
+      notes: "Operating generation verified remotely on ShinePhone cloud telemetry."
+    },
+    {
+      id: "AST-2026-003",
+      siteId: "SITE-2026-001",
+      category: "Electrical & CEIG",
+      name: "4-Pit Chemical Earthing & Pure Copper Lightning Arrester System",
+      modelNumber: "TruePower Copper-Bonded 3m Electrode",
+      serialNumber: "CEIG-EARTH-2026-04",
+      installDate: "2026-01-20",
+      warrantyExpiry: "2036-01-20",
+      maintenanceCycleDays: 180,
+      lastServicedDate: "2026-04-20",
+      nextServiceDate: "2026-10-20",
+      status: "Service Due",
+      notes: "Mandatory CEIG inspection: earth resistance benchmark must stay < 2.0 ohms."
+    },
+    {
+      id: "AST-2026-004",
+      siteId: "SITE-2026-002",
+      category: "IT Infrastructure",
+      name: "5kVA Online High-Frequency UPS with 16x 12V 42Ah Battery Bank",
+      modelNumber: "APC Smart-UPS On-Line SRC5000",
+      serialNumber: "APC-SRC5K-99120",
+      installDate: "2026-02-10",
+      warrantyExpiry: "2028-02-10",
+      maintenanceCycleDays: 60,
+      lastServicedDate: "2026-09-01",
+      nextServiceDate: "2026-11-01",
+      status: "Operational",
+      notes: "Dedicated backup power for clinical laboratory biochemistry analyzers."
+    },
+    {
+      id: "AST-2026-005",
+      siteId: "SITE-2026-002",
+      category: "IT Infrastructure",
+      name: "24-Port Gigabit Managed L2 Network Switch with PoE+",
+      modelNumber: "Cisco Catalyst 1000 Series",
+      serialNumber: "CISCO-C1000-24P-332",
+      installDate: "2026-02-10",
+      warrantyExpiry: "2029-02-10",
+      maintenanceCycleDays: 90,
+      lastServicedDate: "2026-09-10",
+      nextServiceDate: "2026-12-10",
+      status: "Operational",
+      notes: "VLAN partitioned between patient reception and laboratory testing."
+    },
+    {
+      id: "AST-2026-006",
+      siteId: "SITE-2026-003",
+      category: "IT Infrastructure",
+      name: "POS & Inventory Local Database Server Workstation",
+      modelNumber: "Dell PowerEdge T150 Tower Server",
+      serialNumber: "DELL-PE-T150-7761",
+      installDate: "2026-03-01",
+      warrantyExpiry: "2029-03-01",
+      maintenanceCycleDays: 60,
+      lastServicedDate: "2026-08-30",
+      nextServiceDate: "2026-10-30",
+      status: "Operational",
+      notes: "RAID-1 mirror storage with automated daily offline archive backup."
+    }
+  ],
+
+  // --- CAFM: SERVICE TICKETS & MAINTENANCE HELPDESK ---
+  serviceTickets: [
+    {
+      id: "TCK-2026-001",
+      siteId: "SITE-2026-001",
+      assetId: "AST-2026-001",
+      title: "Bi-Weekly High-Pressure Solar Panel Dust Cleaning & Array Inspection",
+      priority: "Normal",
+      reportedDate: "2026-10-12",
+      issueDescription: "Scheduled bi-weekly wash down of 65x PV modules to remove industrial dust.",
+      assignedTech: "Romen Kalita (Solar Maintenance Crew)",
+      status: "Dispatched",
+      workOrderId: "WO-2026-001",
+      resolutionNotes: "Dispatched under field work order WO-2026-001.",
+      resolvedDate: null
+    },
+    {
+      id: "TCK-2026-002",
+      siteId: "SITE-2026-001",
+      assetId: "AST-2026-003",
+      title: "Annual CEIG Earth Pit Megger Resistance Audit (< 2 Ohms Target)",
+      priority: "High",
+      reportedDate: "2026-10-10",
+      issueDescription: "Pre-winter verification of earthing pit chemical compound and lightning protection continuity.",
+      assignedTech: "Bikash Das (CEIG Certified Electrician)",
+      status: "In Progress",
+      workOrderId: "WO-2026-002",
+      resolutionNotes: "Measuring earth resistance across all 4 bonded pits with calibrated megger.",
+      resolvedDate: null
+    },
+    {
+      id: "TCK-2026-003",
+      siteId: "SITE-2026-002",
+      assetId: "AST-2026-004",
+      title: "UPS Battery Bank Impedance & Voltage Float Charge Audit",
+      priority: "Normal",
+      reportedDate: "2026-10-05",
+      issueDescription: "Quarterly preventative battery health test under full clinical analyzer load.",
+      assignedTech: "Debajit Sarma (IT Infra Lead)",
+      status: "Resolved",
+      workOrderId: "WO-2026-003",
+      resolutionNotes: "All 16 battery blocks checked at 13.6V float charge. Total runtime tested at 45 minutes without voltage sag.",
+      resolvedDate: "2026-10-09"
+    }
+  ],
+
+  // --- CAFM: ANNUAL MAINTENANCE CONTRACTS (AMC) & SLAS ---
+  amcContracts: [
+    {
+      id: "AMC-2026-001",
+      siteId: "SITE-2026-001",
+      title: "35 kWp Comprehensive Solar Rooftop O&M & APDCL Compliance Retainer",
+      contractType: "Comprehensive Solar O&M",
+      annualFee: 45000,
+      billingFrequency: "Quarterly",
+      startDate: "2026-02-01",
+      endDate: "2027-01-31",
+      nextBillingDate: "2026-11-01",
+      status: "Active",
+      terms: "Includes 24x array washings per year, quarterly inverter thermography, 2x CEIG earthing audits, and guaranteed 4-hour breakdown on-site response in Kamrup."
+    },
+    {
+      id: "AMC-2026-002",
+      siteId: "SITE-2026-002",
+      title: "Clinical IT Network, UPS & Server Infrastructure Maintenance SLA",
+      contractType: "IT Infra & Network SLA",
+      annualFee: 36000,
+      billingFrequency: "Quarterly",
+      startDate: "2026-03-01",
+      endDate: "2027-02-28",
+      nextBillingDate: "2026-12-01",
+      status: "Active",
+      terms: "Includes monthly preventive server maintenance, bi-monthly UPS battery impedance audits, managed switch firmware maintenance, and standby replacement hardware."
+    }
   ]
 };
 

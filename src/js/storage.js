@@ -47,7 +47,11 @@ class StorageController {
           itProjects: [],
           procurements: [],
           workOrders: [],
-          payments: []
+          payments: [],
+          facilitySites: [],
+          facilityAssets: [],
+          serviceTickets: [],
+          amcContracts: []
         });
       }
     } else {
@@ -89,6 +93,24 @@ class StorageController {
         }
         if (parsed && (!parsed.payments || parsed.payments.length === 0)) {
           parsed.payments = (seed && seed.payments) ? JSON.parse(JSON.stringify(seed.payments)) : [];
+          updated = true;
+        }
+
+        // Migrate CAFM Facilities Management tables if absent
+        if (parsed && (!parsed.facilitySites || parsed.facilitySites.length === 0)) {
+          parsed.facilitySites = (seed && seed.facilitySites) ? JSON.parse(JSON.stringify(seed.facilitySites)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.facilityAssets || parsed.facilityAssets.length === 0)) {
+          parsed.facilityAssets = (seed && seed.facilityAssets) ? JSON.parse(JSON.stringify(seed.facilityAssets)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.serviceTickets || parsed.serviceTickets.length === 0)) {
+          parsed.serviceTickets = (seed && seed.serviceTickets) ? JSON.parse(JSON.stringify(seed.serviceTickets)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.amcContracts || parsed.amcContracts.length === 0)) {
+          parsed.amcContracts = (seed && seed.amcContracts) ? JSON.parse(JSON.stringify(seed.amcContracts)) : [];
           updated = true;
         }
 
@@ -537,6 +559,176 @@ class StorageController {
     this.saveStore(store);
   }
 
+  // --- CAFM: FACILITY SITES & PREMISES ---
+  getFacilitySites() {
+    const store = this.getStore();
+    return store && store.facilitySites ? store.facilitySites : [];
+  }
+
+  saveFacilitySite(site) {
+    const store = this.getStore();
+    if (!store.facilitySites) store.facilitySites = [];
+    if (!site.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilitySites.length + 1).toString().padStart(3, '0');
+      site.id = `SITE-${year}-${count}`;
+      site.createdAt = site.createdAt || new Date().toISOString().slice(0, 10);
+      store.facilitySites.unshift(site);
+    } else {
+      const idx = store.facilitySites.findIndex(s => s.id === site.id);
+      if (idx !== -1) {
+        store.facilitySites[idx] = { ...store.facilitySites[idx], ...site };
+      } else {
+        store.facilitySites.unshift(site);
+      }
+    }
+    this.saveStore(store);
+    return site;
+  }
+
+  deleteFacilitySite(id) {
+    const store = this.getStore();
+    store.facilitySites = (store.facilitySites || []).filter(s => s.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: FACILITY ASSETS & HARDWARE ---
+  getFacilityAssets() {
+    const store = this.getStore();
+    return store && store.facilityAssets ? store.facilityAssets : [];
+  }
+
+  saveFacilityAsset(asset) {
+    const store = this.getStore();
+    if (!store.facilityAssets) store.facilityAssets = [];
+    if (!asset.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilityAssets.length + 1).toString().padStart(3, '0');
+      asset.id = `AST-${year}-${count}`;
+      asset.installDate = asset.installDate || new Date().toISOString().slice(0, 10);
+      store.facilityAssets.unshift(asset);
+    } else {
+      const idx = store.facilityAssets.findIndex(a => a.id === asset.id);
+      if (idx !== -1) {
+        store.facilityAssets[idx] = { ...store.facilityAssets[idx], ...asset };
+      } else {
+        store.facilityAssets.unshift(asset);
+      }
+    }
+    this.saveStore(store);
+    return asset;
+  }
+
+  updateAssetStatus(id, newStatus) {
+    const store = this.getStore();
+    const asset = (store.facilityAssets || []).find(a => a.id === id);
+    if (asset) {
+      asset.status = newStatus;
+      this.saveStore(store);
+      return asset;
+    }
+    return null;
+  }
+
+  deleteFacilityAsset(id) {
+    const store = this.getStore();
+    store.facilityAssets = (store.facilityAssets || []).filter(a => a.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: SERVICE TICKETS & MAINTENANCE HELPDESK ---
+  getServiceTickets() {
+    const store = this.getStore();
+    return store && store.serviceTickets ? store.serviceTickets : [];
+  }
+
+  saveServiceTicket(ticket) {
+    const store = this.getStore();
+    if (!store.serviceTickets) store.serviceTickets = [];
+    if (!ticket.id) {
+      const year = new Date().getFullYear();
+      const count = (store.serviceTickets.length + 1).toString().padStart(3, '0');
+      ticket.id = `TCK-${year}-${count}`;
+      ticket.reportedDate = ticket.reportedDate || new Date().toISOString().slice(0, 10);
+      ticket.status = ticket.status || 'Open';
+      store.serviceTickets.unshift(ticket);
+    } else {
+      const idx = store.serviceTickets.findIndex(t => t.id === ticket.id);
+      if (idx !== -1) {
+        store.serviceTickets[idx] = { ...store.serviceTickets[idx], ...ticket };
+      } else {
+        store.serviceTickets.unshift(ticket);
+      }
+    }
+    this.saveStore(store);
+    return ticket;
+  }
+
+  updateServiceTicketStatus(id, newStatus, resolutionNotes = null) {
+    const store = this.getStore();
+    const ticket = (store.serviceTickets || []).find(t => t.id === id);
+    if (ticket) {
+      ticket.status = newStatus;
+      if (resolutionNotes) ticket.resolutionNotes = resolutionNotes;
+      if (newStatus === 'Resolved' || newStatus === 'Closed') {
+        ticket.resolvedDate = new Date().toISOString().slice(0, 10);
+      }
+      this.saveStore(store);
+      return ticket;
+    }
+    return null;
+  }
+
+  deleteServiceTicket(id) {
+    const store = this.getStore();
+    store.serviceTickets = (store.serviceTickets || []).filter(t => t.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: ANNUAL MAINTENANCE CONTRACTS (AMC) ---
+  getAmcContracts() {
+    const store = this.getStore();
+    return store && store.amcContracts ? store.amcContracts : [];
+  }
+
+  saveAmcContract(amc) {
+    const store = this.getStore();
+    if (!store.amcContracts) store.amcContracts = [];
+    if (!amc.id) {
+      const year = new Date().getFullYear();
+      const count = (store.amcContracts.length + 1).toString().padStart(3, '0');
+      amc.id = `AMC-${year}-${count}`;
+      amc.status = amc.status || 'Active';
+      store.amcContracts.unshift(amc);
+    } else {
+      const idx = store.amcContracts.findIndex(a => a.id === amc.id);
+      if (idx !== -1) {
+        store.amcContracts[idx] = { ...store.amcContracts[idx], ...amc };
+      } else {
+        store.amcContracts.unshift(amc);
+      }
+    }
+    this.saveStore(store);
+    return amc;
+  }
+
+  updateAmcStatus(id, newStatus) {
+    const store = this.getStore();
+    const amc = (store.amcContracts || []).find(a => a.id === id);
+    if (amc) {
+      amc.status = newStatus;
+      this.saveStore(store);
+      return amc;
+    }
+    return null;
+  }
+
+  deleteAmcContract(id) {
+    const store = this.getStore();
+    store.amcContracts = (store.amcContracts || []).filter(a => a.id !== id);
+    this.saveStore(store);
+  }
+
   // --- BACKUP & RESTORE ---
   exportJsonBackup() {
     const data = this.getStore();
@@ -609,6 +801,26 @@ class StorageController {
       csvContent = "Receipt ID,Invoice ID,Client Name,Service,Amount Received (INR),Payment Method,Reference No,Date,Balance Remaining (INR),Notes\n";
       (store.payments || []).forEach(p => {
         csvContent += `"${p.id}","${p.invoiceId || ''}","${p.clientName}","${(p.service || '').replace(/"/g, '""')}",${p.amount || 0},"${p.paymentMethod || ''}","${p.referenceNo || ''}","${p.date || ''}",${p.balanceRemaining || 0},"${(p.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'facilitySites') {
+      csvContent = "Site ID,Facility Name,Client Name,Site Type,Location,Contact Person,Phone,APDCL Consumer No,Sanctioned Load (kW),Solar Capacity (kWp),IT Scope,Status\n";
+      (store.facilitySites || []).forEach(s => {
+        csvContent += `"${s.id}","${(s.name || '').replace(/"/g, '""')}","${(s.clientName || '').replace(/"/g, '""')}","${s.siteType || ''}","${(s.location || '').replace(/"/g, '""')}","${s.contactPerson || ''}","${s.contactPhone || ''}","${s.apdclConsumerNo || ''}",${s.sanctionedLoadKw || 0},${s.solarCapacityKwp || 0},"${(s.itScope || '').replace(/"/g, '""')}","${s.status || ''}"\n`;
+      });
+    } else if (entityType === 'facilityAssets') {
+      csvContent = "Asset ID,Site ID,Category,Asset Name,Model Number,Serial Number,Install Date,Warranty Expiry,Maintenance Cycle (Days),Last Serviced,Next Service Due,Status,Notes\n";
+      (store.facilityAssets || []).forEach(a => {
+        csvContent += `"${a.id}","${a.siteId || ''}","${a.category || ''}","${(a.name || '').replace(/"/g, '""')}","${a.modelNumber || ''}","${a.serialNumber || ''}","${a.installDate || ''}","${a.warrantyExpiry || ''}",${a.maintenanceCycleDays || 0},"${a.lastServicedDate || ''}","${a.nextServiceDate || ''}","${a.status || ''}","${(a.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'serviceTickets') {
+      csvContent = "Ticket ID,Site ID,Asset ID,Title,Priority,Reported Date,Assigned Tech,Status,Linked Work Order,Resolved Date,Description,Resolution Notes\n";
+      (store.serviceTickets || []).forEach(t => {
+        csvContent += `"${t.id}","${t.siteId || ''}","${t.assetId || ''}","${(t.title || '').replace(/"/g, '""')}","${t.priority || ''}","${t.reportedDate || ''}","${(t.assignedTech || '').replace(/"/g, '""')}","${t.status || ''}","${t.workOrderId || ''}","${t.resolvedDate || ''}","${(t.issueDescription || '').replace(/"/g, '""')}","${(t.resolutionNotes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'amcContracts') {
+      csvContent = "AMC ID,Site ID,Title,Contract Type,Annual Fee (INR),Billing Frequency,Start Date,End Date,Next Billing Date,Status,Terms\n";
+      (store.amcContracts || []).forEach(c => {
+        csvContent += `"${c.id}","${c.siteId || ''}","${(c.title || '').replace(/"/g, '""')}","${c.contractType || ''}",${c.annualFee || 0},"${c.billingFrequency || ''}","${c.startDate || ''}","${c.endDate || ''}","${c.nextBillingDate || ''}","${c.status || ''}","${(c.terms || '').replace(/"/g, '""')}"\n`;
       });
     } else {
       return false;

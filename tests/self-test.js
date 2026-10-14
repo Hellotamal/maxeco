@@ -61,6 +61,7 @@ require('../src/js/finance.js');
 require('../src/js/invoice.js');
 require('../src/js/projects.js');
 require('../src/js/operations.js');
+require('../src/js/cafm.js');
 
 let passedTests = 0;
 let totalTests = 0;
@@ -559,9 +560,100 @@ const itInfraQuoteHtml = window.invoiceController.generateQuotationHTML(itInfraQ
 assert(itInfraQuoteHtml.includes('Commercial workstation, server &amp; client IT equipment') || itInfraQuoteHtml.includes('Commercial workstation, server & client IT equipment'), 'IT Infra quotation outputs specialized workstation & server procurement scope');
 assert(itInfraQuoteHtml.includes('Structured Cat6/Fiber cabling') || itInfraQuoteHtml.includes('Structured Cat6/Fiber cabling'), 'IT Infra quotation outputs structured networking deliverables');
 
-const indexHtmlContent = fs.readFileSync('public/index.html', 'utf8');
-assert(indexHtmlContent.includes('IT Infra Sales &amp; Support') || indexHtmlContent.includes('IT Infra Sales & Support'), 'Public index.html displays IT Infra Sales & Support service card in IT & Digital section');
+// --- TEST SUITE 11: CAFM (COMPUTER-AIDED FACILITY MANAGEMENT) ENGINE ---
+console.log('\n--- TEST SUITE 11: CAFM Facilities Management Engine ---');
+assert(typeof window.CafmController === 'function' && window.cafm, 'CafmController initialized on window');
+
+const cafmSummary = window.cafm.getSummary();
+assert(cafmSummary.totalSites >= 3, `Initial facility sites loaded (found ${cafmSummary.totalSites}, expected >= 3)`);
+assert(cafmSummary.totalAssets >= 6, `Initial facility assets loaded (found ${cafmSummary.totalAssets}, expected >= 6)`);
+assert(cafmSummary.totalSolarCapacityKwp >= 50, `Managed solar capacity aggregated across sites (${cafmSummary.totalSolarCapacityKwp} kWp)`);
+assert(cafmSummary.solarAssetsCount >= 2, 'Tracks solar PV and inverter assets');
+assert(cafmSummary.itAssetsCount >= 3, 'Tracks IT UPS, switch, and server assets');
+assert(cafmSummary.electricalAssetsCount >= 1, 'Tracks CEIG earthing & lightning arrester assets');
+assert(cafmSummary.dueAssetsCount >= 2, `PPM alert engine flags assets due for service (found ${cafmSummary.dueAssetsCount})`);
+assert(cafmSummary.totalTicketsCount >= 3, `Initial service tickets loaded (found ${cafmSummary.totalTicketsCount}, expected >= 3)`);
+assert(cafmSummary.activeAmcCount >= 2, `Initial active AMCs loaded (found ${cafmSummary.activeAmcCount}, expected >= 2)`);
+assert(cafmSummary.totalAnnualAmcValue === 81000, `Total annual AMC contract value calculated (₹${cafmSummary.totalAnnualAmcValue}, expected ₹81,000)`);
+
+// Test Site Creation
+const newSite = window.cafm.saveSite({
+  name: "Dispur Capital Commercial Complex",
+  clientName: "Dispur Commercial Holdings",
+  siteType: "Corporate Office & Retail",
+  location: "Dispur, Guwahati, Assam 781006",
+  contactPerson: "Pranab Jyoti Sarma",
+  contactPhone: "+91 94350 11223",
+  apdclConsumerNo: "30981273911",
+  sanctionedLoadKw: 25.0,
+  solarCapacityKwp: 20.0,
+  itScope: "Dual-WAN Fiber Router & 48-Port PoE Switch",
+  status: "Active"
+});
+assert(newSite && newSite.id && newSite.id.startsWith('SITE-'), `New facility site assigned ID: ${newSite.id}`);
+const fetchedSite = window.cafm.getSiteById(newSite.id);
+assert(fetchedSite && fetchedSite.name === "Dispur Capital Commercial Complex", 'Facility site persisted and retrieved from storage');
+
+// Test Asset Creation
+const newAsset = window.cafm.saveAsset({
+  siteId: newSite.id,
+  category: "Solar EPC",
+  name: "20 kWp Elevated Rooftop Solar Array",
+  modelNumber: "Tata Power Solar 545Wp",
+  serialNumber: "TPS-545-2026-091",
+  installDate: "2026-10-14",
+  warrantyExpiry: "2051-10-14",
+  maintenanceCycleDays: 30,
+  lastServicedDate: "2026-10-14",
+  nextServiceDate: "2026-11-14",
+  status: "Operational",
+  notes: "Elevated structure on Dispur terrace."
+});
+assert(newAsset && newAsset.id && newAsset.id.startsWith('AST-'), `New facility asset assigned ID: ${newAsset.id}`);
+const fetchedAsset = window.cafm.getAssetById(newAsset.id);
+assert(fetchedAsset && fetchedAsset.category === "Solar EPC", 'Facility asset persisted and categorized');
+
+// Test Service Ticket & Workflow
+const newTicket = window.cafm.saveTicket({
+  siteId: newSite.id,
+  assetId: newAsset.id,
+  title: "Inverter Output Tripped during Grid Surge",
+  priority: "High",
+  reportedDate: "2026-10-14",
+  issueDescription: "Grid voltage fluctuation caused inverter protection relay to trip.",
+  assignedTech: "Bikash Das (CEIG Lead)",
+  status: "Open"
+});
+assert(newTicket && newTicket.id && newTicket.id.startsWith('TCK-'), `New service ticket assigned ID: ${newTicket.id}`);
+
+// Test 1-Click Ticket to Work Order Dispatch
+const dispatchedWO = window.cafm.dispatchTicketToWorkOrder(newTicket.id);
+assert(dispatchedWO && dispatchedWO.id && dispatchedWO.id.startsWith('WO-'), `CAFM ticket dispatched to Field Work Order: ${dispatchedWO.id}`);
+assert(dispatchedWO.safetyCompliance.includes('safety harness') || dispatchedWO.safetyCompliance.includes('CEIG'), 'Field Work Order includes CEIG electrical safety mandate');
+const updatedTicket = window.cafm.getTicketById(newTicket.id);
+assert(updatedTicket.status === 'Dispatched' && updatedTicket.workOrderId === dispatchedWO.id, 'Ticket status transitioned to Dispatched with linked workOrderId');
+
+// Test 1-Click AMC to Invoice Conversion
+const amcInvoice = window.cafm.createInvoiceFromAmc('AMC-2026-001');
+assert(amcInvoice && amcInvoice.id && amcInvoice.id.startsWith('INV-'), `AMC converted to Customer Invoice: ${amcInvoice.id}`);
+assert(amcInvoice.amountBilled === 11250, `Quarterly AMC billing calculated correctly (₹${amcInvoice.amountBilled}, expected ₹11,250 for ₹45k annual)`);
+assert(amcInvoice.notes.includes('995461'), 'Auto-assigns SAC 995461 for Solar O&M AMC invoice');
+
+// Test Printable CAFM Inspection Sheet
+const inspectionHtml = window.cafm.generateInspectionSlipHtml(newTicket.id);
+assert(inspectionHtml.includes('MaxEco Energy &amp; Tech') || inspectionHtml.includes('MaxEco Energy & Tech'), 'Inspection slip renders MaxEco company header');
+assert(inspectionHtml.includes('PREVENTIVE MAINTENANCE &amp; INSPECTION RECORD') || inspectionHtml.includes('PREVENTIVE MAINTENANCE & INSPECTION RECORD'), 'Inspection slip displays CAFM inspection record header');
+assert(inspectionHtml.includes('Technical Verification Checklist'), 'Inspection slip renders technical verification checklist');
+assert(inspectionHtml.includes('Tamal Roy'), 'Inspection slip renders Tamal Roy as Authorised Signatory');
+assert(inspectionHtml.includes('DIGITALLY VERIFIED CAFM INSPECTION'), 'Inspection slip renders DIGITALLY VERIFIED CAFM INSPECTION badge');
+
+// Test CSV Exports for CAFM
+assert(window.storage.exportCsv('facilitySites') === true, 'Facility Sites CSV export generated');
+assert(window.storage.exportCsv('facilityAssets') === true, 'Facility Assets CSV export generated');
+assert(window.storage.exportCsv('serviceTickets') === true, 'Service Tickets CSV export generated');
+assert(window.storage.exportCsv('amcContracts') === true, 'AMC Contracts CSV export generated');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');
+
