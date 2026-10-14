@@ -51,7 +51,9 @@ class StorageController {
           facilitySites: [],
           facilityAssets: [],
           serviceTickets: [],
-          amcContracts: []
+          amcContracts: [],
+          cafmOrganizations: [],
+          cafmAuditLog: []
         });
       }
     } else {
@@ -97,6 +99,10 @@ class StorageController {
         }
 
         // Migrate CAFM Facilities Management tables if absent
+        if (parsed && (!parsed.cafmOrganizations || parsed.cafmOrganizations.length === 0)) {
+          parsed.cafmOrganizations = (seed && seed.cafmOrganizations) ? JSON.parse(JSON.stringify(seed.cafmOrganizations)) : [];
+          updated = true;
+        }
         if (parsed && (!parsed.facilitySites || parsed.facilitySites.length === 0)) {
           parsed.facilitySites = (seed && seed.facilitySites) ? JSON.parse(JSON.stringify(seed.facilitySites)) : [];
           updated = true;
@@ -112,6 +118,38 @@ class StorageController {
         if (parsed && (!parsed.amcContracts || parsed.amcContracts.length === 0)) {
           parsed.amcContracts = (seed && seed.amcContracts) ? JSON.parse(JSON.stringify(seed.amcContracts)) : [];
           updated = true;
+        }
+        if (parsed && !parsed.cafmAuditLog) {
+          parsed.cafmAuditLog = [];
+          updated = true;
+        }
+
+        // Backfill organizationId on cached sites if missing
+        if (parsed && parsed.facilitySites) {
+          parsed.facilitySites.forEach(s => {
+            if (!s.organizationId) {
+              if (s.id === 'SITE-2026-001') s.organizationId = 'ORG-2026-001';
+              else if (s.id === 'SITE-2026-002') s.organizationId = 'ORG-2026-002';
+              else if (s.id === 'SITE-2026-003') s.organizationId = 'ORG-2026-003';
+              else s.organizationId = 'ORG-2026-001';
+              updated = true;
+            }
+          });
+        }
+
+        // Backfill organizationId and QR payload on cached assets if missing
+        if (parsed && parsed.facilityAssets) {
+          parsed.facilityAssets.forEach(a => {
+            if (!a.organizationId) {
+              const matchedSite = (parsed.facilitySites || []).find(s => s.id === a.siteId);
+              a.organizationId = matchedSite ? matchedSite.organizationId : 'ORG-2026-001';
+              updated = true;
+            }
+            if (!a.qrCodePayload) {
+              a.qrCodePayload = `MAXECO-CAFM|${a.organizationId || 'ORG'}|${a.siteId || 'SITE'}|${a.id}|${a.serialNumber || 'SN'}`;
+              updated = true;
+            }
+          });
         }
 
         if (updated) {
@@ -559,6 +597,112 @@ class StorageController {
     this.saveStore(store);
   }
 
+  // --- CAFM: CUSTOMER ORGANIZATIONS (MULTI-TENANT REGISTER) ---
+  getOrganizations() {
+    const store = this.getStore();
+    return store && store.cafmOrganizations ? store.cafmOrganizations : [];
+  }
+
+  getOrganizationById(id) {
+    const orgs = this.getOrganizations();
+    return orgs.find(o => o.id === id) || null;
+  }
+
+  saveOrganization(org) {
+    const store = this.getStore();
+    if (!store.cafmOrganizations) store.cafmOrganizations = [];
+    if (!org.id) {
+      const year = new Date().getFullYear();
+      const count = (store.cafmOrganizations.length + 1).toString().padStart(3, '0');
+      org.id = `ORG-${year}-${count}`;
+      org.status = org.status || 'Active';
+      store.cafmOrganizations.unshift(org);
+    } else {
+      const idx = store.cafmOrganizations.findIndex(o => o.id === org.id);
+      if (idx !== -1) {
+        store.cafmOrganizations[idx] = { ...store.cafmOrganizations[idx], ...org };
+      } else {
+        store.cafmOrganizations.unshift(org);
+      }
+    }
+    this.saveStore(store);
+    this.logAuditAction({
+      action: org.id ? 'UPDATE_ORGANIZATION' : 'CREATE_ORGANIZATION',
+      entityType: 'cafmOrganization',
+      entityId: org.id,
+      details: `Saved customer organization: ${org.name} (${org.id})`
+    });
+    return org;
+  }
+
+  deleteOrganization(id) {
+    const store = this.getStore();
+    store.cafmOrganizations = (store.cafmOrganizations || []).filter(o => o.id !== id);
+    this.saveStore(store);
+    this.logAuditAction({
+      action: 'DELETE_ORGANIZATION',
+      entityType: 'cafmOrganization',
+      entityId: id,
+      details: `Deleted customer organization: ${id}`
+    });
+  }
+
+  // --- CAFM: TENANT-SCOPED QUERIES ---
+  getSitesByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getFacilitySites();
+    return this.getFacilitySites().filter(s => s.organizationId === orgId);
+  }
+
+  getAssetsByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getFacilityAssets();
+    return this.getFacilityAssets().filter(a => a.organizationId === orgId);
+  }
+
+  getTicketsByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getServiceTickets();
+    return this.getServiceTickets().filter(t => t.organizationId === orgId);
+  }
+
+  getAmcsByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getAmcContracts();
+    return this.getAmcContracts().filter(c => c.organizationId === orgId);
+  }
+
+  // --- CAFM: AUDIT LOG JOURNAL ---
+  logAuditAction(entry) {
+    try {
+      const store = this.getStore();
+      if (!store) return;
+      if (!store.cafmAuditLog) store.cafmAuditLog = [];
+      const id = `AUD-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
+      const logItem = {
+        id,
+        timestamp: new Date().toISOString(),
+        user: entry.user || 'Tamal Roy (Admin)',
+        role: entry.role || 'Administrator',
+        action: entry.action || 'GENERAL_ACTION',
+        entityType: entry.entityType || 'system',
+        entityId: entry.entityId || '',
+        details: entry.details || ''
+      };
+      store.cafmAuditLog.unshift(logItem);
+      // Keep latest 250 log entries to bound storage size
+      if (store.cafmAuditLog.length > 250) {
+        store.cafmAuditLog = store.cafmAuditLog.slice(0, 250);
+      }
+      this.saveStore(store);
+      return logItem;
+    } catch (e) {
+      console.warn('Could not record audit log entry:', e);
+      return null;
+    }
+  }
+
+  getAuditLogs() {
+    const store = this.getStore();
+    return store && store.cafmAuditLog ? store.cafmAuditLog : [];
+  }
+
   // --- CAFM: FACILITY SITES & PREMISES ---
   getFacilitySites() {
     const store = this.getStore();
@@ -802,25 +946,35 @@ class StorageController {
       (store.payments || []).forEach(p => {
         csvContent += `"${p.id}","${p.invoiceId || ''}","${p.clientName}","${(p.service || '').replace(/"/g, '""')}",${p.amount || 0},"${p.paymentMethod || ''}","${p.referenceNo || ''}","${p.date || ''}",${p.balanceRemaining || 0},"${(p.notes || '').replace(/"/g, '""')}"\n`;
       });
+    } else if (entityType === 'cafmOrganizations') {
+      csvContent = "Organization ID,Organization Name,Type,Industry,Contact Person,Phone,Email,Billing Address,GSTIN,Status,Notes\n";
+      (store.cafmOrganizations || []).forEach(o => {
+        csvContent += `"${o.id}","${(o.name || '').replace(/"/g, '""')}","${o.type || ''}","${o.industry || ''}","${(o.contactPerson || '').replace(/"/g, '""')}","${o.phone || ''}","${o.email || ''}","${(o.billingAddress || '').replace(/"/g, '""')}","${o.gstin || ''}","${o.status || ''}","${(o.notes || '').replace(/"/g, '""')}"\n`;
+      });
     } else if (entityType === 'facilitySites') {
-      csvContent = "Site ID,Facility Name,Client Name,Site Type,Location,Contact Person,Phone,APDCL Consumer No,Sanctioned Load (kW),Solar Capacity (kWp),IT Scope,Status\n";
+      csvContent = "Site ID,Organization ID,Facility Name,Client Name,Site Type,Location,Contact Person,Phone,APDCL Consumer No,Sanctioned Load (kW),Solar Capacity (kWp),IT Scope,Status\n";
       (store.facilitySites || []).forEach(s => {
-        csvContent += `"${s.id}","${(s.name || '').replace(/"/g, '""')}","${(s.clientName || '').replace(/"/g, '""')}","${s.siteType || ''}","${(s.location || '').replace(/"/g, '""')}","${s.contactPerson || ''}","${s.contactPhone || ''}","${s.apdclConsumerNo || ''}",${s.sanctionedLoadKw || 0},${s.solarCapacityKwp || 0},"${(s.itScope || '').replace(/"/g, '""')}","${s.status || ''}"\n`;
+        csvContent += `"${s.id}","${s.organizationId || ''}","${(s.name || '').replace(/"/g, '""')}","${(s.clientName || '').replace(/"/g, '""')}","${s.siteType || ''}","${(s.location || '').replace(/"/g, '""')}","${s.contactPerson || ''}","${s.contactPhone || ''}","${s.apdclConsumerNo || ''}",${s.sanctionedLoadKw || 0},${s.solarCapacityKwp || 0},"${(s.itScope || '').replace(/"/g, '""')}","${s.status || ''}"\n`;
       });
     } else if (entityType === 'facilityAssets') {
-      csvContent = "Asset ID,Site ID,Category,Asset Name,Model Number,Serial Number,Install Date,Warranty Expiry,Maintenance Cycle (Days),Last Serviced,Next Service Due,Status,Notes\n";
+      csvContent = "Asset ID,Organization ID,Site ID,Category,Asset Name,Model Number,Serial Number,Install Date,Warranty Expiry,Criticality,Maintenance Cycle (Days),Last Serviced,Next Service Due,Status,Notes\n";
       (store.facilityAssets || []).forEach(a => {
-        csvContent += `"${a.id}","${a.siteId || ''}","${a.category || ''}","${(a.name || '').replace(/"/g, '""')}","${a.modelNumber || ''}","${a.serialNumber || ''}","${a.installDate || ''}","${a.warrantyExpiry || ''}",${a.maintenanceCycleDays || 0},"${a.lastServicedDate || ''}","${a.nextServiceDate || ''}","${a.status || ''}","${(a.notes || '').replace(/"/g, '""')}"\n`;
+        csvContent += `"${a.id}","${a.organizationId || ''}","${a.siteId || ''}","${a.category || ''}","${(a.name || '').replace(/"/g, '""')}","${a.modelNumber || ''}","${a.serialNumber || ''}","${a.installDate || ''}","${a.warrantyExpiry || ''}","${a.criticality || ''}",${a.maintenanceCycleDays || 0},"${a.lastServicedDate || ''}","${a.nextServiceDate || ''}","${a.status || ''}","${(a.notes || '').replace(/"/g, '""')}"\n`;
       });
     } else if (entityType === 'serviceTickets') {
-      csvContent = "Ticket ID,Site ID,Asset ID,Title,Priority,Reported Date,Assigned Tech,Status,Linked Work Order,Resolved Date,Description,Resolution Notes\n";
+      csvContent = "Ticket ID,Organization ID,Site ID,Asset ID,Title,Priority,Reported Date,Target Response Date,Assigned Tech,Status,Linked Work Order,Resolved Date,Description,Resolution Notes\n";
       (store.serviceTickets || []).forEach(t => {
-        csvContent += `"${t.id}","${t.siteId || ''}","${t.assetId || ''}","${(t.title || '').replace(/"/g, '""')}","${t.priority || ''}","${t.reportedDate || ''}","${(t.assignedTech || '').replace(/"/g, '""')}","${t.status || ''}","${t.workOrderId || ''}","${t.resolvedDate || ''}","${(t.issueDescription || '').replace(/"/g, '""')}","${(t.resolutionNotes || '').replace(/"/g, '""')}"\n`;
+        csvContent += `"${t.id}","${t.organizationId || ''}","${t.siteId || ''}","${t.assetId || ''}","${(t.title || '').replace(/"/g, '""')}","${t.priority || ''}","${t.reportedDate || ''}","${t.targetResponseDate || ''}","${(t.assignedTech || '').replace(/"/g, '""')}","${t.status || ''}","${t.workOrderId || ''}","${t.resolvedDate || ''}","${(t.issueDescription || '').replace(/"/g, '""')}","${(t.resolutionNotes || '').replace(/"/g, '""')}"\n`;
       });
     } else if (entityType === 'amcContracts') {
-      csvContent = "AMC ID,Site ID,Title,Contract Type,Annual Fee (INR),Billing Frequency,Start Date,End Date,Next Billing Date,Status,Terms\n";
+      csvContent = "AMC ID,Organization ID,Site ID,Title,Contract Type,Tier,Annual Fee (INR),Billing Frequency,SAC Code,Start Date,End Date,Next Billing Date,Renewal Reminder Days,Status,Terms\n";
       (store.amcContracts || []).forEach(c => {
-        csvContent += `"${c.id}","${c.siteId || ''}","${(c.title || '').replace(/"/g, '""')}","${c.contractType || ''}",${c.annualFee || 0},"${c.billingFrequency || ''}","${c.startDate || ''}","${c.endDate || ''}","${c.nextBillingDate || ''}","${c.status || ''}","${(c.terms || '').replace(/"/g, '""')}"\n`;
+        csvContent += `"${c.id}","${c.organizationId || ''}","${c.siteId || ''}","${(c.title || '').replace(/"/g, '""')}","${c.contractType || ''}","${c.tier || ''}",${c.annualFee || 0},"${c.billingFrequency || ''}","${c.sacCode || ''}","${c.startDate || ''}","${c.endDate || ''}","${c.nextBillingDate || ''}",${c.renewalReminderDays || 45},"${c.status || ''}","${(c.terms || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'cafmAuditLog') {
+      csvContent = "Log ID,Timestamp,User,Role,Action,Entity Type,Entity ID,Details\n";
+      (store.cafmAuditLog || []).forEach(l => {
+        csvContent += `"${l.id}","${l.timestamp}","${l.user}","${l.role}","${l.action}","${l.entityType}","${l.entityId}","${(l.details || '').replace(/"/g, '""')}"\n`;
       });
     } else {
       return false;

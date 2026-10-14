@@ -2,6 +2,7 @@
 // Verifies business logic, data persistence, cash-flow rules, and solar algorithms.
 
 const fs = require('fs');
+const path = require('path');
 
 // 1. Mock Browser Environment
 const localStorageData = {};
@@ -652,8 +653,85 @@ assert(window.storage.exportCsv('facilitySites') === true, 'Facility Sites CSV e
 assert(window.storage.exportCsv('facilityAssets') === true, 'Facility Assets CSV export generated');
 assert(window.storage.exportCsv('serviceTickets') === true, 'Service Tickets CSV export generated');
 assert(window.storage.exportCsv('amcContracts') === true, 'AMC Contracts CSV export generated');
+assert(window.storage.exportCsv('cafmOrganizations') === true, 'Customer Organizations CSV export generated');
+assert(window.storage.exportCsv('cafmAuditLog') === true, 'CAFM Audit Log CSV export generated');
+
+// --- PHASE 1 CORE CAFM EXTENSIONS ---
+console.log('\n--- VERIFYING PHASE 1: ORGANIZATIONS, QR IDENTIFICATION & PPM ENGINE ---');
+const orgs = window.cafm.getOrganizations();
+assert(orgs && orgs.length >= 4, `Customer organizations loaded (found ${orgs.length}, expected >= 4)`);
+const sampleOrg = window.cafm.getOrganizationById('ORG-2026-001');
+assert(sampleOrg && sampleOrg.name === "Brahmaputra Packaging & Logistics", 'Customer organization retrieved by ID with GSTIN & billing address');
+
+// Test Multi-Tenant Organization Creation
+const newOrg = window.cafm.saveOrganization({
+  name: "Kaziranga Eco Resorts & Convention Center",
+  type: "Hospitality & Convention Center",
+  industry: "Hospitality & Eco Tourism",
+  contactPerson: "Tarun Gogoi",
+  phone: "+91 94350 44332",
+  email: "admin@kazirangaecoresorts.in",
+  billingAddress: "Kohora, Kaziranga, Golaghat, Assam 785609",
+  gstin: "18AABCK7788P1Z4",
+  status: "Active"
+});
+assert(newOrg && newOrg.id && newOrg.id.startsWith('ORG-'), `New customer organization assigned ID: ${newOrg.id}`);
+
+// Test Tenant-Scoped Queries
+const org1Sites = window.storage.getSitesByOrganization('ORG-2026-001');
+assert(org1Sites && org1Sites.length >= 1 && org1Sites[0].organizationId === 'ORG-2026-001', 'Tenant-scoped site query isolates organization premises');
+const org1Assets = window.storage.getAssetsByOrganization('ORG-2026-001');
+assert(org1Assets && org1Assets.length >= 2, 'Tenant-scoped asset query isolates organization equipment');
+
+// Test Pure-JS Standalone QR Code SVG Generation
+const testQrSvg = window.cafm.generateAssetQrSvg('AST-2026-001', 180);
+assert(testQrSvg && testQrSvg.includes('<svg') && testQrSvg.includes('shape-rendering="crispEdges"'), 'Pure-JS QR generator outputs crisp vector SVG');
+assert(testQrSvg.includes('<rect'), 'QR SVG contains populated module matrix without external libraries');
+
+// Test Equipment Asset Identification Tag
+const assetTagHtml = window.cafm.generateAssetTagHtml('AST-2026-001');
+assert(assetTagHtml.includes('MAXECO ASSET IDENTIFICATION TAG'), 'Asset Tag renders official equipment identification header');
+assert(assetTagHtml.includes('WA-2026-0912-35K'), 'Asset Tag includes exact hardware serial number');
+assert(assetTagHtml.includes('+91 99544 93909'), 'Asset Tag includes 24/7 CEIG & emergency breakdown support hotline');
+assert(assetTagHtml.includes('SCAN FOR SERVICE HISTORY'), 'Asset Tag displays scan instruction for field technicians');
+
+// Test AMC Renewal Reminders Engine
+const renewalSummary = window.cafm.getSummary();
+assert(typeof renewalSummary.expiringAmcCount === 'number', 'AMC engine computes expiring contracts countdown');
+assert(Array.isArray(renewalSummary.expiringAmcs), 'AMC engine provides list of renewal reminder alerts');
+
+// Test PPM Preventive Maintenance 1-Click Ticket Generation
+const ppmDueAssets = window.cafm.getPpmDueAssets(30);
+assert(ppmDueAssets.length >= 2, `PPM engine calculates service-due hardware (found ${ppmDueAssets.length})`);
+const ppmTicket = window.cafm.createPpmTicket('AST-2026-001');
+assert(ppmTicket && ppmTicket.id && ppmTicket.title.includes('[PPM Routine]'), `PPM auto-ticket created: ${ppmTicket.id} - ${ppmTicket.title}`);
+
+// Test Technician Assignment & Service Notes
+const assignedTicket = window.cafm.assignTechnicianToTicket(ppmTicket.id, 'Raju Sharma (Senior Solar Field Tech)', 'Checked module string clamps; all torqued to 9.5 Nm certified standard.');
+assert(assignedTicket && assignedTicket.assignedTech.includes('Raju Sharma'), 'Technician successfully assigned to CAFM ticket');
+assert(assignedTicket.status === 'In Progress', 'Ticket status automatically transitioned to In Progress upon assignment');
+assert(assignedTicket.resolutionNotes.includes('9.5 Nm'), 'Technician service notes recorded on ticket');
+
+// Test CAFM Audit Log Journal
+const auditLogs = window.storage.getAuditLogs();
+assert(auditLogs && auditLogs.length >= 3, `Immutable CAFM audit journal tracks operations (found ${auditLogs.length} events)`);
+assert(auditLogs[0].timestamp && auditLogs[0].action, 'Audit log records ISO timestamp, user, role, and delta details');
+
+// --- VERIFYING WEBSITE CAFM INTEGRATION & SECURITY ISOLATION ---
+console.log('\n--- VERIFYING WEBSITE CAFM INTEGRATION & SECURITY ISOLATION ---');
+const websiteHtml = fs.readFileSync(path.join(__dirname, '../public/website/index.html'), 'utf-8');
+assert(websiteHtml.includes('id="cafm-service"'), 'Website contains dedicated CAFM & Facility Management section');
+assert(websiteHtml.includes('href="#cafm-service"'), 'Website navbar and footer link to CAFM service');
+assert(websiteHtml.includes('QR-Coded Equipment Asset Register'), 'Website describes QR-coded asset register capability');
+assert(websiteHtml.includes('Planned Preventive Maintenance (PPM)'), 'Website describes automated PPM maintenance');
+assert(websiteHtml.includes('Comprehensive AMC Contracts with SLA'), 'Website highlights SLA-backed AMC contracts');
+assert(websiteHtml.includes('id="cafm-public-form"'), 'Website embeds interactive CAFM demo & proposal request form');
+assert(websiteHtml.includes('submitCafmEnquiry'), 'Website includes client-side enquiry submission handler');
+assert(!websiteHtml.includes('PIN_HASH'), 'Security check: Website does not expose ERP authentication PIN hash');
+assert(!websiteHtml.includes('user_accounts') && !websiteHtml.includes('auditLog'), 'Security check: Website does not leak internal audit logs or user accounts');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');
+
 

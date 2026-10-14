@@ -1604,31 +1604,39 @@
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
               <span style="font-size: 24px;">🏢</span>
               <h2 style="font-size: 20px; font-weight: 800; margin: 0; color: #f8fafc;">Computer-Aided Facility Management (CAFM)</h2>
-              <span class="badge" style="background: #10b981; color: #fff; font-size: 11px;">O&amp;M &amp; SLA Hub</span>
+              <span class="badge" style="background: #10b981; color: #fff; font-size: 11px;">Phase 1 Core O&amp;M Hub</span>
             </div>
             <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">
-              Managing Client Premises, Solar Asset Health, IT Hardware Lifecycles, Preventive Maintenance (PPM), and Recurring AMC Revenue.
+              Multi-Tenant Client Organizations, Premises Register, Solar &amp; IT Equipment Lifecycles, QR Codes, and Automated PPM Engine.
             </p>
           </div>
-          <div class="flex gap-2" style="flex-wrap: wrap;">
-            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilitySites')">📥 Sites CSV</button>
-            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilityAssets')">📥 Assets CSV</button>
-            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('serviceTickets')">📥 Tickets CSV</button>
-            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('amcContracts')">📥 AMCs CSV</button>
+          <div class="flex items-center gap-2" style="flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; background: rgba(15, 23, 42, 0.7); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15);">
+              <label style="font-size: 12px; font-weight: 700; color: #f8fafc; margin: 0;">🏢 View As:</label>
+              <select id="cafm-tenant-selector" class="form-control" style="width: auto; padding: 4px 8px; font-size: 12px; background: #0f172a; color: #f8fafc; border-color: rgba(255,255,255,0.2);" onchange="app.onCafmTenantChange(this.value)">
+                <option value="all">🌐 All Client Organizations (Master Admin)</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('cafmOrganizations')" title="Download customer organizations register">📥 Orgs CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilitySites')" title="Download sites register">📥 Sites CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilityAssets')" title="Download equipment inventory">📥 Assets CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('serviceTickets')" title="Download maintenance tickets">📥 Tickets CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('amcContracts')" title="Download AMC retainers">📥 AMCs CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('cafmAuditLog')" title="Download immutable audit trail">📥 Audit CSV</button>
           </div>
         </div>
 
         <!-- CAFM Executive KPI Row -->
         <div class="grid grid-cols-6 gap-3" style="margin-bottom: 22px;">
           <div class="kpi-card">
-            <span class="kpi-label">Monitored Sites</span>
-            <div class="kpi-value" id="cafm-kpi-sites">0</div>
-            <small class="text-muted" style="font-size: 11px;">Client premises</small>
+            <span class="kpi-label">Organizations</span>
+            <div class="kpi-value" id="cafm-kpi-orgs">0</div>
+            <small class="text-muted" style="font-size: 11px;">Active clients</small>
           </div>
           <div class="kpi-card">
-            <span class="kpi-label">Solar Capacity</span>
-            <div class="kpi-value text-amber" id="cafm-kpi-solar-kwp">0 kWp</div>
-            <small class="text-muted" style="font-size: 11px;">O&amp;M managed</small>
+            <span class="kpi-label">Monitored Sites</span>
+            <div class="kpi-value" id="cafm-kpi-sites">0</div>
+            <small class="text-muted" style="font-size: 11px;"><span id="cafm-kpi-solar-kwp" class="text-amber">0 kWp</span> Solar</small>
           </div>
           <div class="kpi-card">
             <span class="kpi-label">Managed Assets</span>
@@ -1638,7 +1646,7 @@
           <div class="kpi-card" style="border-left: 3px solid var(--solar-amber);">
             <span class="kpi-label">PPM Due / Overdue</span>
             <div class="kpi-value" style="color: #f59e0b;" id="cafm-kpi-due-tasks">0</div>
-            <small class="text-muted" style="font-size: 11px;">Within 15 days</small>
+            <small class="text-muted" style="font-size: 11px;">Action required</small>
           </div>
           <div class="kpi-card" style="border-left: 3px solid var(--accent-rose);">
             <span class="kpi-label">Open Tickets</span>
@@ -1648,7 +1656,7 @@
           <div class="kpi-card" style="border-left: 3px solid #10b981;">
             <span class="kpi-label">Annual AMC Value</span>
             <div class="kpi-value" style="color: #10b981;" id="cafm-kpi-amc-value">₹0</div>
-            <small class="text-muted" style="font-size: 11px;"><span id="cafm-kpi-active-amcs">0</span> Active Contracts</small>
+            <small class="text-muted" style="font-size: 11px;"><span id="cafm-kpi-active-amcs">0</span> Active (<span id="cafm-kpi-expiring-amcs" style="color: #f59e0b;">0</span> Renewing)</small>
           </div>
         </div>
 
@@ -1656,15 +1664,24 @@
         <div class="card" style="margin-bottom: 20px; padding: 12px 18px;">
           <div class="flex items-center justify-between" style="flex-wrap: wrap; gap: 12px;">
             <div class="flex gap-2" style="flex-wrap: wrap;">
-              <button id="cafm-tab-btn-sites" class="btn btn-primary btn-sm" onclick="app.setCafmSubTab('sites')">🏢 Client Sites &amp; Facilities</button>
-              <button id="cafm-tab-btn-assets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('assets')">⚙️ Asset Inventory &amp; Health</button>
-              <button id="cafm-tab-btn-ppm" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('ppm')">📅 PPM Service Calendar &amp; Due Alerts</button>
-              <button id="cafm-tab-btn-tickets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('tickets')">🎫 Helpdesk &amp; Breakdown Tickets</button>
-              <button id="cafm-tab-btn-amcs" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('amcs')">📜 AMC Contracts &amp; Retainers</button>
+              <button id="cafm-tab-btn-orgs" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('orgs')">🏢 Customer Organizations</button>
+              <button id="cafm-tab-btn-sites" class="btn btn-primary btn-sm" onclick="app.setCafmSubTab('sites')">📍 Sites &amp; Facilities</button>
+              <button id="cafm-tab-btn-assets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('assets')">⚙️ Asset Inventory &amp; QR</button>
+              <button id="cafm-tab-btn-ppm" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('ppm')">📅 PPM Service Calendar</button>
+              <button id="cafm-tab-btn-tickets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('tickets')">🎫 Helpdesk &amp; Tickets</button>
+              <button id="cafm-tab-btn-amcs" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('amcs')">📜 AMC Contracts &amp; SLA</button>
+              <button id="cafm-tab-btn-audit" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('audit')">📋 Audit Journal</button>
             </div>
             <div class="flex gap-2">
               <button class="btn btn-primary btn-sm" id="cafm-subtab-add-btn" onclick="app.handleCafmSubTabAddAction()">➕ Add Record</button>
             </div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 0: CUSTOMER ORGANIZATIONS -->
+        <div id="cafm-view-orgs" class="cafm-subview hidden">
+          <div id="cafm-orgs-container" class="grid grid-cols-3 gap-4">
+            <!-- Dynamically populated -->
           </div>
         </div>
 
@@ -1686,6 +1703,7 @@
                   <option value="Solar EPC">Solar EPC</option>
                   <option value="IT Infrastructure">IT Infrastructure</option>
                   <option value="Electrical &amp; CEIG">Electrical &amp; CEIG</option>
+                  <option value="Facility Utility">Facility Utility</option>
                 </select>
               </div>
               <div class="flex items-center gap-2">
@@ -1772,6 +1790,38 @@
             <!-- Dynamically populated -->
           </div>
         </div>
+
+        <!-- SUB-TAB 6: CAFM AUDIT LOG JOURNAL -->
+        <div id="cafm-view-audit" class="cafm-subview hidden">
+          <div class="card">
+            <div class="flex items-center justify-between" style="margin-bottom: 14px;">
+              <div>
+                <h3 class="card-title" style="margin: 0;">📋 Immutable CAFM Audit Trail &amp; Activity Journal</h3>
+                <small class="text-muted">Tamper-evident record of ticket dispatches, work order creation, AMC invoicing, and data modifications</small>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('cafmAuditLog')">📥 Export CSV Log</button>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Log ID</th>
+                    <th>Timestamp</th>
+                    <th>User &amp; Role</th>
+                    <th>Action</th>
+                    <th>Entity Type</th>
+                    <th>Entity ID</th>
+                    <th>Details &amp; Trace</th>
+                  </tr>
+                </thead>
+                <tbody id="cafm-audit-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
       </section>
 
       <!-- TAB 6: SETTINGS & BACKUP -->
@@ -3023,16 +3073,22 @@
         <input type="hidden" id="site-modal-id">
         <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
-            <label class="form-label">Facility / Site Name *</label>
-            <input type="text" id="site-modal-name" class="form-control" required placeholder="e.g. Amingaon Logistics Hub">
+            <label class="form-label">Client Organization *</label>
+            <select id="site-modal-org-id" class="form-control" onchange="app.onSiteOrgSelected()">
+              <!-- Populated dynamically -->
+            </select>
           </div>
           <div class="form-group">
-            <label class="form-label">Client / Firm Name *</label>
-            <input type="text" id="site-modal-client" class="form-control" required placeholder="e.g. Brahmaputra Packaging">
+            <label class="form-label">Facility / Site Name *</label>
+            <input type="text" id="site-modal-name" class="form-control" required placeholder="e.g. Amingaon Logistics Hub">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Client / Firm Display Name *</label>
+            <input type="text" id="site-modal-client" class="form-control" required placeholder="e.g. Brahmaputra Packaging">
+          </div>
           <div class="form-group">
             <label class="form-label">Facility Type</label>
             <select id="site-modal-type" class="form-control">
@@ -3044,6 +3100,9 @@
               <option value="Residential Society">Residential Society</option>
             </select>
           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
             <label class="form-label">Site Status</label>
             <select id="site-modal-status" class="form-control">
@@ -3052,11 +3111,10 @@
               <option value="Handed Over">Handed Over</option>
             </select>
           </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Physical Location / Address *</label>
-          <input type="text" id="site-modal-location" class="form-control" required placeholder="e.g. Amingaon Industrial Area, Guwahati, Kamrup, Assam">
+          <div class="form-group">
+            <label class="form-label">Physical Location / Address *</label>
+            <input type="text" id="site-modal-location" class="form-control" required placeholder="e.g. Amingaon Industrial Area, Guwahati, Kamrup, Assam">
+          </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
@@ -3108,17 +3166,34 @@
         <input type="hidden" id="asset-modal-id">
         <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
+            <label class="form-label">Client Organization *</label>
+            <select id="asset-modal-org-id" class="form-control" onchange="app.onAssetOrgSelected()">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
             <label class="form-label">Client Facility Site *</label>
             <select id="asset-modal-site-id" class="form-control" required>
               <!-- Populated dynamically -->
             </select>
           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
             <label class="form-label">Asset Category *</label>
             <select id="asset-modal-category" class="form-control" required>
               <option value="Solar EPC">Solar EPC (Panels, Inverters, ACDB)</option>
               <option value="IT Infrastructure">IT Infrastructure (UPS, Servers, Switches)</option>
               <option value="Electrical &amp; CEIG">Electrical &amp; CEIG (Earthing Pits, LA)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Asset Criticality Tier</label>
+            <select id="asset-modal-criticality" class="form-control">
+              <option value="Normal">Normal</option>
+              <option value="High">High</option>
+              <option value="Mission Critical">Mission Critical</option>
             </select>
           </div>
         </div>
@@ -3130,16 +3205,27 @@
 
         <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
+            <label class="form-label">Physical Location / Room / Floor</label>
+            <input type="text" id="asset-modal-location" class="form-control" placeholder="e.g. Server Room Rack A3, Factory Shed Roof 2">
+          </div>
+          <div class="form-group">
             <label class="form-label">Model Number / OEM</label>
             <input type="text" id="asset-modal-model" class="form-control" placeholder="e.g. Growatt MID 30KTL3-X">
           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
             <label class="form-label">Serial Number</label>
             <input type="text" id="asset-modal-serial" class="form-control" placeholder="e.g. GW-MID-30K-8812">
           </div>
+          <div class="form-group">
+            <label class="form-label">PPM Cycle (Days)</label>
+            <input type="number" id="asset-modal-cycle-days" class="form-control" value="90" placeholder="e.g. 30, 90">
+          </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
             <label class="form-label">Install Date</label>
             <input type="date" id="asset-modal-install-date" class="form-control">
@@ -3147,10 +3233,6 @@
           <div class="form-group">
             <label class="form-label">Warranty Expiry</label>
             <input type="date" id="asset-modal-warranty-expiry" class="form-control">
-          </div>
-          <div class="form-group">
-            <label class="form-label">PPM Cycle (Days)</label>
-            <input type="number" id="asset-modal-cycle-days" class="form-control" value="90" placeholder="e.g. 30, 90">
           </div>
         </div>
 
@@ -3195,7 +3277,13 @@
       </div>
       <div class="modal-body">
         <input type="hidden" id="ticket-modal-id">
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-3 gap-3">
+          <div class="form-group">
+            <label class="form-label">Client Org *</label>
+            <select id="ticket-modal-org-id" class="form-control" onchange="app.onTicketOrgChanged()">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
           <div class="form-group">
             <label class="form-label">Facility Site *</label>
             <select id="ticket-modal-site-id" class="form-control" onchange="app.onTicketSiteChanged()" required>
@@ -3274,11 +3362,20 @@
         <input type="hidden" id="amc-modal-id">
         <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
+            <label class="form-label">Client Organization *</label>
+            <select id="amc-modal-org-id" class="form-control" onchange="app.onAmcOrgChanged()">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
             <label class="form-label">Client Facility Site *</label>
             <select id="amc-modal-site-id" class="form-control" required>
               <!-- Populated dynamically -->
             </select>
           </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
           <div class="form-group">
             <label class="form-label">Contract Type *</label>
             <select id="amc-modal-type" class="form-control" required>
@@ -3287,7 +3384,6 @@
               <option value="Combined Clean Energy &amp; IT Support">Combined Clean Energy &amp; IT Support</option>
             </select>
           </div>
-        </div>
 
         <div class="form-group">
           <label class="form-label">Contract Title *</label>
@@ -3364,6 +3460,100 @@
       <div class="modal-body" style="background: #e2e8f0; padding: 24px; overflow-y: auto;">
         <input type="hidden" id="cafm-active-slip-ticket-id">
         <div id="cafm-slip-view-content">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Add / Edit Customer Organization -->
+  <div id="modal-cafm-organization" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <h3 id="modal-org-title" class="modal-title">🏢 Add Customer Organization</h3>
+        <button class="modal-close" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="org-modal-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Organization / Company Name *</label>
+            <input type="text" id="org-modal-name" class="form-control" required placeholder="e.g. Baruah Industrial Complex">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Client Type *</label>
+            <select id="org-modal-type" class="form-control" required>
+              <option value="Commercial Factory &amp; Logistics">Commercial Factory &amp; Logistics</option>
+              <option value="Corporate Office &amp; Tech">Corporate Office &amp; Tech</option>
+              <option value="Healthcare &amp; Clinic">Healthcare &amp; Clinic</option>
+              <option value="Commercial Retail &amp; Showroom">Commercial Retail &amp; Showroom</option>
+              <option value="Educational &amp; Institutional">Educational &amp; Institutional</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Industry Sector</label>
+            <input type="text" id="org-modal-industry" class="form-control" placeholder="e.g. Cold Storage / Food Processing">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GSTIN Identifier</label>
+            <input type="text" id="org-modal-gstin" class="form-control" placeholder="e.g. 18AABCB9876D1Z1">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="form-group">
+            <label class="form-label">Primary Contact Person</label>
+            <input type="text" id="org-modal-contact" class="form-control" placeholder="e.g. Deben Baruah">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Phone</label>
+            <input type="text" id="org-modal-phone" class="form-control" placeholder="e.g. +91 94350 11223">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Email</label>
+            <input type="email" id="org-modal-email" class="form-control" placeholder="e.g. facilities@baruah.in">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Billing &amp; Registered Address</label>
+          <input type="text" id="org-modal-address" class="form-control" placeholder="e.g. Plot 14, Bamunimaidam Industrial Area, Guwahati, Assam 781021">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Special Facility Requirements &amp; Notes</label>
+          <textarea id="org-modal-notes" class="form-control" rows="2" placeholder="e.g. 24/7 cold storage facility, requires priority 4-hour SLA response on UPS and rooftop solar..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveOrganizationFromModal()">Save Organization</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Equipment QR Code & Asset Identification Tag Console -->
+  <div id="modal-asset-qr-tag" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 600px; max-height: 94vh; display: flex; flex-direction: column;">
+      <div class="modal-header flex justify-between items-center" style="background: #0f172a; padding: 12px 20px; border-bottom: 1px solid var(--border-color);">
+        <div class="flex items-center gap-2">
+          <span style="font-size: 18px;">🏷️</span>
+          <div>
+            <h3 style="font-size: 15px; margin: 0; color: #f8fafc;">Equipment Identification &amp; QR Tag</h3>
+            <small style="color: #94a3b8;">MaxEco CAFM Asset Lifecycle &amp; Service History Tag</small>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary btn-sm" onclick="app.printAssetTag()" style="background: #0284c7; border-color: #0284c7;">🖨️ Print Tag (4"x2.5")</button>
+          <button class="btn btn-secondary btn-sm" onclick="app.closeAllModals()">✕ Close</button>
+        </div>
+      </div>
+      <div class="modal-body" style="background: #e2e8f0; padding: 24px; overflow-y: auto;">
+        <input type="hidden" id="cafm-active-tag-asset-id">
+        <div id="cafm-asset-tag-view-content">
           <!-- Dynamically populated -->
         </div>
       </div>
