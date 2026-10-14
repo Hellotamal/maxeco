@@ -1,0 +1,38 @@
+{
+  "name": "erp-packaged",
+  "version": "1.0.0",
+  "description": "> **Practical Clean Energy Advisory & Digital Solutions for Northeast India**   > Location: Maligaon, Guwahati, Assam, Pin - 781011   > Contact: +91 99544 93909 | Email: maxecoenergyit@gmail.com   > WhatsApp: [Chat on WhatsApp](https://wa.me/919954493909)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node tests/self-test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hellotamal/maxeco.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Hellotamal/maxeco/issues"
+  },
+  "homepage": "https://github.com/Hellotamal/maxeco#readme",
+  "dependencies": {
+    "lucide-react": "^1.57.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.2",
+    "vite": "^8.3.4"
+  }
+}

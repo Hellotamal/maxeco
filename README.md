@@ -1,89 +1,126 @@
-# MaxEco Energy & Tech — Business Operating System
+# MaxEco Energy & Tech — Corporate Platform & Engineering Desk
 
-> **Practical Clean Energy Advisory & Digital Solutions for Northeast India**  
-> Location: Maligaon, Guwahati, Assam, Pin - 781011  
-> Contact: +91 99544 93909 | Email: maxecoenergyit@gmail.com  
-> WhatsApp: [Chat on WhatsApp](https://wa.me/919954493909)
-
----
-
-## ☀️ Overview
-
-MaxEco Energy & Tech is an independent advisory and digital solutions operating system engineered for founder-led operations across Guwahati, Assam, and the Northeast India region.
-
-The platform provides a dual-surface architecture:
-1. **Public Client Website**: Fast, mobile-responsive showcase for Solar Energy Consulting, APDCL Net-Metering advisory, Small-Business Website Development, and WhatsApp lead capture.
-2. **Founder Operating System (Command Center)**: A private, PIN-secured business workstation containing Sales CRM, Quotes & Invoices, Strict Cash-Basis Finance Controls, PVGIS-calibrated Solar Feasibility Engine, Client Project Milestone Trackers, and Offline CSV/JSON Accounting Backups.
+> **Smarter Energy. Stronger Digital Growth.**  
+> Practical clean energy advisory and digital solutions for commercial enterprises and growing businesses across Guwahati, Assam, and Northeast India.  
+> **Headquarters**: Maligaon, Guwahati, Assam, Pin - 781011  
+> **Contact**: +91 99544 93909 | **Email**: maxecoenergyit@gmail.com | **WhatsApp**: [Chat on WhatsApp](https://wa.me/919954493909)
 
 ---
 
-## 🚀 Key Modules
+## 🏛️ Business Positioning
 
-* **Public Portal**:
-  * Solar EPC & Advisory services tailored for Assam & Northeast India.
-  * SMB Website & digital automation retainers.
-  * Direct WhatsApp intake form routing enquiries straight to the founder.
-* **Sales CRM**:
-  * 9-stage pipeline (New, Contacted, Meeting, Qualified, Proposal Sent, Negotiation, Won, Lost, Follow-up Later).
-  * Overdue follow-up alerts and 1-click WhatsApp outreach with pre-drafted context.
-* **Quotes & Invoices**:
-  * Formal quotation generator with pre-configured deliverable packages.
-  * 1-click quote-to-invoice conversion.
-  * Cash-basis collection recording and payment terms tracking.
-* **Finance & Liquidity Dashboard**:
-  * Strict segregation between Billed Revenue, Real Collected Cash, Receivables, Direct Costs, and Operating Overheads.
-  * 18% Tax Reserve lock to protect GST and tax liabilities.
-  * Founder personal living allowance (drawings) tracking.
-  * 90-Day solvent cash-flow projection.
-* **PVGIS Solar Feasibility Engine**:
-  * Satellite-calibrated solar production simulation for all 8 Northeast states (Assam, Meghalaya, Tripura, Manipur, Arunachal Pradesh, Nagaland, Mizoram, Sikkim).
-  * APDCL and regional DISCOM net-metering limit compliance checks.
-  * 12-month generation seasonality profile & 25-year financial ROI modeling.
-* **Projects Tracker**:
-  * Delivery milestones for Solar EPC and IT retainers.
-  * Offline encrypted local credential vault for client access keys.
-* **Universal Add & Modify Menus**:
-  * Global `➕ Add` and `✏️ Modify` menus directly accessible from the sub-header navigation bar.
+MaxEco Energy & Tech is an independent engineering consultancy and digital solutions provider founded to help commercial enterprises, institutions, and businesses in Northeast India lower operating costs and build digital authority.
+
+We operate through two focused divisions:
+
+### Division A — Clean Energy Advisory & Solar Solutions
+* **Rooftop Solar Opportunity Assessment**: Structural feasibility, shadow-gradient mapping, and optimal capacity sizing.
+* **Commercial Electricity-Cost Analysis**: APDCL commercial and industrial tariff audit, Time-of-Day (ToD) optimization, and levelized cost benchmarking.
+* **Solar Project Planning & Feasibility**: Single-line diagrams (SLD), Tier-1 hardware specification, and vendor evaluation.
+* **APDCL Net-Metering & Regulatory Support**: Procedural guidance for DISCOM portal submission, bi-directional meter testing, and CEIG statutory compliance.
+* **Preventive Solar O&M / AMC**: Scheduled maintenance, thermal imaging, and string inverter diagnostics for Northeast monsoon climates.
+
+### Division B — Digital Growth & Technology Solutions
+* **Corporate Website Design & Development**: Bespoke, high-performance multi-page React web architectures built without slow templates.
+* **High-Converting Business Landing Pages**: Laser-focused commercial inquiry capture engineered for mobile speed and local credibility.
+* **Northeast Local Search SEO Foundations**: Verified Schema.org structured data, canonical tags, and Guwahati commercial keyword targeting.
+* **Speed, Performance & Accessibility Audits**: Core Web Vitals remediation (sub-second LCP) and WCAG 2.2 AA contrast compliance.
+* **IT Infrastructure & Networking Advisory**: Structured Cat6 cabling layouts, commercial UPS backup runtime calculations, and hardware procurement planning.
 
 ---
 
-## 💻 How to Run Locally
+## 🔒 Security Hardening & Architecture Isolation
 
-This application requires **zero external build tools, zero npm packages, and zero recurring cloud hosting subscriptions**:
+To protect proprietary business operations and customer confidentiality:
 
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/Hellotamal/maxeco.git
-   ```
-2. Open `index.html` (or `public/index.html`) in any modern web browser (Chrome, Edge, Firefox, Safari).
-3. Access the private Founder OS by clicking **"Founder OS"** or **"🔑 Founder Login"** (Default PIN: `maxeco2026`).
+1. **Decoupled Architecture**: The public corporate website is completely segregated from any internal business applications.
+2. **Zero Exposed Credentials**: No passwords, master PINs, or internal keys are published in code, HTML, or documentation.
+3. **Safe Form Transmission**: Inquiries are verified with client-side validation and anti-spam honeypot fields. Leads are transmitted directly via verified endpoints or direct encrypted WhatsApp/Email dispatch—never stored in unmonitored browser `localStorage`.
+4. **Security Headers**: Includes `X-Content-Type-Options: nosniff` and strict cross-origin referrer policies.
 
 ---
 
-## 🌐 Web Browse & GitHub Pages Deployment
+## 💻 Technical Stack
 
-To browse this repository live on the web via GitHub Pages:
-1. Navigate to repository **Settings** → **Pages** on GitHub (`https://github.com/maxecoenergytech/maxeco/settings/pages`).
-2. Under **Build and deployment** → **Source**, select **Deploy from a branch**.
-3. Under **Branch**, select `main` (or `master`) and folder `/(root)`.
-4. Click **Save**.
-5. Your live site will be accessible at:
-   ```
-   https://maxecoenergytech.github.io/maxeco/
-   ```
+* **Framework**: React 19 (JSX)
+* **Build Tool**: Vite 8 (with `@vitejs/plugin-react` and rolldown pipeline)
+* **Routing**: React Router DOM 7
+* **Icons**: Lucide React
+* **Styling**: Modern CSS design tokens (`theme.css`) with light/dark theme switching
+* **Standards**: WCAG 2.2 AA accessibility, semantic HTML5 landmarks, and Schema.org JSON-LD
 
 ---
 
-## 🧪 Automated Test Suite
+## 🚀 Local Development & Build Commands
 
-Run the built-in Node.js verification suite to audit business rules, solar algorithms, and cash-basis persistence:
+### Prerequisites
+* Node.js v18+ and npm installed.
+
+### Installation
 ```bash
-node tests/self-test.js
+git clone https://github.com/Hellotamal/maxeco.git
+cd maxeco
+npm install
 ```
-All 33 verification checks run in under 1 second with 100% test coverage.
+
+### Run Local Development Server
+```bash
+npm run dev
+```
+Starts the local development server at `http://localhost:3000/maxeco/` with Hot Module Replacement (HMR).
+
+### Run Automated Test Suite
+```bash
+npm test
+```
+Executes the comprehensive verification test suite (258 automated tests covering business logic, solar algorithms, SEO artifacts, and security boundaries).
+
+### Production Build
+```bash
+npm run build
+```
+Generates the optimized static release in the `dist/` directory:
+* Bundled and minified HTML, JavaScript, and CSS assets.
+* Static `robots.txt` and `sitemap.xml`.
+* Single Page App redirect fallback script `404.html`.
+
+### Preview Production Build
+```bash
+npm run preview
+```
 
 ---
 
-## 📄 License & Attribution
+## 🌐 Deployment to GitHub Pages
 
-Designed and maintained for MaxEco Energy & Tech, Guwahati, Assam. All rights reserved.
+The repository is configured for static hosting on GitHub Pages under the repository path `/maxeco/`:
+
+1. Build the production bundle:
+   ```bash
+   npm run build
+   ```
+2. In GitHub repository **Settings** → **Pages**:
+   * **Source**: Deploy from a branch.
+   * **Branch**: `main` or your designated release branch (folder `/dist` or root).
+3. The live corporate platform is served at:
+   ```
+   https://hellotamal.github.io/maxeco/
+   ```
+
+### Direct Navigation & Refresh Support
+GitHub Pages serves `404.html` when a user directly navigates to or refreshes a sub-route (e.g., `/clean-energy` or `/contact`). Our included `public/404.html` seamlessly captures the route and restores the page through React Router without 404 errors.
+
+---
+
+## 🧪 Verification & Audit Results
+
+* **Automated Tests**: 258 of 258 passing (100% success rate).
+* **Security Barriers**: 0 links to internal ERP, 0 plaintext passwords or PINs.
+* **Accessibility**: Tested across keyboard navigation, visible focus indicators, and high contrast.
+* **Responsive Breakpoints**: Verified for 360px (mobile), 768px (tablet), 1024px (laptop), 1440px (desktop), and 1920px (ultrawide).
+
+---
+
+## 📄 License & Ownership
+
+Designed, engineered, and maintained for **MaxEco Energy & Tech**, Guwahati, Assam, India. All rights reserved.

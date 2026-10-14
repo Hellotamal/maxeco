@@ -3,32 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MaxEco Energy & Tech | Guwahati, Assam</title>
-  <meta http-equiv="refresh" content="0; url=public/website/index.html">
-  <script>
-    // Route to ERP if hash requests private dashboard views
-    if (window.location.hash && (
-      window.location.hash.includes('dashboard') ||
-      window.location.hash.includes('leads') ||
-      window.location.hash.includes('quotes') ||
-      window.location.hash.includes('finance') ||
-      window.location.hash.includes('settings') ||
-      window.location.hash.includes('erp')
-    )) {
-      window.location.replace("public/index.html" + window.location.hash);
-    } else {
-      window.location.replace("public/website/index.html");
-    }
-  </script>
+  <title>MaxEco Energy & Tech | Smarter Energy. Stronger Digital Growth.</title>
+  
+  <!-- Primary SEO Meta Tags -->
+  <meta name="description" content="Practical clean energy advisory and digital solutions for commercial enterprises and growing businesses across Guwahati, Assam, and Northeast India.">
+  <meta name="author" content="MaxEco Energy & Tech">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://hellotamal.github.io/maxeco/">
+  <meta property="og:title" content="MaxEco Energy & Tech | Smarter Energy. Stronger Digital Growth.">
+  <meta property="og:description" content="Practical clean energy advisory and digital solutions for businesses across Guwahati, Assam, and Northeast India.">
+  <meta property="og:site_name" content="MaxEco Energy & Tech">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="MaxEco Energy & Tech | Guwahati, Assam">
+  <meta name="twitter:description" content="Practical clean energy advisory and digital solutions for businesses across Guwahati, Assam, and Northeast India.">
+
+  <!-- Content Security Policy & Security Headers (Static Host Compliant) -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="public/assets/logo-emblem.png">
+  <link rel="apple-touch-icon" href="public/assets/logo-emblem.png">
+  <link rel="canonical" href="https://hellotamal.github.io/maxeco/">
+
+  <!-- Google Fonts Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
-<body style="font-family: sans-serif; background: #0c121e; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; text-align: center;">
-  <div>
-    <h2 style="margin-bottom: 6px;">MaxEco Energy &amp; Tech</h2>
-    <p style="color: #94a3b8; margin-bottom: 20px;">Clean Energy Advisory, Solar Rooftop EPC &amp; Digital Solutions</p>
-    <div style="display: flex; gap: 12px; justify-content: center;">
-      <a href="public/website/index.html" style="background: #10b981; color: #fff; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 700;">🌐 View Official Website</a>
-      <a href="public/index.html" style="background: #f59e0b; color: #0f172a; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 700;">🚀 Founder ERP OS</a>
-    </div>
-  </div>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MaxEco Energy & Tech | Page Redirect</title>
+  <script>
+    // GitHub Pages Single Page App Redirect Script
+    // Stores the route path and redirects back to base with query parameter
+    var pathSegmentsToKeep = 1; // '/maxeco/' has 1 path segment
+    var l = window.location;
+    var pathname = l.pathname;
+    
+    // Check if repository subpath matches
+    var segments = pathname.split('/').filter(Boolean);
+    var repoName = segments.length > 0 ? segments[0] : '';
+    
+    var newPath = '/' + repoName + '/?p=' + 
+      encodeURIComponent(pathname.slice(('/' + repoName).length) + l.search) + 
+      l.hash;
+      
+    l.replace(newPath);
+  </script>
+</head>
+<body style="background: #0B132B; color: #9ECAD6; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <p>Navigating to requested page...</p>
+</body>
+</html>

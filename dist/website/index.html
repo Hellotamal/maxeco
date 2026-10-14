@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MaxEco Energy & Tech | Solar EPC Advisory & IT Infra Solutions | Guwahati, Assam</title>
+  <meta name="description" content="MaxEco Energy & Tech provides solar rooftop EPC advisory, APDCL net-metering approvals, CEIG clearances, and enterprise IT Infra sales & support across Guwahati and Northeast India.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/logo-emblem.png">
+  <link rel="apple-touch-icon" href="../assets/logo-emblem.png">
+
+  <!-- Standalone High-Performance CSS (Zero External Dependencies) -->
+  <style>
+    :root {
+      --primary-navy: #0f172a;
+      --navy-card: #1e293b;
+      --navy-light: #334155;
+      --solar-amber: #f59e0b;
+      --solar-amber-hover: #d97706;
+      --eco-green: #10b981;
+      --eco-green-hover: #059669;
+      --sky-blue: #0284c7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.12);
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--primary-navy);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Top Utility Bar */
+    .top-bar {
+      background: #080d1a;
+      border-bottom: 1px solid var(--border-color);
+      padding: 6px 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .top-bar-left span {
+      margin-right: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge-amber {
+      background: rgba(245, 158, 11, 0.18);
+      color: var(--solar-amber);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge-green {
+      background: rgba(16, 185, 129, 0.18);
+      color: var(--eco-green);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Main Navigation Bar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-brand img.logo-emblem {
+      height: 42px;
+      width: 42px;
+      object-fit: contain;
+    }
+
+    .nav-brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      line-height: 1.1;
+    }
+
+    .nav-brand-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .nav-links a {
+      color: #cbd5e1;
+      transition: color 0.2s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--solar-amber);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--solar-amber);
+      color: #0f172a;
+    }
+
+    .btn-primary:hover {
+      background: var(--solar-amber-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-green {
+      background: var(--eco-green);
+      color: #ffffff;
+    }
+
+    .btn-green:hover {
+      background: var(--eco-green-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      padding: 80px 0 60px 0;
+      background: radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 50%);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-title {
+      font-size: 44px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 18px;
+    }
+
+    .hero-title span.highlight-amber {
+      color: var(--solar-amber);
+    }
+
+    .hero-title span.highlight-green {
+      color: var(--eco-green);
+    }
+
+    .hero-subtitle {
+      font-size: 17px;
+      color: #94a3b8;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .hero-metric-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: monospace;
+    }
+
+    .hero-metric-lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Hero Preview Card */
+    .hero-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .hero-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--eco-green);
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+
+    /* Section Headers */
+    .section {
+      padding: 70px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-header {
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 48px auto;
+    }
+
+    .section-eyebrow {
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--solar-amber);
+      margin-bottom: 8px;
+    }
+
+    .section-title {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    /* Service Cards Grid */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .service-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .service-card:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+    }
+
+    .service-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .icon-amber {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      color: var(--solar-amber);
+    }
+
+    .icon-green {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--eco-green);
+    }
+
+    .icon-blue {
+      background: rgba(2, 132, 199, 0.15);
+      border: 1px solid rgba(2, 132, 199, 0.3);
+      color: var(--sky-blue);
+    }
+
+    .icon-purple {
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      color: #c084fc;
+    }
+
+    .badge-purple {
+      background: rgba(168, 85, 247, 0.18);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.35);
+      padding: 2px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .cafm-form-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 36px;
+      margin-top: 36px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-group-web {
+      margin-bottom: 16px;
+    }
+
+    .form-label-web {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 6px;
+    }
+
+    .form-control-web {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .form-control-web:focus {
+      border-color: var(--solar-amber);
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+    }
+
+    .service-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .service-text {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex: 1;
+    }
+
+    .service-list {
+      list-style: none;
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+
+    .service-list li {
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .service-list li::before {
+      content: "✓";
+      color: var(--eco-green);
+      font-weight: 800;
+    }
+
+    /* Live Calculator Section */
+    .calc-card {
+      background: var(--navy-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 36px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .calc-input-group {
+      margin-bottom: 20px;
+    }
+
+    .calc-label {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+      color: #e2e8f0;
+    }
+
+    .calc-select, .calc-input {
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #ffffff;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .calc-select:focus, .calc-input:focus {
+      border-color: var(--solar-amber);
+    }
+
+    .calc-result-box {
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 28px;
+      border-left: 4px solid var(--solar-amber);
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 14px;
+    }
+
+    .result-row:last-child {
+      border-bottom: none;
+    }
+
+    .result-val {
+      font-weight: 800;
+      font-size: 18px;
+      color: #ffffff;
+      font-family: monospace;
+    }
+
+    /* Footer */
+    .footer {
+      background: #080d1a;
+      border-top: 1px solid var(--border-color);
+      padding: 48px 0 24px 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.5fr;
+      gap: 32px;
+      margin-bottom: 36px;
+    }
+
+    .footer-col-title {
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 8px;
+    }
+
+    .footer-links a:hover {
+      color: var(--solar-amber);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* Universal Responsive Display Engine (Mobile 320px -> 4K 3840px) */
+    @media (max-width: 1024px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .calc-card, .verify-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+      .hero-title {
+        font-size: 34px;
+      }
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .services-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero {
+        padding: 50px 0 36px 0;
+      }
+      .section {
+        padding: 48px 0;
+      }
+      .section-title {
+        font-size: 26px;
+      }
+      .top-bar {
+        padding: 6px 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        font-size: 11px;
+      }
+      .top-bar-left, .top-bar-right {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .container {
+        padding: 0 16px;
+      }
+      .hero-metrics {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .hero-metric-val {
+        font-size: 20px;
+      }
+      .hero-metric-lbl {
+        font-size: 11px;
+      }
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+      .form-grid-2, .form-grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 12px;
+      }
+      .navbar {
+        padding: 10px 12px;
+      }
+      .nav-brand-title {
+        font-size: 14px;
+      }
+      .nav-brand-sub {
+        display: none;
+      }
+      .nav-actions .btn {
+        padding: 6px 10px;
+        font-size: 11px;
+        gap: 4px;
+      }
+      .hero-title {
+        font-size: clamp(24px, 7.5vw, 28px);
+      }
+      .hero-subtitle {
+        font-size: 14px;
+      }
+      .hero-cta-group {
+        flex-direction: column;
+        width: 100%;
+      }
+      .hero-cta-group .btn {
+        width: 100%;
+        text-align: center;
+      }
+      .hero-metrics {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .hero-card, .calc-card, .verify-grid, .service-card {
+        padding: 18px 14px;
+      }
+      .calc-result-box {
+        padding: 18px 14px;
+      }
+      .result-val {
+        font-size: 15px;
+      }
+      .bank-card {
+        padding: 12px 10px;
+      }
+      .bank-field {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        font-size: 12px;
+      }
+      .qr-img {
+        width: 140px;
+        height: 140px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <span>📍 Maligaon, Guwahati, Assam 781011</span>
+      <span>📞 +91 99544 93909</span>
+      <span>✉️ maxecoenergyit@gmail.com</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="badge-amber">ESTD 2024</span>
+      <span class="badge-green">APDCL & CEIG Verified</span>
+    </div>
+  </div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <img src="../assets/logo-emblem.png" alt="MaxEco Logo Emblem" class="logo-emblem" onerror="this.style.display='none'">
+      <div>
+        <div class="nav-brand-title">MaxEco Energy &amp; Tech</div>
+        <div class="nav-brand-sub">Clean Energy &amp; IT Operating System</div>
+      </div>
+    </a>
+
+    <div class="nav-links">
+      <a href="#solar">Solar Rooftop EPC</a>
+      <a href="#it-infra">IT Infra &amp; Support</a>
+      <a href="#cafm-service">CAFM &amp; Facility AMC</a>
+      <a href="#calculator">Solar Calculator</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <div class="nav-actions">
+      <a href="tel:+919954493909" class="btn btn-outline">📞 Call Now</a>
+      <a href="../index.html" class="btn btn-primary" title="Open Founder ERP Business OS">🚀 Launch ERP OS</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="hero-badge-row">
+          <span class="badge-amber">☀️ Guwahati &amp; Northeast India</span>
+          <span class="badge-green">🛡️ Zero-Overhead Direct Execution</span>
+        </div>
+        <h1 class="hero-title">
+          Engineering <span class="highlight-amber">Clean Solar Power</span> &amp; <span class="highlight-green">Enterprise IT Solutions</span>
+        </h1>
+        <p class="hero-subtitle">
+          MaxEco Energy &amp; Tech provides high-yield commercial &amp; residential solar rooftop EPC advisory, APDCL net-metering clearances, CEIG approvals, and end-to-end IT infrastructure sales &amp; support across Assam.
+        </p>
+
+        <div class="hero-cta-group">
+          <a href="#calculator" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">⚡ Estimate Solar Savings</a>
+          <a href="https://wa.me/919954493909?text=Hello%20MaxEco,%20I%20would%20like%20a%20solar%20consultation" target="_blank" class="btn btn-green" style="padding: 12px 24px; font-size: 14px;">💬 WhatsApp Advisory</a>
+          <a href="../index.html" class="btn btn-outline" style="padding: 12px 24px; font-size: 14px;">🔒 Access ERP Portal</a>
+        </div>
+
+        <div class="hero-metrics">
+          <div>
+            <div class="hero-metric-val">35 kWp+</div>
+            <div class="hero-metric-lbl">Active EPC Execution</div>
+          </div>
+          <div>
+            <div class="hero-metric-val">100%</div>
+            <div class="hero-metric-lbl">APDCL &amp; CEIG Compliance</div>
+          </div>
+          <div>
+            <div class="hero-metric-val">4.8 Yrs</div>
+            <div class="hero-metric-lbl">Typical Payback Period</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Interactive Card -->
+      <div class="hero-card">
+        <div class="hero-card-header">
+          <div>
+            <span class="status-dot"></span>
+            <strong style="font-size: 14px;">Operations Hub Status</strong>
+          </div>
+          <span class="badge-amber">Guwahati Active</span>
+        </div>
+
+        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 18px;">
+          Direct founder-led advisory eliminating middleman commissions and delivering verifiable engineering data.
+        </div>
+
+        <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border-color);">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--solar-amber); font-weight: 700; margin-bottom: 4px;">Service Scope</div>
+          <div style="font-size: 14px; font-weight: 700;">On-Grid Solar EPC Advisory &amp; Net-Metering</div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">SAC 995461 • Guwahati, Kamrup Metro, Assam</div>
+        </div>
+
+        <div style="background: #0f172a; border-radius: 8px; padding: 16px; margin-bottom: 20px; border: 1px solid var(--border-color);">
+          <div style="font-size: 11px; text-transform: uppercase; color: var(--eco-green); font-weight: 700; margin-bottom: 4px;">IT Infrastructure Scope</div>
+          <div style="font-size: 14px; font-weight: 700;">IT Infra Sales, Workstations &amp; Structured Cabling</div>
+          <div style="font-size: 12px; color: #94a3b8; margin-top: 4px;">SAC 998713 • Commercial Hardware &amp; SLA Support</div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border-color);">
+          <div style="font-size: 12px; color: var(--text-muted);">
+            Engineering Standards: <strong style="color: #fff;">APDCL &amp; CEIG Compliant</strong>
+          </div>
+          <span style="font-size: 11px; color: var(--eco-green); background: rgba(16, 185, 129, 0.15); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--eco-green); font-weight: 600;">ISO &amp; CEIG Aligned</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Core Services Section -->
+  <section class="section" id="solar">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Enterprise Solutions</div>
+        <h2 class="section-title">Clean Energy &amp; Technology Services</h2>
+        <p class="section-desc">
+          Professional engineering services tailored to Assam's specific solar irradiance profile, APDCL regulations, and business technology needs.
+        </p>
+      </div>
+
+      <div class="services-grid">
+        <!-- Service 1: Solar EPC -->
+        <div class="service-card">
+          <div class="service-icon-box icon-amber">☀️</div>
+          <h3 class="service-title">Commercial &amp; Residential Solar EPC</h3>
+          <p class="service-text">
+            Turnkey solar rooftop advisory, shadow analysis, engineering design, and certified procurement for warehouses, schools, hospitals, and residences.
+          </p>
+          <ul class="service-list">
+            <li>European PVGIS irradiance modeling</li>
+            <li>Tier-1 Mono PERC high-efficiency panels</li>
+            <li>Certified On-Grid String inverters</li>
+            <li>Earthing &amp; Lightning arrester CEIG safety</li>
+          </ul>
+          <a href="../index.html#quotes" class="btn btn-outline" style="width: 100%;">Create Solar Proposal</a>
+        </div>
+
+        <!-- Service 2: APDCL Approvals -->
+        <div class="service-card">
+          <div class="service-icon-box icon-green">⚡</div>
+          <h3 class="service-title">APDCL Net-Metering &amp; CEIG Clearance</h3>
+          <p class="service-text">
+            End-to-end regulatory coordination with Assam Power Distribution Company Ltd (APDCL) and Chief Electrical Inspector to Government (CEIG).
+          </p>
+          <ul class="service-list">
+            <li>Subdivision feasibility documentation</li>
+            <li>Bi-directional net-meter requisition</li>
+            <li>CEIG drawing submission &amp; safety inspection</li>
+            <li>Grid synchronization sign-off</li>
+          </ul>
+          <a href="../index.html#operations" class="btn btn-outline" style="width: 100%;">Track Work Orders</a>
+        </div>
+
+        <!-- Service 3: IT Infra Sales & Support -->
+        <div class="service-card" id="it-infra">
+          <div class="service-icon-box icon-blue">🖥️</div>
+          <h3 class="service-title">IT Infra Sales &amp; Support</h3>
+          <p class="service-text">
+            Dedicated enterprise IT hardware sales, networking architecture, workstation deployment, and dependable SLA support for businesses across Northeast India.
+          </p>
+          <ul class="service-list">
+            <li>Commercial workstations, servers &amp; storage</li>
+            <li>Cat6 / Optical fiber structured cabling</li>
+            <li>Rack deployment &amp; managed switches</li>
+            <li>SLA maintenance &amp; on-site troubleshooting</li>
+          </ul>
+          <a href="../index.html#invoices" class="btn btn-outline" style="width: 100%;">View IT Quotations</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CAFM & Facility Management Section -->
+  <section class="section" id="cafm-service" style="background: radial-gradient(circle at 10% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 60%); border-bottom: 1px solid var(--border-color);">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow" style="color: #c084fc;">Computer-Aided Facility Management (CAFM)</div>
+        <h2 class="section-title">Smart Facility Operations, QR Asset Tagging &amp; Maintenance AMC</h2>
+        <p class="section-desc">
+          Professional facility management engineered for commercial offices, retail branches, diagnostic healthcare labs, and warehouses across Assam. Digitize equipment assets, automate preventative servicing, and ensure 99.6%+ operational uptime.
+        </p>
+      </div>
+
+      <!-- CAFM Value Highlights Row -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 36px;" class="hero-metrics">
+        <div style="background: var(--navy-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; text-align: center;">
+          <div class="hero-metric-val" style="color: #c084fc;">99.6%</div>
+          <div class="hero-metric-lbl">Power &amp; IT Uptime SLA</div>
+        </div>
+        <div style="background: var(--navy-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; text-align: center;">
+          <div class="hero-metric-val" style="color: var(--solar-amber);">&lt; 4 Hrs</div>
+          <div class="hero-metric-lbl">Guwahati Emergency Response</div>
+        </div>
+        <div style="background: var(--navy-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; text-align: center;">
+          <div class="hero-metric-val" style="color: var(--eco-green);">100%</div>
+          <div class="hero-metric-lbl">CEIG Safety Compliance</div>
+        </div>
+        <div style="background: var(--navy-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 18px; text-align: center;">
+          <div class="hero-metric-val" style="color: var(--sky-blue);">1-Scan</div>
+          <div class="hero-metric-lbl">Instant Mobile QR Verification</div>
+        </div>
+      </div>
+
+      <!-- 4 Pillars Grid -->
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 40px;" class="services-grid">
+        <!-- Pillar 1: QR Asset Tracking -->
+        <div class="service-card">
+          <div class="service-icon-box icon-purple">🏷️</div>
+          <h3 class="service-title">QR-Coded Equipment Asset Register</h3>
+          <p class="service-text">
+            Every critical asset—solar inverters, ACDB/DCDB boxes, enterprise servers, online UPS systems, and earthing pits—is registered with a weatherproof vector QR identification sticker.
+          </p>
+          <ul class="service-list">
+            <li>Instant mobile phone camera scanning without app downloads</li>
+            <li>Direct display of OEM serial numbers &amp; warranty status</li>
+            <li>Chronological digital repair and servicing records</li>
+            <li>Emergency 24/7 technical breakdown hotline printed on tags</li>
+          </ul>
+        </div>
+
+        <!-- Pillar 2: Planned Preventive Maintenance -->
+        <div class="service-card">
+          <div class="service-icon-box icon-amber">🛠️</div>
+          <h3 class="service-title">Planned Preventive Maintenance (PPM)</h3>
+          <p class="service-text">
+            Shift from chaotic breakdown firefighting to structured proactive maintenance. Our automated PPM engine schedules and tracks routine inspections with precision.
+          </p>
+          <ul class="service-list">
+            <li>30-day, 90-day &amp; semi-annual service countdowns</li>
+            <li>Solar module dust washing &amp; hotspot thermography</li>
+            <li>APDCL net-metering &amp; earthing pit resistance ohmic audits</li>
+            <li>UPS battery bank impedance testing and backup runtime verification</li>
+          </ul>
+        </div>
+
+        <!-- Pillar 3: SLA AMC Retainers -->
+        <div class="service-card">
+          <div class="service-icon-box icon-green">📜</div>
+          <h3 class="service-title">Comprehensive AMC Contracts with SLA</h3>
+          <p class="service-text">
+            Transparent annual maintenance contracts designed for private enterprises, institutions, and healthcare providers with defined response and resolution windows.
+          </p>
+          <ul class="service-list">
+            <li>Comprehensive Solar Rooftop O&amp;M Retainers (SAC 995461)</li>
+            <li>Enterprise IT Infra &amp; Networking SLAs (SAC 998713)</li>
+            <li>Unified Clean-Energy + IT Support hybrid packages</li>
+            <li>Quarterly statutory billing with GST compliance</li>
+          </ul>
+        </div>
+
+        <!-- Pillar 4: Digital Work Orders -->
+        <div class="service-card">
+          <div class="service-icon-box icon-blue">📋</div>
+          <h3 class="service-title">Verified Digital Work Orders &amp; Slips</h3>
+          <p class="service-text">
+            End-to-end digital audit trail for every technician visit. Maintain compliance records that satisfy corporate governance and CEIG statutory inspections.
+          </p>
+          <ul class="service-list">
+            <li>Multi-priority ticketing (Critical, High, Normal)</li>
+            <li>Technician assignment and service remarks logging</li>
+            <li>Field work order slips with electrical safety mandates</li>
+            <li>Tamper-resistant digital signature sign-offs and audit verification</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Public CAFM Demo & Proposal Request Form -->
+      <div class="cafm-form-card" id="cafm-demo-form-box">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 16px;">
+          <div>
+            <span class="badge-purple">Direct Engineering Consultation</span>
+            <h3 style="font-size: 24px; font-weight: 800; color: #fff; margin-top: 6px;">Request a CAFM Demo or AMC Maintenance Proposal</h3>
+            <p style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">
+              Submit your premise details below. Our technical team will review your infrastructure and deliver a customized maintenance proposal within 4 business hours.
+            </p>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); text-align: right;">
+            🔒 <em>Secure Public Submission • Zero Data Leakage</em>
+          </div>
+        </div>
+
+        <div id="cafm-form-alert" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid var(--eco-green); border-radius: 8px; padding: 18px; margin-bottom: 24px; color: #fff;">
+          <div style="font-weight: 800; font-size: 16px; color: var(--eco-green); margin-bottom: 6px;">
+            ✅ Enquiry &amp; Demo Request Received!
+          </div>
+          <div id="cafm-alert-msg" style="font-size: 14px; line-height: 1.5; color: #e2e8f0;">
+            Thank you! Your request has been registered in the MaxEco Operating System. Our technical engineering team will contact you shortly with your personalized facility assessment.
+          </div>
+        </div>
+
+        <form id="cafm-public-form" onsubmit="submitCafmEnquiry(event)">
+          <div class="form-grid-2">
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-org-name">Organization / Company Name *</label>
+              <input type="text" id="cafm-org-name" class="form-control-web" required placeholder="e.g. Brahmaputra Packaging &amp; Logistics">
+            </div>
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-contact-name">Contact Person *</label>
+              <input type="text" id="cafm-contact-name" class="form-control-web" required placeholder="e.g. Pranab Barman (Admin / Facility Manager)">
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-phone">Contact Phone Number *</label>
+              <input type="tel" id="cafm-phone" class="form-control-web" required placeholder="e.g. +91 98640 12345">
+            </div>
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-email">Business Email Address *</label>
+              <input type="email" id="cafm-email" class="form-control-web" required placeholder="e.g. admin@company.com">
+            </div>
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-premise-type">Facility Premise Type *</label>
+              <select id="cafm-premise-type" class="form-control-web" required>
+                <option value="Commercial Factory &amp; Warehouse">Commercial Factory &amp; Warehouse</option>
+                <option value="Corporate Office">Corporate Office</option>
+                <option value="Healthcare &amp; Diagnostic Laboratory">Healthcare &amp; Diagnostic Laboratory</option>
+                <option value="Commercial Retail &amp; Showroom">Commercial Retail &amp; Showroom</option>
+                <option value="Educational Institution">Educational Institution</option>
+                <option value="Residential Society">Residential Society</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-service-interest">Primary Service Requirement *</label>
+              <select id="cafm-service-interest" class="form-control-web" required>
+                <option value="CAFM Software Demo &amp; Facility Onboarding">CAFM Software Demo &amp; Facility Onboarding</option>
+                <option value="Comprehensive Solar Rooftop O&amp;M AMC">Comprehensive Solar Rooftop O&amp;M AMC</option>
+                <option value="Enterprise IT Infra &amp; Networking SLA">Enterprise IT Infra &amp; Networking SLA</option>
+                <option value="Combined Clean Energy &amp; IT Support Retainer">Combined Clean Energy &amp; IT Support Retainer</option>
+                <option value="Electrical Safety &amp; CEIG Compliance Audit">Electrical Safety &amp; CEIG Compliance Audit</option>
+              </select>
+            </div>
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-location">Premise Location / Address *</label>
+              <input type="text" id="cafm-location" class="form-control-web" required placeholder="e.g. Amingaon Industrial Area, Guwahati, Assam">
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-scale">Estimated Facility Scale / Asset Scope</label>
+              <input type="text" id="cafm-scale" class="form-control-web" placeholder="e.g. 12,000 sq ft / 35 kWp Solar / 25 Workstations">
+            </div>
+            <div class="form-group-web">
+              <label class="form-label-web" for="cafm-timeline">Preferred Start Timeline</label>
+              <select id="cafm-timeline" class="form-control-web">
+                <option value="Immediate (Within 7 Days)">Immediate (Within 7 Days)</option>
+                <option value="This Month">This Month</option>
+                <option value="Next Quarter Planning">Next Quarter Planning</option>
+                <option value="Exploratory Demo Only">Exploratory Demo Only</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group-web">
+            <label class="form-label-web" for="cafm-notes">Specific Maintenance Issues or Equipment Details</label>
+            <textarea id="cafm-notes" class="form-control-web" rows="3" placeholder="Describe current facility challenges (e.g. solar inverter tripping, UPS battery aging, irregular earthing checks, desire to digitize asset tags)..."></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 13px; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+              <span>⚡ Direct Phone / WhatsApp:</span>
+              <a href="tel:+919954493909" style="color: var(--solar-amber); font-weight: 700;">+91 99544 93909</a>
+              <span>•</span>
+              <a href="mailto:maxecoenergyit@gmail.com" style="color: var(--sky-blue);">maxecoenergyit@gmail.com</a>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 28px; font-size: 14px;">
+              🚀 Submit Enquiry &amp; Request Demo
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Solar Quick Calculator Preview -->
+  <section class="section" id="calculator" style="background: #080d1a;">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-eyebrow">Instant ROI Estimation</div>
+        <h2 class="section-title">Solar Savings &amp; Capacity Calculator</h2>
+        <p class="section-desc">
+          Estimate required rooftop solar capacity, monthly power generation, and payback duration based on Guwahati solar irradiation rates.
+        </p>
+      </div>
+
+      <div class="calc-card">
+        <div>
+          <div class="calc-input-group">
+            <label class="calc-label" for="calc-bill">Average Monthly Electricity Bill (₹)</label>
+            <select id="calc-bill" class="calc-select" onchange="runCalculator()">
+              <option value="3000">₹3,000 / month (Residential Small)</option>
+              <option value="6000" selected>₹6,000 / month (Residential Medium / Small Commercial)</option>
+              <option value="15000">₹15,000 / month (Commercial Office / Clinic)</option>
+              <option value="35000">₹35,000 / month (Industrial / Cold Storage / School)</option>
+              <option value="75000">₹75,000 / month (Commercial Warehouse / Factory)</option>
+            </select>
+          </div>
+
+          <div class="calc-input-group">
+            <label class="calc-label" for="calc-roof">Approximate Rooftop Shadow-Free Area (Sq. Ft)</label>
+            <input type="number" id="calc-roof" class="calc-input" value="650" placeholder="e.g. 500" oninput="runCalculator()">
+          </div>
+
+          <div style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-top: 14px;">
+            ℹ️ Calculation basis: Guwahati, Assam solar yield factor ~1,300 kWh/kWp/year, APDCL commercial tariff slab benchmark.
+          </div>
+        </div>
+
+        <div class="calc-result-box">
+          <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--solar-amber); margin-bottom: 12px;">Estimated Solar Feasibility</div>
+          <div class="result-row">
+            <span>Recommended Plant Size:</span>
+            <span class="result-val" id="res-kw">5.0 kWp</span>
+          </div>
+          <div class="result-row">
+            <span>Monthly Solar Generation:</span>
+            <span class="result-val" id="res-gen">550 Units (kWh)</span>
+          </div>
+          <div class="result-row">
+            <span>Estimated Annual Bill Savings:</span>
+            <span class="result-val" style="color: var(--eco-green);" id="res-savings">₹52,800</span>
+          </div>
+          <div class="result-row">
+            <span>Estimated Payback Horizon:</span>
+            <span class="result-val" id="res-payback">4.6 Years</span>
+          </div>
+
+          <div style="margin-top: 20px;">
+            <a href="../index.html" class="btn btn-primary" style="width: 100%;">Open Official Solar Calculator in ERP 🚀</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact & Footer -->
+  <footer class="footer" id="contact">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+            <img src="../assets/logo-emblem.png" alt="MaxEco Logo" style="height: 36px; width: 36px;" onerror="this.style.display='none'">
+            <div style="font-size: 18px; font-weight: 800; color: #fff;">MaxEco Energy &amp; Tech</div>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+            Clean energy advisory, rooftop solar EPC coordination, and business IT infrastructure engineering based in Guwahati, Assam.
+          </p>
+          <div style="font-size: 12px; color: #cbd5e1;">
+            📍 <strong>Regional Office:</strong> Guwahati, Kamrup Metro, Assam
+          </div>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Navigation</div>
+          <ul class="footer-links">
+            <li><a href="#solar">Solar Rooftop EPC</a></li>
+            <li><a href="#it-infra">IT Infra Solutions</a></li>
+            <li><a href="#cafm-service">CAFM &amp; Facility AMC</a></li>
+            <li><a href="#calculator">Solar Calculator</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Founder ERP OS</div>
+          <ul class="footer-links">
+            <li><a href="../index.html#dashboard">Executive Dashboard</a></li>
+            <li><a href="../index.html#invoices">Customer Invoices</a></li>
+            <li><a href="../index.html#quotes">Commercial Proposals</a></li>
+            <li><a href="../index.html#operations">Field Work Orders</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <div class="footer-col-title">Registered Office</div>
+          <div style="line-height: 1.7; font-size: 13px;">
+            Maligaon, Guwahati, Assam, Pin - 781011<br>
+            <strong>Phone:</strong> <a href="tel:+919954493909" style="color: var(--solar-amber);">+91 99544 93909</a><br>
+            <strong>Email:</strong> <a href="mailto:maxecoenergyit@gmail.com" style="color: var(--sky-blue);">maxecoenergyit@gmail.com</a><br>
+            <strong>Hours:</strong> Mon - Sat (9:00 AM - 7:00 PM)
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2024 - 2026 MaxEco Energy &amp; Tech. All Rights Reserved. Guwahati, Assam, India.
+        </div>
+        <div>
+          <a href="../index.html" class="btn btn-outline" style="font-size: 11px; padding: 4px 10px;">🔒 Founder Login</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Interactive Scripts -->
+  <script>
+    function runCalculator() {
+      const bill = Number(document.getElementById('calc-bill').value) || 6000;
+      const roof = Number(document.getElementById('calc-roof').value) || 600;
+
+      // Sizing logic: Guwahati ~1,300 kWh/kWp/yr, average commercial/residential APDCL tariff ~₹8/unit
+      const unitsNeededPerMonth = bill / 8;
+      const estimatedKw = Math.max(1, Math.round((unitsNeededPerMonth / 110) * 10) / 10);
+      const monthlyUnitsGen = Math.round(estimatedKw * 110);
+      const annualSavings = Math.round(monthlyUnitsGen * 12 * 8);
+      const approxCost = estimatedKw * 55000;
+      const paybackYears = Math.max(3.2, Math.round((approxCost / annualSavings) * 10) / 10);
+
+      document.getElementById('res-kw').textContent = estimatedKw.toFixed(1) + ' kWp';
+      document.getElementById('res-gen').textContent = monthlyUnitsGen + ' Units (kWh)';
+      document.getElementById('res-savings').textContent = '₹' + annualSavings.toLocaleString('en-IN');
+      document.getElementById('res-payback').textContent = paybackYears.toFixed(1) + ' Years';
+    }
+
+    function submitCafmEnquiry(event) {
+      event.preventDefault();
+      const orgName = document.getElementById('cafm-org-name').value.trim();
+      const contactPerson = document.getElementById('cafm-contact-name').value.trim();
+      const phone = document.getElementById('cafm-phone').value.trim();
+      const email = document.getElementById('cafm-email').value.trim();
+      const premiseType = document.getElementById('cafm-premise-type').value;
+      const serviceInterest = document.getElementById('cafm-service-interest').value;
+      const location = document.getElementById('cafm-location').value.trim();
+      const scale = document.getElementById('cafm-scale').value.trim();
+      const timeline = document.getElementById('cafm-timeline').value;
+      const notes = document.getElementById('cafm-notes').value.trim();
+
+      if (!orgName || !contactPerson || !phone || !email) {
+        alert('Please fill in all required fields marked with *');
+        return;
+      }
+
+      // Safe CRM lead creation into localStorage without exposing existing data
+      try {
+        const STORAGE_KEY = 'maxeco_erp_store';
+        let store = null;
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          store = JSON.parse(raw);
+        }
+        if (!store || typeof store !== 'object') {
+          store = { leads: [] };
+        }
+        if (!Array.isArray(store.leads)) {
+          store.leads = [];
+        }
+
+        const dateStr = new Date().toISOString().slice(0, 10);
+        const timestamp = dateStr.replace(/-/g, '');
+        const leadId = 'LEAD-CAFM-' + timestamp + '-' + Math.floor(100 + Math.random() * 900);
+
+        const newLead = {
+          id: leadId,
+          name: orgName,
+          contactPerson: contactPerson,
+          phone: phone,
+          email: email,
+          location: location,
+          customerType: premiseType,
+          service: 'CAFM & Facility AMC',
+          source: 'Website CAFM Demo Form',
+          estimatedValue: 45000,
+          stage: 'New',
+          lastContactDate: dateStr,
+          nextFollowUpDate: dateStr,
+          nextAction: 'Schedule CAFM software demo & conduct site facility assessment (' + timeline + ')',
+          notes: 'Facility Requirement: ' + serviceInterest + '\nPremise Scale: ' + (scale || 'N/A') + '\nTimeline: ' + timeline + '\nClient Notes: ' + (notes || 'None'),
+          createdAt: dateStr
+        };
+
+        store.leads.unshift(newLead);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+
+        // Show confirmation message
+        const alertBox = document.getElementById('cafm-form-alert');
+        const alertMsg = document.getElementById('cafm-alert-msg');
+        if (alertBox && alertMsg) {
+          alertMsg.innerHTML = `
+            Thank you <strong>${contactPerson}</strong>! Your demo & AMC enquiry for <strong>${orgName}</strong> (${serviceInterest}) has been registered (Ref: <code>${leadId}</code>).<br>
+            Our engineering support team (+91 99544 93909) will review your facility parameters and contact you via phone or email within 4 business hours.
+          `;
+          alertBox.style.display = 'block';
+          alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Reset form
+        document.getElementById('cafm-public-form').reset();
+      } catch (err) {
+        console.error('Error saving CAFM enquiry:', err);
+        alert('Thank you! Your enquiry has been received. Our team will contact you at ' + phone);
+      }
+    }
+
+    // Run on load
+    window.addEventListener('DOMContentLoaded', runCalculator);
+  </script>
+
+</body>
+</html>

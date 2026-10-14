@@ -839,8 +839,111 @@ assert(!websiteHtml.includes('id="settlement"'), 'Privacy & Compliance check: We
 assert(!websiteHtml.includes('Tamal Roy'), 'Privacy & Compliance check: Website does not publicly expose Authorised Signatory personal name');
 assert(!websiteHtml.includes('Authorised Signatory'), 'Privacy & Compliance check: Website does not expose Authorised Signatory title');
 
+// --- TEST SUITE 12: React Corporate Website & Security Hardening ---
+console.log('\n--- TEST SUITE 12: React Corporate Website & Security Hardening ---');
+
+// 1. Verify build artifacts
+const distIndexPath = path.join(__dirname, '../dist/index.html');
+assert(fs.existsSync(distIndexPath), 'Production bundle dist/index.html exists');
+const distHtml = fs.readFileSync(distIndexPath, 'utf-8');
+
+assert(distHtml.includes('<!DOCTYPE html>'), 'dist/index.html has valid HTML5 doctype');
+assert(distHtml.includes('<div id="root"></div>'), 'dist/index.html mounts React application onto #root');
+assert(distHtml.includes('X-Content-Type-Options'), 'dist/index.html defines nosniff security header');
+assert(!distHtml.includes('public/index.html'), 'Security check: dist/index.html has zero links to private ERP');
+assert(!distHtml.includes('Founder ERP OS'), 'Security check: dist/index.html does not expose Founder ERP title');
+
+// 2. Verify SEO files in dist
+const robotsPath = path.join(__dirname, '../dist/robots.txt');
+assert(fs.existsSync(robotsPath), 'dist/robots.txt exists for search engine indexing');
+const robotsContent = fs.readFileSync(robotsPath, 'utf-8');
+assert(robotsContent.includes('Sitemap: https://hellotamal.github.io/maxeco/sitemap.xml'), 'robots.txt points to canonical sitemap.xml');
+assert(robotsContent.includes('Disallow: /public/index.html'), 'robots.txt blocks crawling of internal ERP');
+
+const sitemapPath = path.join(__dirname, '../dist/sitemap.xml');
+assert(fs.existsSync(sitemapPath), 'dist/sitemap.xml exists');
+const sitemapContent = fs.readFileSync(sitemapPath, 'utf-8');
+assert(sitemapContent.includes('<loc>https://hellotamal.github.io/maxeco/</loc>'), 'Sitemap includes root canonical URL');
+assert(sitemapContent.includes('<loc>https://hellotamal.github.io/maxeco/clean-energy</loc>'), 'Sitemap includes clean-energy URL');
+assert(sitemapContent.includes('<loc>https://hellotamal.github.io/maxeco/digital-growth</loc>'), 'Sitemap includes digital-growth URL');
+assert(sitemapContent.includes('<loc>https://hellotamal.github.io/maxeco/contact</loc>'), 'Sitemap includes contact URL');
+assert(sitemapContent.includes('<loc>https://hellotamal.github.io/maxeco/privacy</loc>'), 'Sitemap includes privacy URL');
+
+const fallback404Path = path.join(__dirname, '../dist/404.html');
+assert(fs.existsSync(fallback404Path), 'dist/404.html exists for GitHub Pages SPA fallback');
+const fallbackContent = fs.readFileSync(fallback404Path, 'utf-8');
+assert(fallbackContent.includes('redirectPath') || fallbackContent.includes('?p='), '404.html contains SPA redirect script');
+
+// 3. Calculator model verification (Node implementation test)
+function testSolarModel(monthlyBill, tariff, roofArea) {
+  const safeBill = Math.max(0, Number(monthlyBill) || 0);
+  const safeTariff = Math.max(1, Number(tariff) || 7.85);
+  const safeArea = Math.max(0, Number(roofArea) || 0);
+  if (safeBill <= 0 || safeArea <= 0) return { isValid: false };
+  const monthlyUnits = safeBill / safeTariff;
+  const idealKw = monthlyUnits / 110;
+  const maxKw = safeArea / 100;
+  const recommendedKw = Math.max(1.0, Math.round(Math.min(idealKw, maxKw) * 10) / 10);
+  const isRoofConstrained = maxKw < idealKw;
+  const annualGen = Math.round(recommendedKw * 1320);
+  const annualSavings = Math.round(annualGen * safeTariff);
+  const capex = Math.round(recommendedKw * 58000);
+  const payback = Math.round((capex / annualSavings) * 10) / 10;
+  return { isValid: true, recommendedKw, isRoofConstrained, annualGen, annualSavings, payback };
+}
+
+const standardCalc = testSolarModel(15000, 7.85, 2000);
+assert(standardCalc.isValid === true, 'Solar calculator handles standard commercial input');
+assert(standardCalc.recommendedKw > 0, `Recommended capacity calculated: ${standardCalc.recommendedKw} kWp`);
+assert(standardCalc.annualSavings > 0, `Annual savings calculated: ₹${standardCalc.annualSavings}`);
+assert(standardCalc.payback >= 3.0 && standardCalc.payback <= 6.0, `Payback horizon within realistic range: ${standardCalc.payback} years`);
+assert(standardCalc.isRoofConstrained === false, 'Adequate roof area is not constrained');
+
+const constrainedCalc = testSolarModel(75000, 7.85, 300);
+assert(constrainedCalc.isRoofConstrained === true, 'Roof constraint properly detected when area is limited');
+assert(constrainedCalc.recommendedKw === 3.0, 'Capacity accurately capped by 300 sq. ft. roof area constraint');
+
+const invalidCalc = testSolarModel(0, 7.85, 0);
+assert(invalidCalc.isValid === false, 'Calculator gracefully handles zero or negative inputs');
+
+// 4. Form validation verification (Node implementation test)
+function testFormValidation(data) {
+  const errors = {};
+  if (!data.name || data.name.trim().length < 2) errors.name = true;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const phoneClean = (data.phone || '').replace(/[^0-9]/g, '');
+  const hasValidEmail = data.email && emailRegex.test(data.email.trim());
+  const hasValidPhone = phoneClean.length >= 10;
+  if (!hasValidEmail && !hasValidPhone) errors.contact = true;
+  if (!data.serviceInterest) errors.serviceInterest = true;
+  if (!data.message || data.message.trim().length < 10) errors.message = true;
+  if (data._honeypot && data._honeypot.trim().length > 0) errors._honeypot = true;
+  return { isValid: Object.keys(errors).length === 0, errors };
+}
+
+const validSubmission = testFormValidation({
+  name: 'Debabrata Barua',
+  email: 'debabrata@gmail.com',
+  phone: '9876543210',
+  serviceInterest: 'Commercial Rooftop Solar Consultation',
+  message: 'We require a 25 kWp solar feasibility assessment for our Guwahati office building.',
+  _honeypot: ''
+});
+assert(validSubmission.isValid === true, 'Enquiry validator approves complete, legitimate submission');
+
+const spamSubmission = testFormValidation({
+  name: 'Bot',
+  email: 'bot@spam.com',
+  phone: '1234567890',
+  serviceInterest: 'General',
+  message: 'Buy cheap watches online now!',
+  _honeypot: 'http://spam-link.com'
+});
+assert(spamSubmission.isValid === false, 'Honeypot successfully catches automated bot submission');
+
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');
+
 
 

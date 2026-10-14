@@ -1,0 +1,10 @@
+# MaxEco Energy & Tech - robots.txt
+# Domain: https://hellotamal.github.io/maxeco/
+
+User-agent: *
+Allow: /
+Disallow: /public/index.html
+Disallow: /src/
+Disallow: /backups/
+
+Sitemap: https://hellotamal.github.io/maxeco/sitemap.xml
