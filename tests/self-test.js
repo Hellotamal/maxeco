@@ -833,6 +833,9 @@ assert(websiteHtml.includes('id="cafm-public-form"'), 'Website embeds interactiv
 assert(websiteHtml.includes('submitCafmEnquiry'), 'Website includes client-side enquiry submission handler');
 assert(!websiteHtml.includes('PIN_HASH'), 'Security check: Website does not expose ERP authentication PIN hash');
 assert(!websiteHtml.includes('user_accounts') && !websiteHtml.includes('auditLog'), 'Security check: Website does not leak internal audit logs or user accounts');
+assert(!websiteHtml.includes('4589000100072219'), 'Privacy & Compliance check: Website does not publicly expose bank account numbers');
+assert(!websiteHtml.includes('PUNB0458900'), 'Privacy & Compliance check: Website does not publicly expose bank IFSC code');
+assert(!websiteHtml.includes('id="settlement"'), 'Privacy & Compliance check: Website has removed direct settlement details section');
 
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
