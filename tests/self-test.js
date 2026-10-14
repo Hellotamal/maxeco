@@ -821,6 +821,128 @@ assert(reportHtml.includes('DIGITALLY VERIFIED SERVICE REPORT'), 'Service report
 assert(reportHtml.includes('Technical Verification &amp; Safety Checklist') || reportHtml.includes('Technical Verification & Safety Checklist'), 'Service report details full technician checklist verification');
 assert(reportHtml.includes('Components &amp; Consumables Logged') || reportHtml.includes('Components & Consumables Logged'), 'Service report details parts consumed and billable tier');
 
+// --- VERIFYING PHASE 3: SPACES, VENDORS, UTILITIES, COMPLIANCE & DIGITAL TWIN ---
+console.log('\n--- VERIFYING PHASE 3: SPACES, VENDORS, UTILITIES, COMPLIANCE & DIGITAL TWIN ---');
+
+// 1. Hierarchical Spaces & Spatial Asset Management
+const initialSpaces = window.cafm.getFacilitySpaces();
+assert(initialSpaces && initialSpaces.length >= 5, `Initial facility spaces loaded (found ${initialSpaces.length}, expected >= 5)`);
+const siteSpaces = window.cafm.getFacilitySpaces('all', 'SITE-2026-001');
+assert(siteSpaces.length >= 2, `Site-specific spaces filtered for SITE-2026-001 (found ${siteSpaces.length})`);
+
+const newSpace = window.cafm.saveFacilitySpace({
+  organizationId: 'ORG-2026-001',
+  siteId: 'SITE-2026-001',
+  buildingName: 'Tower B North',
+  floorLevel: 'Floor 3',
+  roomNumberOrName: 'Server & UPS Backup Room B-302',
+  areaSqFt: 420,
+  occupancyType: 'Server Room & IT Hub',
+  status: 'Operational',
+  notes: 'Dedicated precision air cooling zone'
+}, 'Admin', 'Facility Manager');
+assert(newSpace && newSpace.id && newSpace.id.startsWith('SPC-'), `New facility space assigned ID: ${newSpace.id}`);
+const fetchedSpace = window.cafm.getSpaceById(newSpace.id);
+assert(fetchedSpace && fetchedSpace.areaSqFt === 420, 'Facility space persisted and retrieved with correct dimensions');
+
+// 2. Interactive SVG Visual Floor Plan Generator
+const floorPlanSvg = window.cafm.generateFloorPlanSvg('SITE-2026-001');
+assert(floorPlanSvg.includes('<svg') && floorPlanSvg.includes('</svg>'), 'Pure-JS SVG generator renders complete vector floor plan');
+assert(floorPlanSvg.includes('Spatial Digital Twin') || floorPlanSvg.includes('Zone Health Status'), 'Floor plan renders digital twin header and legend');
+assert(floorPlanSvg.includes('SPC-2026-001') || floorPlanSvg.includes('Rooftop PV Bay'), 'Floor plan renders mapped spatial room nodes');
+assert(floorPlanSvg.includes('Operational') || floorPlanSvg.includes('HEALTHY'), 'Floor plan embeds color-coded operational health indicator');
+
+// 3. Specialized Trades & Contractors Directory
+const initialVendors = window.cafm.getFacilityVendors();
+assert(initialVendors && initialVendors.length >= 4, `Initial facility vendors loaded (found ${initialVendors.length}, expected >= 4)`);
+const ceigVendors = window.cafm.getFacilityVendors('Electrical & CEIG');
+assert(ceigVendors.length >= 1, `Trade-filtered contractor query returns CEIG specialists (found ${ceigVendors.length})`);
+
+const newVendor = window.cafm.saveFacilityVendor({
+  name: 'Brahmaputra Thermal & Solar Solutions',
+  tradeCategory: 'Solar PV & Inverter Maintenance',
+  contactPerson: 'Bikash Sarma',
+  phone: '+91 98640 55667',
+  email: 'service@brahmaputrasolar.in',
+  gstin: '18AACFB3344J1Z2',
+  status: 'Active',
+  rating: 5,
+  slaResponseHours: 2,
+  notes: 'Express 2-hour solar string fault response'
+}, 'Admin', 'Facility Manager');
+assert(newVendor && newVendor.id && newVendor.id.startsWith('VND-'), `New contractor registered with ID: ${newVendor.id}`);
+const fetchedVendor = window.cafm.getVendorById(newVendor.id);
+assert(fetchedVendor && fetchedVendor.slaResponseHours === 2, 'Contractor retrieved by ID with committed SLA response target');
+
+// 4. Energy & Utility Monitoring (APDCL & Solar Bi-Directional)
+const initialReadings = window.cafm.getUtilityReadings();
+assert(initialReadings && initialReadings.length >= 4, `Utility readings loaded (found ${initialReadings.length}, expected >= 4)`);
+
+const newReading = window.cafm.saveUtilityReading({
+  organizationId: 'ORG-2026-001',
+  siteId: 'SITE-2026-001',
+  billingMonth: 'October 2026',
+  discomConsumerNo: '012000088991',
+  gridUnitsImportedKwh: 6000,
+  solarUnitsExportedKwh: 4500,
+  peakDemandKva: 34.0,
+  powerFactor: 0.99,
+  totalBillAmountInr: 12450,
+  notes: 'Optimal pre-winter solar export'
+}, 'Admin', 'Facility Manager');
+assert(newReading && newReading.id && newReading.id.startsWith('UTL-'), `New utility reading assigned ID: ${newReading.id}`);
+assert(newReading.netUnitsBilledKwh === 1500, `Auto-computes net billed units (1500 kWh, expected 6000 - 4500)`);
+
+const utilityMetrics = window.cafm.calculateUtilityMetrics('SITE-2026-001');
+assert(utilityMetrics.totalImportKwh > 0 && utilityMetrics.totalExportKwh > 0, 'Aggregates cumulative APDCL grid import and solar export');
+assert(utilityMetrics.solarOffsetRatio >= 40, `Calculates solar offset ratio (${utilityMetrics.solarOffsetRatio}%, expected >= 40%)`);
+assert(utilityMetrics.averagePowerFactor >= 0.90, `Calculates average power factor (${utilityMetrics.averagePowerFactor})`);
+
+// Verify low power factor penalty alert trigger (< 0.90)
+const penaltyReading = window.cafm.saveUtilityReading({
+  organizationId: 'ORG-2026-001',
+  siteId: 'SITE-TEST-PENALTY',
+  billingMonth: 'Penalty Test Month',
+  discomConsumerNo: '012000099999',
+  gridUnitsImportedKwh: 10000,
+  solarUnitsExportedKwh: 2000,
+  peakDemandKva: 50.0,
+  powerFactor: 0.82, // Low power factor triggers penalty
+  totalBillAmountInr: 45000,
+  notes: 'Low PF test reading'
+});
+const penaltyMetrics = window.cafm.calculateUtilityMetrics('SITE-TEST-PENALTY');
+assert(penaltyMetrics.powerFactorAlert === true, 'Flags low power factor penalty alert when power factor < 0.90');
+window.cafm.deleteUtilityReading(penaltyReading.id);
+
+// 5. Statutory & CEIG Compliance Records
+const initialCompliance = window.cafm.getComplianceRecords();
+assert(initialCompliance && initialCompliance.length >= 4, `Initial compliance certificates loaded (found ${initialCompliance.length}, expected >= 4)`);
+
+const newCompliance = window.cafm.saveComplianceRecord({
+  organizationId: 'ORG-2026-001',
+  siteId: 'SITE-2026-001',
+  complianceType: 'CEIG Electrical Safety Certificate',
+  certificateNumber: 'CEIG/ASM/2026/TEST-001',
+  inspectingAuthority: 'Chief Electrical Inspectorate, Govt. of Assam',
+  issueDate: '2026-10-01',
+  expiryDate: '2029-09-30',
+  status: 'Valid',
+  frequencyMonths: 36,
+  remarks: 'Full 3-year statutory electrical clearance'
+}, 'Admin', 'Facility Manager');
+assert(newCompliance && newCompliance.id && newCompliance.id.startsWith('CMP-'), `New compliance certificate assigned ID: ${newCompliance.id}`);
+
+const complianceAlerts = window.cafm.getComplianceAlerts(60);
+assert(complianceAlerts.length >= 4, `Compliance engine evaluates expiry countdowns (evaluated ${complianceAlerts.length} records)`);
+assert(complianceAlerts.some(c => c.daysLeft !== undefined && c.alertLevel !== undefined), 'Compliance alerts compute precise daysLeft and alertLevel');
+
+// 6. CSV Exports for Phase 3 Data Audit
+assert(window.storage.exportCsv('facilitySpaces') === true, 'Facility Spaces CSV export generated');
+assert(window.storage.exportCsv('facilityVendors') === true, 'Facility Vendors CSV export generated');
+assert(window.storage.exportCsv('utilityReadings') === true, 'Utility Readings CSV export generated');
+assert(window.storage.exportCsv('complianceRecords') === true, 'Statutory Compliance Records CSV export generated');
+
 // --- VERIFYING WEBSITE CAFM INTEGRATION & SECURITY ISOLATION ---
 console.log('\n--- VERIFYING WEBSITE CAFM INTEGRATION & SECURITY ISOLATION ---');
 const websiteHtml = fs.readFileSync(path.join(__dirname, '../public/website/index.html'), 'utf-8');

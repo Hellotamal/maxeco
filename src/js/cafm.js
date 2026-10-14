@@ -347,6 +347,31 @@ class CafmController {
       };
     });
 
+    let spaces = store.getFacilitySpaces ? store.getFacilitySpaces() : [];
+    let vendors = store.getFacilityVendors ? store.getFacilityVendors() : [];
+    let utilities = store.getUtilityReadings ? store.getUtilityReadings() : [];
+    let compliance = store.getComplianceRecords ? store.getComplianceRecords() : [];
+
+    if (filterOrg && filterOrg !== 'all') {
+      spaces = spaces.filter(s => s.organizationId === filterOrg);
+      utilities = utilities.filter(u => u.organizationId === filterOrg);
+      compliance = compliance.filter(c => c.organizationId === filterOrg);
+    }
+
+    // Compliance alerts: Expired or Due for Renewal or expiring within 45 days
+    const dueCompliance = compliance.filter(c => {
+      if (c.status === 'Expired' || c.status === 'Due for Renewal') return true;
+      if (c.expiryDate && c.expiryDate <= thresholdStr) return true;
+      return false;
+    });
+
+    // Solar offset ratio calculation across utility readings
+    const totalGridImport = utilities.reduce((acc, u) => acc + (Number(u.gridUnitsImportedKwh) || 0), 0);
+    const totalSolarExport = utilities.reduce((acc, u) => acc + (Number(u.solarUnitsExportedKwh) || 0), 0);
+    const solarOffsetRatio = (totalGridImport + totalSolarExport) > 0 
+      ? Math.round((totalSolarExport / (totalGridImport + totalSolarExport)) * 100) 
+      : 0;
+
     return {
       totalOrganizations,
       totalSites,
@@ -365,7 +390,14 @@ class CafmController {
       activeAmcCount: activeAmcs.length,
       totalAnnualAmcValue,
       expiringAmcCount: expiringAmcs.length,
-      expiringAmcs
+      expiringAmcs,
+      totalSpaces: spaces.length,
+      totalVendors: vendors.length,
+      complianceAlertsCount: dueCompliance.length,
+      dueCompliance,
+      solarOffsetRatio,
+      totalGridImport,
+      totalSolarExport
     };
   }
 
@@ -1714,6 +1746,435 @@ class CafmController {
 
       </div>
     `;
+  }
+
+  // --- CAFM PHASE 3: SPACES & HIERARCHICAL SPACE MANAGEMENT ---
+  getFacilitySpaces(orgId = 'all', siteId = 'all') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return [];
+    let list = store.getFacilitySpaces ? store.getFacilitySpaces() : [];
+    const targetOrg = (orgId !== 'all') ? orgId : this.currentOrganizationFilter;
+    if (targetOrg && targetOrg !== 'all') {
+      list = list.filter(s => s.organizationId === targetOrg);
+    }
+    if (siteId && siteId !== 'all') {
+      list = list.filter(s => s.siteId === siteId);
+    }
+    return list;
+  }
+
+  getSpaceById(id) {
+    const spaces = this.getFacilitySpaces('all', 'all');
+    return spaces.find(s => s.id === id) || null;
+  }
+
+  saveFacilitySpace(space, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return null;
+    const isNew = !space.id;
+    const saved = store.saveFacilitySpace(space);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        isNew ? 'CREATE_FACILITY_SPACE' : 'UPDATE_FACILITY_SPACE',
+        'facilitySpaces',
+        saved.id,
+        `${isNew ? 'Created' : 'Updated'} facility space ${saved.roomNumberOrName || saved.id} in building ${saved.buildingName || ''}`,
+        user,
+        role
+      );
+    }
+    return saved;
+  }
+
+  deleteFacilitySpace(id, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return false;
+    store.deleteFacilitySpace(id);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        'DELETE_FACILITY_SPACE',
+        'facilitySpaces',
+        id,
+        `Deleted facility space ${id}`,
+        user,
+        role
+      );
+    }
+    return true;
+  }
+
+  // Pure SVG Interactive Visual Floor Plan Generator
+  generateFloorPlanSvg(siteId = 'all') {
+    const spaces = this.getFacilitySpaces('all', siteId);
+    const assets = this.getAssets('all', 'all', 'all');
+    const tickets = this.getTickets('all', 'all');
+    const openTickets = tickets.filter(t => t.status !== 'Closed' && t.status !== 'Resolved');
+
+    if (!spaces || spaces.length === 0) {
+      return `
+        <svg viewBox="0 0 800 360" width="100%" height="280" xmlns="http://www.w3.org/2000/svg" style="background: #0f172a; border-radius: 8px;">
+          <text x="400" y="180" fill="#94a3b8" font-size="14" font-family="system-ui, sans-serif" text-anchor="middle">
+            No spatial zones or rooms mapped for this facility site yet. Add spaces to render layout.
+          </text>
+        </svg>
+      `;
+    }
+
+    // Grid coordinates for rendering clean isometric-style 2D floorplan rooms
+    const cols = Math.min(3, spaces.length);
+    const rows = Math.ceil(spaces.length / cols);
+    const boxWidth = 230;
+    const boxHeight = 130;
+    const gapX = 25;
+    const gapY = 25;
+    const startX = 25;
+    const startY = 45;
+    const totalSvgWidth = Math.max(760, startX * 2 + cols * boxWidth + (cols - 1) * gapX);
+    const totalSvgHeight = startY + rows * (boxHeight + gapY) + 30;
+
+    let roomsMarkup = '';
+
+    spaces.forEach((sp, idx) => {
+      const colIdx = idx % cols;
+      const rowIdx = Math.floor(idx / cols);
+      const x = startX + colIdx * (boxWidth + gapX);
+      const y = startY + rowIdx * (boxHeight + gapY);
+
+      // Link assets to this space
+      const spaceAssets = assets.filter(a => a.spaceId === sp.id || (a.location && a.location.toLowerCase().includes((sp.roomNumberOrName || '').toLowerCase())));
+      const spaceAssetIds = spaceAssets.map(a => a.id);
+      const spaceTickets = openTickets.filter(t => spaceAssetIds.includes(t.assetId));
+      const hasCriticalTicket = spaceTickets.some(t => t.priority === 'Critical' || t.priority === 'Urgent');
+      const hasDueAssets = spaceAssets.some(a => a.status === 'Service Due');
+
+      let statusColor = '#10b981'; // Green: Normal / Good
+      let statusBg = 'rgba(16, 185, 129, 0.12)';
+      let statusBorder = '#059669';
+      let statusLabel = 'HEALTHY';
+
+      if (hasCriticalTicket) {
+        statusColor = '#ef4444'; // Red: Critical ticket
+        statusBg = 'rgba(239, 68, 68, 0.15)';
+        statusBorder = '#dc2626';
+        statusLabel = 'CRITICAL ALERT';
+      } else if (hasDueAssets || spaceTickets.length > 0) {
+        statusColor = '#f59e0b'; // Amber: Maintenance due or open ticket
+        statusBg = 'rgba(245, 158, 11, 0.15)';
+        statusBorder = '#d97706';
+        statusLabel = 'SERVICE DUE';
+      }
+
+      const escapedName = (sp.roomNumberOrName || sp.id || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const escapedBld = (sp.buildingName || 'Building').replace(/&/g, '&amp;');
+      const escapedFloor = (sp.floorLevel || 'L1').replace(/&/g, '&amp;');
+
+      roomsMarkup += `
+        <g class="space-node" style="cursor: pointer;" transform="translate(${x}, ${y})">
+          <!-- Room Card Box -->
+          <rect width="${boxWidth}" height="${boxHeight}" rx="8" fill="#1e293b" stroke="${statusBorder}" stroke-width="2" />
+          <rect width="${boxWidth}" height="28" rx="8" fill="${statusBg}" />
+          
+          <!-- Room Code & Floor Tag -->
+          <text x="12" y="19" fill="#f8fafc" font-size="11" font-weight="bold" font-family="system-ui, sans-serif">
+            ${sp.id} • ${escapedFloor}
+          </text>
+          <circle cx="${boxWidth - 18}" cy="14" r="5" fill="${statusColor}" />
+
+          <!-- Room Title -->
+          <text x="12" y="48" fill="#f1f5f9" font-size="12" font-weight="bold" font-family="system-ui, sans-serif">
+            ${escapedName.length > 24 ? escapedName.slice(0, 22) + '...' : escapedName}
+          </text>
+          <text x="12" y="65" fill="#94a3b8" font-size="10" font-family="system-ui, sans-serif">
+            ${escapedBld} • ${sp.occupancyType || 'General'}
+          </text>
+
+          <!-- Metrics Row -->
+          <rect x="12" y="74" width="${boxWidth - 24}" height="24" rx="4" fill="#0f172a" />
+          <text x="20" y="90" fill="#38bdf8" font-size="10" font-weight="bold" font-family="system-ui, sans-serif">
+            📐 ${sp.areaSqFt || 0} sq ft
+          </text>
+          <text x="${boxWidth - 30}" y="90" fill="#a78bfa" font-size="10" font-weight="bold" font-family="system-ui, sans-serif" text-anchor="end">
+            ⚙️ ${spaceAssets.length} Assets
+          </text>
+
+          <!-- Status Badge -->
+          <rect x="12" y="104" width="${boxWidth - 24}" height="18" rx="3" fill="${statusBg}" />
+          <text x="${boxWidth / 2}" y="117" fill="${statusColor}" font-size="9" font-weight="bold" font-family="system-ui, sans-serif" text-anchor="middle">
+            ● ${statusLabel} ${spaceTickets.length ? `(${spaceTickets.length} Active Tickets)` : ''}
+          </text>
+        </g>
+      `;
+    });
+
+    return `
+      <svg viewBox="0 0 ${totalSvgWidth} ${totalSvgHeight}" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" style="background: #0f172a; border-radius: 8px; font-family: system-ui, sans-serif; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+        <defs>
+          <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#334155" stroke-width="0.5" stroke-opacity="0.4"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#gridPattern)" />
+
+        <!-- Header / Legend -->
+        <text x="25" y="26" fill="#f8fafc" font-size="14" font-weight="bold">
+          🏢 Spatial Digital Twin &amp; Zone Health Status Layout
+        </text>
+        <g transform="translate(${totalSvgWidth - 380}, 14)">
+          <circle cx="10" cy="10" r="4" fill="#10b981" />
+          <text x="18" y="14" fill="#94a3b8" font-size="10">Operational</text>
+          <circle cx="95" cy="10" r="4" fill="#f59e0b" />
+          <text x="103" y="14" fill="#94a3b8" font-size="10">PPM Due / Ticket</text>
+          <circle cx="215" cy="10" r="4" fill="#ef4444" />
+          <text x="223" y="14" fill="#94a3b8" font-size="10">Critical Alert</text>
+        </g>
+
+        <!-- Dynamic Spaces -->
+        ${roomsMarkup}
+      </svg>
+    `;
+  }
+
+  // --- CAFM PHASE 3: VENDORS & CONTRACTORS ---
+  getFacilityVendors(tradeCategory = 'all') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return [];
+    let list = store.getFacilityVendors ? store.getFacilityVendors() : [];
+    if (tradeCategory && tradeCategory !== 'all') {
+      list = list.filter(v => (v.tradeCategory || '').toLowerCase().includes(tradeCategory.toLowerCase()));
+    }
+    return list;
+  }
+
+  getVendorById(id) {
+    const vendors = this.getFacilityVendors('all');
+    return vendors.find(v => v.id === id) || null;
+  }
+
+  saveFacilityVendor(vendor, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return null;
+    const isNew = !vendor.id;
+    const saved = store.saveFacilityVendor(vendor);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        isNew ? 'CREATE_FACILITY_VENDOR' : 'UPDATE_FACILITY_VENDOR',
+        'facilityVendors',
+        saved.id,
+        `${isNew ? 'Registered' : 'Updated'} contractor/vendor ${saved.name} (${saved.tradeCategory})`,
+        user,
+        role
+      );
+    }
+    return saved;
+  }
+
+  deleteFacilityVendor(id, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return false;
+    store.deleteFacilityVendor(id);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        'DELETE_FACILITY_VENDOR',
+        'facilityVendors',
+        id,
+        `Deleted contractor/vendor ${id}`,
+        user,
+        role
+      );
+    }
+    return true;
+  }
+
+  // --- CAFM PHASE 3: ENERGY & UTILITY READINGS ---
+  getUtilityReadings(orgId = 'all', siteId = 'all') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return [];
+    let list = store.getUtilityReadings ? store.getUtilityReadings() : [];
+    const targetOrg = (orgId !== 'all') ? orgId : this.currentOrganizationFilter;
+    if (targetOrg && targetOrg !== 'all') {
+      list = list.filter(u => u.organizationId === targetOrg);
+    }
+    if (siteId && siteId !== 'all') {
+      list = list.filter(u => u.siteId === siteId);
+    }
+    return list;
+  }
+
+  saveUtilityReading(reading, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return null;
+    const isNew = !reading.id;
+    // Auto-compute net billed units if not explicitly provided
+    if (reading.gridUnitsImportedKwh !== undefined && reading.solarUnitsExportedKwh !== undefined) {
+      const imp = Number(reading.gridUnitsImportedKwh) || 0;
+      const exp = Number(reading.solarUnitsExportedKwh) || 0;
+      reading.netUnitsBilledKwh = Math.max(0, imp - exp);
+    }
+    const saved = store.saveUtilityReading(reading);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        isNew ? 'RECORD_UTILITY_READING' : 'UPDATE_UTILITY_READING',
+        'utilityReadings',
+        saved.id,
+        `${isNew ? 'Recorded' : 'Updated'} APDCL utility log for month ${saved.billingMonth || ''} (Import: ${saved.gridUnitsImportedKwh} kWh, Solar: ${saved.solarUnitsExportedKwh} kWh)`,
+        user,
+        role
+      );
+    }
+    return saved;
+  }
+
+  deleteUtilityReading(id, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return false;
+    store.deleteUtilityReading(id);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        'DELETE_UTILITY_READING',
+        'utilityReadings',
+        id,
+        `Deleted utility reading record ${id}`,
+        user,
+        role
+      );
+    }
+    return true;
+  }
+
+  calculateUtilityMetrics(siteId = 'all') {
+    const readings = this.getUtilityReadings('all', siteId);
+    if (!readings || readings.length === 0) {
+      return {
+        totalImportKwh: 0,
+        totalExportKwh: 0,
+        netKwh: 0,
+        totalBilledInr: 0,
+        averagePowerFactor: 0.98,
+        powerFactorAlert: false,
+        peakDemandKvaMax: 0,
+        solarOffsetRatio: 0,
+        count: 0
+      };
+    }
+
+    const totalImportKwh = readings.reduce((acc, r) => acc + (Number(r.gridUnitsImportedKwh) || 0), 0);
+    const totalExportKwh = readings.reduce((acc, r) => acc + (Number(r.solarUnitsExportedKwh) || 0), 0);
+    const netKwh = readings.reduce((acc, r) => acc + (Number(r.netUnitsBilledKwh) || 0), 0);
+    const totalBilledInr = readings.reduce((acc, r) => acc + (Number(r.totalBillAmountInr) || 0), 0);
+    const pfSum = readings.reduce((acc, r) => acc + (Number(r.powerFactor) || 0.98), 0);
+    const averagePowerFactor = Number((pfSum / readings.length).toFixed(3));
+    const peakDemandKvaMax = Math.max(...readings.map(r => Number(r.peakDemandKva) || 0));
+    const solarOffsetRatio = (totalImportKwh + totalExportKwh) > 0 
+      ? Math.round((totalExportKwh / (totalImportKwh + totalExportKwh)) * 100) 
+      : 0;
+
+    // APDCL Low Power Factor Penalty Alert: if power factor is less than 0.90
+    const powerFactorAlert = averagePowerFactor < 0.90 || readings.some(r => Number(r.powerFactor) < 0.90);
+
+    return {
+      totalImportKwh,
+      totalExportKwh,
+      netKwh,
+      totalBilledInr,
+      averagePowerFactor,
+      powerFactorAlert,
+      peakDemandKvaMax,
+      solarOffsetRatio,
+      count: readings.length
+    };
+  }
+
+  // --- CAFM PHASE 3: STATUTORY & CEIG COMPLIANCE ---
+  getComplianceRecords(orgId = 'all', siteId = 'all') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return [];
+    let list = store.getComplianceRecords ? store.getComplianceRecords() : [];
+    const targetOrg = (orgId !== 'all') ? orgId : this.currentOrganizationFilter;
+    if (targetOrg && targetOrg !== 'all') {
+      list = list.filter(c => c.organizationId === targetOrg);
+    }
+    if (siteId && siteId !== 'all') {
+      list = list.filter(c => c.siteId === siteId);
+    }
+    return list;
+  }
+
+  getComplianceAlerts(thresholdDays = 45) {
+    const records = this.getComplianceRecords('all', 'all');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return records.map(rec => {
+      let daysLeft = 999;
+      let alertLevel = 'Valid'; // 'Valid', 'Due Soon', 'Expired'
+
+      if (rec.expiryDate) {
+        const exp = new Date(rec.expiryDate);
+        exp.setHours(0, 0, 0, 0);
+        const diffMs = exp - today;
+        daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        if (daysLeft <= 0) {
+          alertLevel = 'Expired';
+        } else if (daysLeft <= thresholdDays) {
+          alertLevel = 'Due Soon';
+        }
+      }
+
+      return {
+        ...rec,
+        daysLeft,
+        alertLevel,
+        isExpired: alertLevel === 'Expired',
+        isDueSoon: alertLevel === 'Due Soon'
+      };
+    }).sort((a, b) => a.daysLeft - b.daysLeft);
+  }
+
+  saveComplianceRecord(record, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return null;
+    const isNew = !record.id;
+    const saved = store.saveComplianceRecord(record);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        isNew ? 'CREATE_COMPLIANCE_RECORD' : 'UPDATE_COMPLIANCE_RECORD',
+        'complianceRecords',
+        saved.id,
+        `${isNew ? 'Registered' : 'Updated'} statutory compliance certificate: ${saved.complianceType} (${saved.certificateNumber || 'No Ref'})`,
+        user,
+        role
+      );
+    }
+    return saved;
+  }
+
+  deleteComplianceRecord(id, user = 'Admin', role = 'Operator') {
+    const store = (typeof window !== 'undefined' && window.storage) ? window.storage : 
+                  ((typeof global !== 'undefined' && global.storage) ? global.storage : null);
+    if (!store) return false;
+    store.deleteComplianceRecord(id);
+    if (store.logAuditAction) {
+      store.logAuditAction(
+        'DELETE_COMPLIANCE_RECORD',
+        'complianceRecords',
+        id,
+        `Deleted statutory compliance record ${id}`,
+        user,
+        role
+      );
+    }
+    return true;
   }
 }
 

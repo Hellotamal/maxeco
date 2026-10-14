@@ -3376,6 +3376,12 @@ class AppController {
     const elExpiringAmcs = document.getElementById('cafm-kpi-expiring-amcs');
     if (elExpiringAmcs) elExpiringAmcs.textContent = summary.expiringAmcCount || 0;
 
+    const elSpaces = document.getElementById('cafm-kpi-spaces');
+    if (elSpaces) elSpaces.textContent = summary.totalSpaces || 0;
+
+    const elCompliance = document.getElementById('cafm-kpi-compliance-alerts');
+    if (elCompliance) elCompliance.textContent = summary.complianceAlertsCount || 0;
+
     // Sub-tab selection
     this.setCafmSubTab(this.cafmSubTab || 'sites');
   }
@@ -3389,7 +3395,7 @@ class AppController {
 
   setCafmSubTab(tab) {
     this.cafmSubTab = tab;
-    const tabs = ['orgs', 'sites', 'assets', 'ppm', 'tickets', 'amcs', 'parts', 'audit'];
+    const tabs = ['orgs', 'sites', 'spaces', 'assets', 'utility', 'vendors', 'compliance', 'ppm', 'tickets', 'amcs', 'parts', 'audit'];
 
     tabs.forEach(t => {
       const btn = document.getElementById(`cafm-tab-btn-${t}`);
@@ -3412,7 +3418,11 @@ class AppController {
     if (addBtn) {
       if (tab === 'orgs') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '🏢 Add Organization'; }
       else if (tab === 'sites') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '➕ Add Facility Site'; }
+      else if (tab === 'spaces') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '📐 Add Space Zone'; }
       else if (tab === 'assets') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '⚙️ Register Facility Asset'; }
+      else if (tab === 'utility') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '⚡ Log Monthly Reading'; }
+      else if (tab === 'vendors') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '🤝 Register Contractor'; }
+      else if (tab === 'compliance') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '📜 Register Certificate'; }
       else if (tab === 'ppm') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '🎫 Log Maintenance Ticket'; }
       else if (tab === 'tickets') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '🎫 Log Service Ticket'; }
       else if (tab === 'amcs') { addBtn.style.display = 'inline-flex'; addBtn.textContent = '📜 Add AMC Contract'; }
@@ -3422,7 +3432,11 @@ class AppController {
 
     if (tab === 'orgs') this.renderCafmOrgs();
     else if (tab === 'sites') this.renderCafmSites();
+    else if (tab === 'spaces') this.renderCafmSpaces();
     else if (tab === 'assets') this.renderCafmAssets();
+    else if (tab === 'utility') this.renderCafmUtility();
+    else if (tab === 'vendors') this.renderCafmVendors();
+    else if (tab === 'compliance') this.renderCafmCompliance();
     else if (tab === 'ppm') this.renderCafmPpm();
     else if (tab === 'tickets') this.renderCafmTickets();
     else if (tab === 'amcs') this.renderCafmAmcs();
@@ -3434,7 +3448,11 @@ class AppController {
     const tab = this.cafmSubTab || 'sites';
     if (tab === 'orgs') this.openAddOrganizationModal();
     else if (tab === 'sites') this.openAddFacilitySiteModal();
+    else if (tab === 'spaces') this.openAddSpaceModal();
     else if (tab === 'assets') this.openAddFacilityAssetModal();
+    else if (tab === 'utility') this.openAddUtilityModal();
+    else if (tab === 'vendors') this.openAddVendorModal();
+    else if (tab === 'compliance') this.openAddComplianceModal();
     else if (tab === 'ppm' || tab === 'tickets') this.openAddServiceTicketModal();
     else if (tab === 'amcs') this.openAddAmcModal();
     else if (tab === 'parts') this.openAddPartModal();
@@ -5152,6 +5170,661 @@ class AppController {
     }
 
     document.getElementById('modal-amc-visits').classList.remove('hidden');
+  }
+
+  // =========================================================================
+  // CAFM PHASE 3: SPACES & HIERARCHICAL SPACE MANAGEMENT
+  // =========================================================================
+
+  renderCafmSpaces() {
+    const siteFilter = window.cafm.currentSiteFilter || 'all';
+    const spaces = window.cafm.getFacilitySpaces('all', siteFilter);
+    const fpContainer = document.getElementById('cafm-spaces-floorplan-container');
+    if (fpContainer) {
+      fpContainer.innerHTML = window.cafm.generateFloorPlanSvg(siteFilter);
+    }
+
+    const tableBody = document.getElementById('cafm-spaces-table-body');
+    if (!tableBody) return;
+
+    if (spaces.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted" style="padding: 24px;">No spaces mapped yet. Click "➕ Add Space Zone" above to register building floors and rooms.</td></tr>`;
+      return;
+    }
+
+    const allAssets = window.storage.getFacilityAssets() || [];
+
+    tableBody.innerHTML = spaces.map(sp => {
+      const linked = allAssets.filter(a => a.spaceId === sp.id || (a.location && a.location.toLowerCase().includes((sp.roomNumberOrName || '').toLowerCase())));
+      const site = window.cafm.getSiteById(sp.siteId);
+      const siteName = site ? site.name : sp.siteId;
+
+      return `
+        <tr>
+          <td class="font-mono" style="font-weight: 700; color: #38bdf8;">${sp.id}</td>
+          <td>
+            <strong>${sp.buildingName || 'Main Facility'}</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">${sp.floorLevel || 'Ground Level'} • ${siteName}</div>
+          </td>
+          <td>
+            <strong>${sp.roomNumberOrName}</strong>
+            ${sp.notes ? `<div style="font-size: 10.5px; color: var(--text-secondary);">${sp.notes}</div>` : ''}
+          </td>
+          <td style="font-weight: 600;">${(sp.areaSqFt || 0).toLocaleString('en-IN')} sq ft</td>
+          <td>
+            <span class="badge" style="background: rgba(56, 189, 248, 0.12); color: #38bdf8; font-size: 11px;">
+              ${sp.occupancyType || 'General'}
+            </span>
+          </td>
+          <td>
+            <span class="badge" style="background: rgba(167, 139, 250, 0.15); color: #a78bfa; font-size: 11px;">
+              ⚙️ ${linked.length} Assets
+            </span>
+          </td>
+          <td>
+            <span class="badge" style="background: ${sp.status === 'Operational' ? '#10b981' : '#f59e0b'}; color: ${sp.status === 'Operational' ? '#fff' : '#0f172a'}; font-weight: 700;">
+              ${sp.status || 'Operational'}
+            </span>
+          </td>
+          <td style="text-align: right;">
+            <div class="flex gap-1 justify-end">
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditSpaceModal('${sp.id}')" title="Edit Space">✏️</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.deleteSpace('${sp.id}')" title="Delete Space" style="color: var(--accent-rose);">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  openAddSpaceModal(preselectedSiteId = '') {
+    document.getElementById('space-modal-id').value = '';
+    document.getElementById('modal-space-title').textContent = '📐 Add Facility Space Zone';
+    
+    const orgs = window.cafm.getOrganizations();
+    const orgSel = document.getElementById('space-modal-org');
+    if (orgSel) {
+      orgSel.innerHTML = orgs.map(o => `<option value="${o.id}">🏢 ${o.name}</option>`).join('');
+    }
+    
+    this.populateSpaceSitesDropdown(orgs[0]?.id || '', preselectedSiteId);
+    document.getElementById('space-modal-building').value = '';
+    document.getElementById('space-modal-floor').value = 'Rooftop Level';
+    document.getElementById('space-modal-room').value = '';
+    document.getElementById('space-modal-area').value = '';
+    document.getElementById('space-modal-type').value = 'Solar PV Installation';
+    document.getElementById('space-modal-status').value = 'Operational';
+    document.getElementById('space-modal-notes').value = '';
+
+    document.getElementById('modal-cafm-space').classList.remove('hidden');
+  }
+
+  openEditSpaceModal(id) {
+    const sp = window.cafm.getSpaceById(id);
+    if (!sp) return;
+
+    document.getElementById('space-modal-id').value = sp.id;
+    document.getElementById('modal-space-title').textContent = `📐 Edit Space Zone: ${sp.id}`;
+
+    const orgs = window.cafm.getOrganizations();
+    const orgSel = document.getElementById('space-modal-org');
+    if (orgSel) {
+      orgSel.innerHTML = orgs.map(o => `<option value="${o.id}" ${o.id === sp.organizationId ? 'selected' : ''}>🏢 ${o.name}</option>`).join('');
+    }
+
+    this.populateSpaceSitesDropdown(sp.organizationId || orgs[0]?.id || '', sp.siteId);
+    document.getElementById('space-modal-building').value = sp.buildingName || '';
+    document.getElementById('space-modal-floor').value = sp.floorLevel || '';
+    document.getElementById('space-modal-room').value = sp.roomNumberOrName || '';
+    document.getElementById('space-modal-area').value = sp.areaSqFt || '';
+    document.getElementById('space-modal-type').value = sp.occupancyType || 'Solar PV Installation';
+    document.getElementById('space-modal-status').value = sp.status || 'Operational';
+    document.getElementById('space-modal-notes').value = sp.notes || '';
+
+    document.getElementById('modal-cafm-space').classList.remove('hidden');
+  }
+
+  onSpaceOrgChange(orgId) {
+    this.populateSpaceSitesDropdown(orgId);
+  }
+
+  populateSpaceSitesDropdown(orgId, preselectedSiteId = '') {
+    const sites = window.cafm.getSites('all', orgId);
+    const siteSel = document.getElementById('space-modal-site');
+    if (siteSel) {
+      if (sites.length === 0) {
+        siteSel.innerHTML = '<option value="">No sites for this organization</option>';
+      } else {
+        siteSel.innerHTML = sites.map(s => `<option value="${s.id}" ${s.id === preselectedSiteId ? 'selected' : ''}>📍 ${s.name} (${s.id})</option>`).join('');
+      }
+    }
+  }
+
+  saveSpaceFromModal() {
+    const id = document.getElementById('space-modal-id').value;
+    const orgId = document.getElementById('space-modal-org').value;
+    const siteId = document.getElementById('space-modal-site').value;
+    const buildingName = document.getElementById('space-modal-building').value.trim();
+    const floorLevel = document.getElementById('space-modal-floor').value.trim();
+    const roomNumberOrName = document.getElementById('space-modal-room').value.trim();
+    const areaSqFt = Number(document.getElementById('space-modal-area').value) || 0;
+    const occupancyType = document.getElementById('space-modal-type').value;
+    const status = document.getElementById('space-modal-status').value;
+    const notes = document.getElementById('space-modal-notes').value.trim();
+
+    if (!roomNumberOrName || !buildingName) {
+      showToast('Please enter both building name and room/zone name.', 'error');
+      return;
+    }
+
+    const spaceObj = {
+      ...(id ? { id } : {}),
+      organizationId: orgId,
+      siteId: siteId,
+      buildingName,
+      floorLevel,
+      roomNumberOrName,
+      areaSqFt,
+      occupancyType,
+      status,
+      notes
+    };
+
+    window.cafm.saveFacilitySpace(spaceObj, 'Admin', 'Facility Manager');
+    this.closeAllModals();
+    this.renderCafmSpaces();
+    this.renderCafmTab();
+    showToast(id ? 'Space updated successfully!' : 'Facility space registered successfully!', 'success');
+  }
+
+  deleteSpace(id) {
+    if (confirm(`Are you sure you want to delete space ${id}?`)) {
+      window.cafm.deleteFacilitySpace(id, 'Admin', 'Facility Manager');
+      this.renderCafmSpaces();
+      this.renderCafmTab();
+      showToast(`Space ${id} removed.`, 'info');
+    }
+  }
+
+  // =========================================================================
+  // CAFM PHASE 3: ENERGY & UTILITY READINGS
+  // =========================================================================
+
+  renderCafmUtility() {
+    const siteFilter = window.cafm.currentSiteFilter || 'all';
+    const readings = window.cafm.getUtilityReadings('all', siteFilter);
+    const metrics = window.cafm.calculateUtilityMetrics(siteFilter);
+
+    // Update KPI displays
+    const elImport = document.getElementById('utility-kpi-import');
+    if (elImport) elImport.textContent = `${metrics.totalImportKwh.toLocaleString('en-IN')} kWh`;
+
+    const elExport = document.getElementById('utility-kpi-export');
+    if (elExport) elExport.textContent = `${metrics.totalExportKwh.toLocaleString('en-IN')} kWh`;
+
+    const elOffset = document.getElementById('utility-kpi-offset');
+    if (elOffset) elOffset.textContent = `${metrics.solarOffsetRatio}%`;
+
+    const elPf = document.getElementById('utility-kpi-pf');
+    if (elPf) {
+      elPf.textContent = metrics.averagePowerFactor.toFixed(2);
+      elPf.style.color = metrics.powerFactorAlert ? '#ef4444' : '#a78bfa';
+    }
+
+    const banner = document.getElementById('utility-pf-penalty-banner');
+    if (banner) {
+      if (metrics.powerFactorAlert) banner.classList.remove('hidden');
+      else banner.classList.add('hidden');
+    }
+
+    const tableBody = document.getElementById('cafm-utility-table-body');
+    if (!tableBody) return;
+
+    if (readings.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-muted" style="padding: 24px;">No utility readings logged yet. Click "➕ Log Monthly Reading" to track APDCL grid draw vs solar export.</td></tr>`;
+      return;
+    }
+
+    tableBody.innerHTML = readings.map(r => {
+      const site = window.cafm.getSiteById(r.siteId);
+      const isPfLow = Number(r.powerFactor) < 0.90;
+
+      return `
+        <tr>
+          <td class="font-mono" style="font-weight: 700; color: #38bdf8;">${r.id}</td>
+          <td style="font-weight: 600;">${r.billingMonth}</td>
+          <td>
+            <strong>${site ? site.name : r.siteId}</strong>
+            <div style="font-size: 11px; font-family: monospace; color: var(--text-muted);">Consumer: ${r.discomConsumerNo || '—'}</div>
+          </td>
+          <td style="font-weight: 600; color: #38bdf8;">${(r.gridUnitsImportedKwh || 0).toLocaleString('en-IN')}</td>
+          <td style="font-weight: 600; color: var(--solar-amber);">${(r.solarUnitsExportedKwh || 0).toLocaleString('en-IN')}</td>
+          <td style="font-weight: 700;">${(r.netUnitsBilledKwh || 0).toLocaleString('en-IN')}</td>
+          <td>
+            <span class="badge" style="background: ${isPfLow ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.15)'}; color: ${isPfLow ? '#ef4444' : '#10b981'}; font-weight: 700;">
+              ${r.powerFactor || 0.98} ${isPfLow ? '⚠️ Surcharge' : '✓ Normal'}
+            </span>
+          </td>
+          <td style="font-weight: 600;">${r.peakDemandKva || '—'}</td>
+          <td style="font-weight: 700; color: #10b981;">₹${(r.totalBillAmountInr || 0).toLocaleString('en-IN')}</td>
+          <td style="text-align: right;">
+            <button class="btn btn-secondary btn-sm" onclick="app.deleteUtilityReading('${r.id}')" title="Delete Reading" style="color: var(--accent-rose);">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  openAddUtilityModal(preselectedSiteId = '') {
+    document.getElementById('utility-modal-id').value = '';
+    document.getElementById('modal-utility-title').textContent = '⚡ Log APDCL Electricity & Solar Reading';
+
+    const orgs = window.cafm.getOrganizations();
+    const orgSel = document.getElementById('utility-modal-org');
+    if (orgSel) {
+      orgSel.innerHTML = orgs.map(o => `<option value="${o.id}">🏢 ${o.name}</option>`).join('');
+    }
+
+    this.populateUtilitySitesDropdown(orgs[0]?.id || '', preselectedSiteId);
+    document.getElementById('utility-modal-consumer-no').value = '012000045678';
+    document.getElementById('utility-modal-month').value = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('utility-modal-import').value = '';
+    document.getElementById('utility-modal-export').value = '';
+    document.getElementById('utility-modal-demand').value = '';
+    document.getElementById('utility-modal-pf').value = '0.98';
+    document.getElementById('utility-modal-bill').value = '';
+    document.getElementById('utility-modal-notes').value = '';
+    this.updateUtilityPreview();
+
+    document.getElementById('modal-cafm-utility').classList.remove('hidden');
+  }
+
+  onUtilityOrgChange(orgId) {
+    this.populateUtilitySitesDropdown(orgId);
+  }
+
+  populateUtilitySitesDropdown(orgId, preselectedSiteId = '') {
+    const sites = window.cafm.getSites('all', orgId);
+    const siteSel = document.getElementById('utility-modal-site');
+    if (siteSel) {
+      if (sites.length === 0) {
+        siteSel.innerHTML = '<option value="">No sites for this organization</option>';
+      } else {
+        siteSel.innerHTML = sites.map(s => `<option value="${s.id}" ${s.id === preselectedSiteId ? 'selected' : ''}>📍 ${s.name} (${s.id})</option>`).join('');
+      }
+    }
+  }
+
+  updateUtilityPreview() {
+    const imp = Number(document.getElementById('utility-modal-import')?.value) || 0;
+    const exp = Number(document.getElementById('utility-modal-export')?.value) || 0;
+    const net = Math.max(0, imp - exp);
+    const offset = (imp + exp) > 0 ? Math.round((exp / (imp + exp)) * 100) : 0;
+
+    const elNet = document.getElementById('utility-preview-net');
+    if (elNet) elNet.textContent = `${net.toLocaleString('en-IN')} kWh`;
+
+    const elOff = document.getElementById('utility-preview-offset');
+    if (elOff) elOff.textContent = `${offset}%`;
+  }
+
+  saveUtilityFromModal() {
+    const orgId = document.getElementById('utility-modal-org').value;
+    const siteId = document.getElementById('utility-modal-site').value;
+    const discomConsumerNo = document.getElementById('utility-modal-consumer-no').value.trim();
+    const billingMonth = document.getElementById('utility-modal-month').value.trim();
+    const gridUnitsImportedKwh = Number(document.getElementById('utility-modal-import').value) || 0;
+    const solarUnitsExportedKwh = Number(document.getElementById('utility-modal-export').value) || 0;
+    const peakDemandKva = Number(document.getElementById('utility-modal-demand').value) || 0;
+    const powerFactor = Number(document.getElementById('utility-modal-pf').value) || 0.98;
+    const totalBillAmountInr = Number(document.getElementById('utility-modal-bill').value) || 0;
+    const notes = document.getElementById('utility-modal-notes').value.trim();
+
+    if (!billingMonth || !discomConsumerNo) {
+      showToast('Please enter billing month and APDCL consumer number.', 'error');
+      return;
+    }
+
+    const reading = {
+      organizationId: orgId,
+      siteId: siteId,
+      billingMonth,
+      discomConsumerNo,
+      gridUnitsImportedKwh,
+      solarUnitsExportedKwh,
+      netUnitsBilledKwh: Math.max(0, gridUnitsImportedKwh - solarUnitsExportedKwh),
+      peakDemandKva,
+      powerFactor,
+      totalBillAmountInr,
+      notes
+    };
+
+    window.cafm.saveUtilityReading(reading, 'Admin', 'Facility Manager');
+    this.closeAllModals();
+    this.renderCafmUtility();
+    this.renderCafmTab();
+    showToast('APDCL utility log recorded successfully!', 'success');
+  }
+
+  deleteUtilityReading(id) {
+    if (confirm(`Delete utility reading ${id}?`)) {
+      window.cafm.deleteUtilityReading(id, 'Admin', 'Facility Manager');
+      this.renderCafmUtility();
+      this.renderCafmTab();
+      showToast(`Reading ${id} deleted.`, 'info');
+    }
+  }
+
+  // =========================================================================
+  // CAFM PHASE 3: VENDORS & CONTRACTORS
+  // =========================================================================
+
+  renderCafmVendors() {
+    const vendors = window.cafm.getFacilityVendors('all');
+    const tableBody = document.getElementById('cafm-vendors-table-body');
+    if (!tableBody) return;
+
+    if (vendors.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-muted" style="padding: 24px;">No contractors or vendors registered yet. Click "➕ Register Contractor" to add service partners.</td></tr>`;
+      return;
+    }
+
+    tableBody.innerHTML = vendors.map(v => {
+      const stars = '★'.repeat(Math.min(5, Math.max(1, v.rating || 4))) + '☆'.repeat(5 - Math.min(5, Math.max(1, v.rating || 4)));
+      const rawPhone = (v.phone || '').replace(/[^0-9]/g, '');
+      const waPhone = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+      const waMsg = encodeURIComponent(`Hello ${v.contactPerson || v.name}, contacting from MaxEco Energy & Tech regarding urgent facility work order under SLA (${v.slaResponseHours || 4}h target).`);
+      const waUrl = `https://wa.me/${waPhone}?text=${waMsg}`;
+
+      return `
+        <tr>
+          <td class="font-mono" style="font-weight: 700; color: #38bdf8;">${v.id}</td>
+          <td>
+            <strong>${v.name}</strong>
+            ${v.notes ? `<div style="font-size: 11px; color: var(--text-muted);">${v.notes}</div>` : ''}
+          </td>
+          <td>
+            <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; font-weight: 700;">
+              ${v.tradeCategory}
+            </span>
+          </td>
+          <td><strong>${v.contactPerson || '—'}</strong></td>
+          <td>
+            <div>${v.phone || '—'}</div>
+            <a href="${waUrl}" target="_blank" class="btn btn-whatsapp btn-sm" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; font-size: 10.5px; margin-top: 3px;">
+              💬 1-Click WhatsApp
+            </a>
+          </td>
+          <td class="font-mono" style="font-size: 11px;">${v.gstin || '—'}</td>
+          <td style="color: #f59e0b; font-size: 13px;">${stars}</td>
+          <td>
+            <span class="badge" style="background: rgba(139, 92, 246, 0.15); color: #a78bfa; font-weight: 700;">
+              ⏱️ ${v.slaResponseHours || 4} Hours
+            </span>
+          </td>
+          <td>
+            <span class="badge" style="background: ${v.status === 'Active' ? '#10b981' : '#64748b'}; color: #fff; font-weight: 700;">
+              ${v.status || 'Active'}
+            </span>
+          </td>
+          <td style="text-align: right;">
+            <div class="flex gap-1 justify-end">
+              <button class="btn btn-secondary btn-sm" onclick="app.openEditVendorModal('${v.id}')" title="Edit Vendor">✏️</button>
+              <button class="btn btn-secondary btn-sm" onclick="app.deleteVendor('${v.id}')" title="Delete Vendor" style="color: var(--accent-rose);">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  openAddVendorModal() {
+    document.getElementById('vendor-modal-id').value = '';
+    document.getElementById('modal-vendor-title').textContent = '🤝 Register Contractor / Facility Vendor';
+    document.getElementById('vendor-modal-name').value = '';
+    document.getElementById('vendor-modal-trade').value = 'Solar PV & Inverter Maintenance';
+    document.getElementById('vendor-modal-contact').value = '';
+    document.getElementById('vendor-modal-phone').value = '';
+    document.getElementById('vendor-modal-email').value = '';
+    document.getElementById('vendor-modal-gstin').value = '';
+    document.getElementById('vendor-modal-rating').value = '4';
+    document.getElementById('vendor-modal-sla').value = '4';
+    document.getElementById('vendor-modal-notes').value = '';
+
+    document.getElementById('modal-cafm-vendor').classList.remove('hidden');
+  }
+
+  openEditVendorModal(id) {
+    const v = window.cafm.getVendorById(id);
+    if (!v) return;
+
+    document.getElementById('vendor-modal-id').value = v.id;
+    document.getElementById('modal-vendor-title').textContent = `🤝 Edit Contractor: ${v.name}`;
+    document.getElementById('vendor-modal-name').value = v.name || '';
+    document.getElementById('vendor-modal-trade').value = v.tradeCategory || 'Solar PV & Inverter Maintenance';
+    document.getElementById('vendor-modal-contact').value = v.contactPerson || '';
+    document.getElementById('vendor-modal-phone').value = v.phone || '';
+    document.getElementById('vendor-modal-email').value = v.email || '';
+    document.getElementById('vendor-modal-gstin').value = v.gstin || '';
+    document.getElementById('vendor-modal-rating').value = v.rating || '4';
+    document.getElementById('vendor-modal-sla').value = v.slaResponseHours || '4';
+    document.getElementById('vendor-modal-notes').value = v.notes || '';
+
+    document.getElementById('modal-cafm-vendor').classList.remove('hidden');
+  }
+
+  saveVendorFromModal() {
+    const id = document.getElementById('vendor-modal-id').value;
+    const name = document.getElementById('vendor-modal-name').value.trim();
+    const tradeCategory = document.getElementById('vendor-modal-trade').value;
+    const contactPerson = document.getElementById('vendor-modal-contact').value.trim();
+    const phone = document.getElementById('vendor-modal-phone').value.trim();
+    const email = document.getElementById('vendor-modal-email').value.trim();
+    const gstin = document.getElementById('vendor-modal-gstin').value.trim();
+    const rating = Number(document.getElementById('vendor-modal-rating').value) || 4;
+    const slaResponseHours = Number(document.getElementById('vendor-modal-sla').value) || 4;
+    const notes = document.getElementById('vendor-modal-notes').value.trim();
+
+    if (!name || !phone) {
+      showToast('Please enter contractor company name and phone number.', 'error');
+      return;
+    }
+
+    const vendor = {
+      ...(id ? { id } : {}),
+      name,
+      tradeCategory,
+      contactPerson,
+      phone,
+      email,
+      gstin,
+      status: 'Active',
+      rating,
+      slaResponseHours,
+      notes
+    };
+
+    window.cafm.saveFacilityVendor(vendor, 'Admin', 'Facility Manager');
+    this.closeAllModals();
+    this.renderCafmVendors();
+    this.renderCafmTab();
+    showToast(id ? 'Contractor profile updated!' : 'Contractor registered successfully!', 'success');
+  }
+
+  deleteVendor(id) {
+    if (confirm(`Remove contractor ${id}?`)) {
+      window.cafm.deleteFacilityVendor(id, 'Admin', 'Facility Manager');
+      this.renderCafmVendors();
+      this.renderCafmTab();
+      showToast(`Contractor ${id} removed.`, 'info');
+    }
+  }
+
+  // =========================================================================
+  // CAFM PHASE 3: STATUTORY & CEIG COMPLIANCE
+  // =========================================================================
+
+  renderCafmCompliance() {
+    const alerts = window.cafm.getComplianceAlerts(60);
+    const alertsContainer = document.getElementById('cafm-compliance-alerts-container');
+    if (alertsContainer) {
+      const urgentAlerts = alerts.filter(a => a.isExpired || a.isDueSoon);
+      if (urgentAlerts.length > 0) {
+        alertsContainer.innerHTML = `
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: var(--radius-md); padding: 14px 18px;">
+            <div style="font-weight: 800; color: #ef4444; font-size: 14px; margin-bottom: 8px;">
+              ⚠️ Statutory Inspection &amp; CEIG Renewal Action Required (${urgentAlerts.length} Certificates Pending)
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              ${urgentAlerts.map(a => `
+                <div style="background: rgba(15, 23, 42, 0.7); padding: 8px 12px; border-radius: 4px; border-left: 3px solid ${a.isExpired ? '#ef4444' : '#f59e0b'}; font-size: 11.5px;">
+                  <strong style="color: #f8fafc;">${a.complianceType}</strong>
+                  <div style="color: #94a3b8; font-size: 10.5px;">Cert No: ${a.certificateNumber || '—'} • ${a.inspectingAuthority}</div>
+                  <div style="color: ${a.isExpired ? '#ef4444' : '#f59e0b'}; font-weight: 700; margin-top: 2px;">
+                    ${a.isExpired ? `EXPIRED (${Math.abs(a.daysLeft)} days ago)` : `Expires in ${a.daysLeft} days (${a.expiryDate})`}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        alertsContainer.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; border-radius: var(--radius-md); padding: 12px 16px; font-size: 12px; color: #10b981;">
+            ✓ All statutory CEIG, APDCL, and Fire Safety inspection certificates are valid and up to date.
+          </div>
+        `;
+      }
+    }
+
+    const tableBody = document.getElementById('cafm-compliance-table-body');
+    if (!tableBody) return;
+
+    if (alerts.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="10" class="text-center text-muted" style="padding: 24px;">No compliance certificates logged yet. Click "➕ Register Certificate" to record CEIG, APDCL, and Fire NOC records.</td></tr>`;
+      return;
+    }
+
+    tableBody.innerHTML = alerts.map(c => {
+      let badgeStyle = 'background: #10b981; color: #fff;';
+      let badgeText = `${c.daysLeft} Days Left`;
+      if (c.isExpired) {
+        badgeStyle = 'background: #ef4444; color: #fff;';
+        badgeText = 'Expired';
+      } else if (c.isDueSoon) {
+        badgeStyle = 'background: #f59e0b; color: #0f172a;';
+        badgeText = `Due Soon (${c.daysLeft}d)`;
+      }
+
+      return `
+        <tr>
+          <td class="font-mono" style="font-weight: 700; color: #38bdf8;">${c.id}</td>
+          <td>
+            <strong>${c.complianceType}</strong>
+          </td>
+          <td class="font-mono" style="font-size: 11px; font-weight: 600;">${c.certificateNumber || '—'}</td>
+          <td style="font-size: 11.5px;">${c.inspectingAuthority || '—'}</td>
+          <td>${c.issueDate || '—'}</td>
+          <td style="font-weight: 600;">${c.expiryDate || '—'}</td>
+          <td>
+            <span class="badge" style="${badgeStyle} font-weight: 700; font-size: 10.5px;">
+              ${badgeText}
+            </span>
+          </td>
+          <td style="font-size: 11px;">${c.frequencyMonths ? `${c.frequencyMonths} Mos` : '—'}</td>
+          <td style="font-size: 10.5px; color: var(--text-secondary); max-width: 220px;">${c.remarks || ''}</td>
+          <td style="text-align: right;">
+            <button class="btn btn-secondary btn-sm" onclick="app.deleteCompliance('${c.id}')" title="Delete Record" style="color: var(--accent-rose);">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  openAddComplianceModal(preselectedSiteId = '') {
+    document.getElementById('compliance-modal-id').value = '';
+    document.getElementById('modal-compliance-title').textContent = '📜 Register Statutory Compliance Record';
+
+    const orgs = window.cafm.getOrganizations();
+    const orgSel = document.getElementById('compliance-modal-org');
+    if (orgSel) {
+      orgSel.innerHTML = orgs.map(o => `<option value="${o.id}">🏢 ${o.name}</option>`).join('');
+    }
+
+    this.populateComplianceSitesDropdown(orgs[0]?.id || '', preselectedSiteId);
+    document.getElementById('compliance-modal-type').value = 'CEIG Electrical Safety Certificate';
+    document.getElementById('compliance-modal-cert-no').value = '';
+    document.getElementById('compliance-modal-authority').value = 'Chief Electrical Inspectorate, Govt. of Assam';
+    document.getElementById('compliance-modal-issue-date').value = new Date().toISOString().slice(0, 10);
+    
+    const exp = new Date();
+    exp.setFullYear(exp.getFullYear() + 3);
+    document.getElementById('compliance-modal-expiry-date').value = exp.toISOString().slice(0, 10);
+    document.getElementById('compliance-modal-frequency').value = '36';
+    document.getElementById('compliance-modal-remarks').value = '';
+
+    document.getElementById('modal-cafm-compliance').classList.remove('hidden');
+  }
+
+  onComplianceOrgChange(orgId) {
+    this.populateComplianceSitesDropdown(orgId);
+  }
+
+  populateComplianceSitesDropdown(orgId, preselectedSiteId = '') {
+    const sites = window.cafm.getSites('all', orgId);
+    const siteSel = document.getElementById('compliance-modal-site');
+    if (siteSel) {
+      if (sites.length === 0) {
+        siteSel.innerHTML = '<option value="">No sites for this organization</option>';
+      } else {
+        siteSel.innerHTML = sites.map(s => `<option value="${s.id}" ${s.id === preselectedSiteId ? 'selected' : ''}>📍 ${s.name} (${s.id})</option>`).join('');
+      }
+    }
+  }
+
+  saveComplianceFromModal() {
+    const orgId = document.getElementById('compliance-modal-org').value;
+    const siteId = document.getElementById('compliance-modal-site').value;
+    const complianceType = document.getElementById('compliance-modal-type').value;
+    const certificateNumber = document.getElementById('compliance-modal-cert-no').value.trim();
+    const inspectingAuthority = document.getElementById('compliance-modal-authority').value.trim();
+    const issueDate = document.getElementById('compliance-modal-issue-date').value;
+    const expiryDate = document.getElementById('compliance-modal-expiry-date').value;
+    const frequencyMonths = Number(document.getElementById('compliance-modal-frequency').value) || 12;
+    const remarks = document.getElementById('compliance-modal-remarks').value.trim();
+
+    if (!certificateNumber || !expiryDate) {
+      showToast('Please enter certificate number and expiry date.', 'error');
+      return;
+    }
+
+    const rec = {
+      organizationId: orgId,
+      siteId: siteId,
+      complianceType,
+      certificateNumber,
+      inspectingAuthority,
+      issueDate,
+      expiryDate,
+      status: 'Valid',
+      frequencyMonths,
+      remarks
+    };
+
+    window.cafm.saveComplianceRecord(rec, 'Admin', 'Facility Manager');
+    this.closeAllModals();
+    this.renderCafmCompliance();
+    this.renderCafmTab();
+    showToast('Statutory certificate registered successfully!', 'success');
+  }
+
+  deleteCompliance(id) {
+    if (confirm(`Delete compliance record ${id}?`)) {
+      window.cafm.deleteComplianceRecord(id, 'Admin', 'Facility Manager');
+      this.renderCafmCompliance();
+      this.renderCafmTab();
+      showToast(`Record ${id} removed.`, 'info');
+    }
   }
 }
 

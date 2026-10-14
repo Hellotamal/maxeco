@@ -975,6 +975,248 @@ const initialSeedData = {
         { visitNumber: 7, quarter: "Q4-2026", dueDate: "2026-12-05", completedDate: null, status: "Scheduled", ticketId: null, technician: "Debajit Sarma" }
       ]
     }
+  ],
+
+  // --- PHASE 3: EXPANDED FACILITY MANAGEMENT ---
+  facilitySpaces: [
+    {
+      id: "SPC-2026-001",
+      organizationId: "ORG-2026-001",
+      siteId: "SITE-2026-001",
+      buildingName: "Main Warehouse & Admin Block",
+      floorLevel: "Rooftop Level",
+      roomNumberOrName: "Solar PV Array & Inverter Bay North",
+      areaSqFt: 3500,
+      occupancyType: "Mechanical / Solar Array",
+      status: "Active",
+      linkedAssetCount: 2,
+      notes: "Reinforced flat RCC rooftop housing 65x 540Wp Tier-1 Mono PERC panels and 35 kW string inverter."
+    },
+    {
+      id: "SPC-2026-002",
+      organizationId: "ORG-2026-001",
+      siteId: "SITE-2026-001",
+      buildingName: "Main Warehouse",
+      floorLevel: "Ground Floor",
+      roomNumberOrName: "LT Switchgear & Net-Metering Substation",
+      areaSqFt: 450,
+      occupancyType: "Electrical Utility",
+      status: "Active",
+      linkedAssetCount: 1,
+      notes: "Contains 100A 4-pole ACDB, APDCL bi-directional meter cabinet, and earthing busbars."
+    },
+    {
+      id: "SPC-2026-003",
+      organizationId: "ORG-2026-002",
+      siteId: "SITE-2026-002",
+      buildingName: "Diagnostic Wing",
+      floorLevel: "Ground Floor",
+      roomNumberOrName: "Server & UPS Network Hub 101",
+      areaSqFt: 180,
+      occupancyType: "IT Server Facility",
+      status: "Active",
+      linkedAssetCount: 2,
+      notes: "Dedicated 18U rack, dual 3kVA online UPS with precision AC climate control."
+    },
+    {
+      id: "SPC-2026-004",
+      organizationId: "ORG-2026-002",
+      siteId: "SITE-2026-002",
+      buildingName: "Diagnostic Wing",
+      floorLevel: "1st Floor",
+      roomNumberOrName: "Pathology & Clinical Lab Zone A",
+      areaSqFt: 850,
+      occupancyType: "Clinical / Lab",
+      status: "Active",
+      linkedAssetCount: 0,
+      notes: "Biomedical diagnostic workstations, refrigerated reagent storage, and emergency lighting."
+    },
+    {
+      id: "SPC-2026-005",
+      organizationId: "ORG-2026-003",
+      siteId: "SITE-2026-003",
+      buildingName: "Cold Storage Bay 1",
+      floorLevel: "Mezzanine Floor",
+      roomNumberOrName: "Ammonia Compressor & HVAC Plant Room",
+      areaSqFt: 1200,
+      occupancyType: "HVAC / Refrigeration",
+      status: "Active",
+      linkedAssetCount: 1,
+      notes: "Heavy industrial cooling compressors and condenser coil bank."
+    }
+  ],
+
+  facilityVendors: [
+    {
+      id: "VND-2026-001",
+      name: "Assam Power Tech Engineering",
+      tradeCategory: "Electrical & CEIG Contractor",
+      contactPerson: "Pranab Goswami",
+      phone: "+91 98640 55443",
+      email: "info@assampowertech.in",
+      gstin: "18AABCA1234F1Z5",
+      status: "Verified",
+      rating: 4.8,
+      slaResponseHours: 4,
+      notes: "Licensed Class-1 electrical contractor for HT/LT switchgear, CEIG statutory inspections, and transformer testing."
+    },
+    {
+      id: "VND-2026-002",
+      name: "North East Climate Solutions",
+      tradeCategory: "HVAC & Commercial Refrigeration",
+      contactPerson: "Bhaskar Jyoti Roy",
+      phone: "+91 94350 44332",
+      email: "service@neclimatesolutions.com",
+      gstin: "18BBCDE5678G1Z2",
+      status: "Verified",
+      rating: 4.6,
+      slaResponseHours: 6,
+      notes: "Authorized Daikin & Blue Star industrial VRV/HVAC service contractor with 24/7 breakdown support."
+    },
+    {
+      id: "VND-2026-003",
+      name: "Brahmaputra Solar Power Services",
+      tradeCategory: "Solar PV Module Washing & Structural Maintenance",
+      contactPerson: "Dipankar Deka",
+      phone: "+91 98540 99887",
+      email: "solarclean@brahmaputrasolar.in",
+      gstin: "18CCDEF9012H1Z9",
+      status: "Verified",
+      rating: 4.9,
+      slaResponseHours: 8,
+      notes: "Deionized water panel washing with automated rotary brushes and torque verification for aluminum racking."
+    },
+    {
+      id: "VND-2026-004",
+      name: "Kamrup Network & Fiber Solutions",
+      tradeCategory: "Structured Cabling & Fiber Splicing",
+      contactPerson: "Anupam Das",
+      phone: "+91 97060 11223",
+      email: "support@kamrupnetwork.in",
+      gstin: "18DDEFG3456I1Z6",
+      status: "Verified",
+      rating: 4.7,
+      slaResponseHours: 4,
+      notes: "Fluke-certified optical fiber fusion splicing and Cat6 network cabling infrastructure."
+    }
+  ],
+
+  utilityReadings: [
+    {
+      id: "UTL-2026-001",
+      siteId: "SITE-2026-001",
+      organizationId: "ORG-2026-001",
+      billingMonth: "2026-09",
+      discomConsumerNo: "100200300401",
+      gridUnitsImportedKwh: 4850,
+      solarUnitsExportedKwh: 3920,
+      netUnitsBilledKwh: 930,
+      peakDemandKva: 34.2,
+      powerFactor: 0.96,
+      totalBillAmountInr: 7850,
+      recordedAt: "2026-10-02",
+      notes: "Solar array offset 80.8% of gross daytime energy demand. Power factor healthy (>0.95)."
+    },
+    {
+      id: "UTL-2026-002",
+      siteId: "SITE-2026-001",
+      organizationId: "ORG-2026-001",
+      billingMonth: "2026-08",
+      discomConsumerNo: "100200300401",
+      gridUnitsImportedKwh: 5120,
+      solarUnitsExportedKwh: 3740,
+      netUnitsBilledKwh: 1380,
+      peakDemandKva: 35.8,
+      powerFactor: 0.95,
+      totalBillAmountInr: 11200,
+      recordedAt: "2026-09-03",
+      notes: "Monsoon cloud cover lowered export slightly. Net bill remains ₹27,000 below pre-solar baseline."
+    },
+    {
+      id: "UTL-2026-003",
+      siteId: "SITE-2026-002",
+      organizationId: "ORG-2026-002",
+      billingMonth: "2026-09",
+      discomConsumerNo: "100200500602",
+      gridUnitsImportedKwh: 2150,
+      solarUnitsExportedKwh: 0,
+      netUnitsBilledKwh: 2150,
+      peakDemandKva: 14.5,
+      powerFactor: 0.94,
+      totalBillAmountInr: 16870,
+      recordedAt: "2026-10-04",
+      notes: "Clinic rooftop solar proposal under client review for 10 kWp net-metering installation."
+    },
+    {
+      id: "UTL-2026-004",
+      siteId: "SITE-2026-003",
+      organizationId: "ORG-2026-003",
+      billingMonth: "2026-09",
+      discomConsumerNo: "100200700803",
+      gridUnitsImportedKwh: 6400,
+      solarUnitsExportedKwh: 1850,
+      netUnitsBilledKwh: 4550,
+      peakDemandKva: 42.0,
+      powerFactor: 0.97,
+      totalBillAmountInr: 35800,
+      recordedAt: "2026-10-03",
+      notes: "Cold storage compressor optimization with 15 kWp partial solar support."
+    }
+  ],
+
+  complianceRecords: [
+    {
+      id: "CMP-2026-001",
+      siteId: "SITE-2026-001",
+      organizationId: "ORG-2026-001",
+      complianceType: "CEIG Statutory Electrical Safety Certificate",
+      certificateNumber: "CEIG/ASM/KAM/2025/1104",
+      inspectingAuthority: "Chief Electrical Inspectorate Govt of Assam (CEIG)",
+      issueDate: "2025-11-15",
+      expiryDate: "2026-11-14",
+      status: "Valid",
+      frequencyMonths: 12,
+      remarks: "Covers 35 kWp rooftop solar plant and 11kV step-down transformer substation. Earthing verified at 1.4 Ohms."
+    },
+    {
+      id: "CMP-2026-002",
+      siteId: "SITE-2026-001",
+      organizationId: "ORG-2026-001",
+      complianceType: "APDCL Bi-Directional Net-Meter Test Report",
+      certificateNumber: "APDCL/MRT/GHY/2026/045",
+      inspectingAuthority: "APDCL Meter Relay & Testing (MRT) Division",
+      issueDate: "2026-01-20",
+      expiryDate: "2031-01-19",
+      status: "Valid",
+      frequencyMonths: 60,
+      remarks: "LT-CT operated 0.5s accuracy class bi-directional smart meter verified and sealed."
+    },
+    {
+      id: "CMP-2026-003",
+      siteId: "SITE-2026-002",
+      organizationId: "ORG-2026-002",
+      complianceType: "Fire Safety NOC & Extinguisher Inspection",
+      certificateNumber: "FS/ASM/GHY/2025/892",
+      inspectingAuthority: "State Fire Service Organization, Assam",
+      issueDate: "2025-10-25",
+      expiryDate: "2026-10-24",
+      status: "Due for Renewal",
+      frequencyMonths: 12,
+      remarks: "Annual inspection due within 10 days. Server room clean-agent FM-200 gas suppression inspection scheduled."
+    },
+    {
+      id: "CMP-2026-004",
+      siteId: "SITE-2026-003",
+      organizationId: "ORG-2026-003",
+      complianceType: "Earthing Pit Resistance Test Certification",
+      certificateNumber: "MAX/EARTH/2026/088",
+      inspectingAuthority: "MaxEco Energy & Tech Testing Bureau",
+      issueDate: "2026-04-10",
+      expiryDate: "2026-10-09",
+      status: "Expired",
+      frequencyMonths: 6,
+      remarks: "Six-month periodic test expired. Chemical re-treatment required for cold storage earth pit #3."
+    }
   ]
 };
 

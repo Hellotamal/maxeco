@@ -1619,8 +1619,12 @@
             </div>
             <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('cafmOrganizations')" title="Download customer organizations register">📥 Orgs CSV</button>
             <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilitySites')" title="Download sites register">📥 Sites CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilitySpaces')" title="Download facility spaces register">📥 Spaces CSV</button>
             <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilityAssets')" title="Download equipment inventory">📥 Assets CSV</button>
             <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('serviceTickets')" title="Download maintenance tickets">📥 Tickets CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('utilityReadings')" title="Download energy utility readings">📥 Energy CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilityVendors')" title="Download contractors & vendors">📥 Vendors CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('complianceRecords')" title="Download statutory compliance register">📥 Statutory CSV</button>
             <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('amcContracts')" title="Download AMC retainers">📥 AMCs CSV</button>
             <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('cafmAuditLog')" title="Download immutable audit trail">📥 Audit CSV</button>
           </div>
@@ -1639,6 +1643,11 @@
             <small class="text-muted" style="font-size: 11px;"><span id="cafm-kpi-solar-kwp" class="text-amber">0 kWp</span> Solar</small>
           </div>
           <div class="kpi-card">
+            <span class="kpi-label">Spaces &amp; Zones</span>
+            <div class="kpi-value" id="cafm-kpi-spaces" style="color: #38bdf8;">0</div>
+            <small class="text-muted" style="font-size: 11px;">Mapped rooms</small>
+          </div>
+          <div class="kpi-card">
             <span class="kpi-label">Managed Assets</span>
             <div class="kpi-value" id="cafm-kpi-assets">0</div>
             <small class="text-muted" style="font-size: 11px;">Solar, IT &amp; CEIG</small>
@@ -1649,14 +1658,9 @@
             <small class="text-muted" style="font-size: 11px;">Action required</small>
           </div>
           <div class="kpi-card" style="border-left: 3px solid var(--accent-rose);">
-            <span class="kpi-label">Open Tickets</span>
-            <div class="kpi-value text-rose" id="cafm-kpi-open-tickets">0</div>
-            <small class="text-muted" style="font-size: 11px;"><span id="cafm-kpi-critical-tickets">0</span> Critical</small>
-          </div>
-          <div class="kpi-card" style="border-left: 3px solid #10b981;">
-            <span class="kpi-label">Annual AMC Value</span>
-            <div class="kpi-value" style="color: #10b981;" id="cafm-kpi-amc-value">₹0</div>
-            <small class="text-muted" style="font-size: 11px;"><span id="cafm-kpi-active-amcs">0</span> Active (<span id="cafm-kpi-expiring-amcs" style="color: #f59e0b;">0</span> Renewing)</small>
+            <span class="kpi-label">Statutory Alerts</span>
+            <div class="kpi-value text-rose" id="cafm-kpi-compliance-alerts">0</div>
+            <small class="text-muted" style="font-size: 11px;">CEIG &amp; APDCL</small>
           </div>
         </div>
 
@@ -1666,7 +1670,11 @@
             <div class="flex gap-2" style="flex-wrap: wrap;">
               <button id="cafm-tab-btn-orgs" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('orgs')">🏢 Customer Organizations</button>
               <button id="cafm-tab-btn-sites" class="btn btn-primary btn-sm" onclick="app.setCafmSubTab('sites')">📍 Sites &amp; Facilities</button>
+              <button id="cafm-tab-btn-spaces" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('spaces')">📐 Spaces &amp; Floor Plan</button>
               <button id="cafm-tab-btn-assets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('assets')">⚙️ Asset Inventory &amp; QR</button>
+              <button id="cafm-tab-btn-utility" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('utility')">⚡ Energy &amp; Utilities</button>
+              <button id="cafm-tab-btn-vendors" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('vendors')">🤝 Vendors &amp; Trades</button>
+              <button id="cafm-tab-btn-compliance" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('compliance')">📜 Statutory &amp; CEIG</button>
               <button id="cafm-tab-btn-ppm" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('ppm')">📅 PPM Service Calendar</button>
               <button id="cafm-tab-btn-tickets" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('tickets')">🎫 Helpdesk &amp; Tickets</button>
               <button id="cafm-tab-btn-parts" class="btn btn-secondary btn-sm" onclick="app.setCafmSubTab('parts')">📦 Parts &amp; Consumables</button>
@@ -1846,7 +1854,205 @@
             </div>
           </div>
         </div>
-      </section>
+
+        <!-- SUB-TAB 7: SPACES & INTERACTIVE FLOOR PLAN -->
+        <div id="cafm-view-spaces" class="cafm-subview hidden">
+          <!-- Interactive Visual Floor Plan Container -->
+          <div class="card" style="margin-bottom: 20px; padding: 18px;">
+            <div class="flex items-center justify-between" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 class="card-title" style="margin: 0;">🗺️ Spatial Digital Twin &amp; Zone Health Layout</h3>
+                <small class="text-muted">Color-coded visual layout displaying room condition, linked assets, and open critical tickets</small>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.renderCafmSpaces()">🔄 Refresh Map</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddSpaceModal()">➕ Add Space Zone</button>
+              </div>
+            </div>
+            <div id="cafm-spaces-floorplan-container" style="overflow-x: auto; padding: 10px 0;">
+              <!-- Pure SVG rendered here -->
+            </div>
+          </div>
+
+          <!-- Spaces Management Register Table -->
+          <div class="card">
+            <div class="flex items-center justify-between" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 class="card-title" style="margin: 0;">📐 Facility Spaces &amp; Room Register</h3>
+                <small class="text-muted">Hierarchical room mapping across buildings and floor levels with asset linkages</small>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilitySpaces')">📥 Export Spaces CSV</button>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Space ID</th>
+                    <th>Building &amp; Level</th>
+                    <th>Room / Zone Name</th>
+                    <th>Area (Sq Ft)</th>
+                    <th>Occupancy Type</th>
+                    <th>Linked Assets</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="cafm-spaces-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 8: ENERGY & UTILITY MONITORING -->
+        <div id="cafm-view-utility" class="cafm-subview hidden">
+          <!-- Utility KPI Cards Row -->
+          <div class="grid grid-cols-4 gap-3" style="margin-bottom: 20px;">
+            <div class="card" style="padding: 14px; border-left: 3px solid #38bdf8;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">APDCL Grid Import</div>
+              <div id="utility-kpi-import" class="font-mono" style="font-size: 22px; font-weight: 800; color: #38bdf8; margin: 4px 0;">0 kWh</div>
+              <div style="font-size: 11px; color: var(--text-secondary);">Total utility grid draw</div>
+            </div>
+            <div class="card" style="padding: 14px; border-left: 3px solid var(--solar-amber);">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Rooftop Solar Export</div>
+              <div id="utility-kpi-export" class="font-mono text-amber" style="font-size: 22px; font-weight: 800; margin: 4px 0;">0 kWh</div>
+              <div style="font-size: 11px; color: var(--text-secondary);">Clean generation sent to grid</div>
+            </div>
+            <div class="card" style="padding: 14px; border-left: 3px solid #10b981;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Solar Offset Ratio</div>
+              <div id="utility-kpi-offset" class="font-mono" style="font-size: 22px; font-weight: 800; color: #10b981; margin: 4px 0;">0%</div>
+              <div style="font-size: 11px; color: var(--text-secondary);">Net electricity offset</div>
+            </div>
+            <div class="card" id="utility-kpi-pf-card" style="padding: 14px; border-left: 3px solid #8b5cf6;">
+              <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Avg Power Factor</div>
+              <div id="utility-kpi-pf" class="font-mono" style="font-size: 22px; font-weight: 800; color: #a78bfa; margin: 4px 0;">0.98</div>
+              <div id="utility-kpi-pf-status" style="font-size: 11px; color: var(--text-secondary);">APDCL standard ≥ 0.90</div>
+            </div>
+          </div>
+
+          <!-- APDCL Power Factor Penalty Alert Banner (Dynamic) -->
+          <div id="utility-pf-penalty-banner" class="hidden" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 14px 18px; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <div style="font-weight: 700; color: #ef4444; font-size: 13px; margin-bottom: 4px;">⚠️ APDCL Low Power Factor Penalty Warning Detected!</div>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+              One or more monthly billing cycles recorded a power factor below <strong>0.90</strong>. Under Assam Electricity Regulatory Commission (AERC) tariff orders, APDCL levies significant low power factor surcharges on commercial &amp; industrial consumers. We recommend inspecting capacitor banks and harmonic filters immediately.
+            </div>
+          </div>
+
+          <!-- Utility Readings Table -->
+          <div class="card">
+            <div class="flex items-center justify-between" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 class="card-title" style="margin: 0;">⚡ APDCL Electricity &amp; Solar Bi-Directional Ledger</h3>
+                <small class="text-muted">Monthly net-metering logs, peak demand kVA, and billed tariff tracking</small>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('utilityReadings')">📥 Export Energy CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddUtilityModal()">➕ Log Monthly Reading</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Reading ID</th>
+                    <th>Month</th>
+                    <th>Site &amp; Consumer No</th>
+                    <th>Grid Import (kWh)</th>
+                    <th>Solar Export (kWh)</th>
+                    <th>Net Billed (kWh)</th>
+                    <th>Power Factor</th>
+                    <th>Peak Demand (kVA)</th>
+                    <th>Billed (₹)</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="cafm-utility-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 9: VENDORS & CONTRACTORS -->
+        <div id="cafm-view-vendors" class="cafm-subview hidden">
+          <div class="card">
+            <div class="flex items-center justify-between" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 class="card-title" style="margin: 0;">🤝 Specialized Contractors &amp; Facility Vendors</h3>
+                <small class="text-muted">Certified trades directory with SLA response commitments and 1-Click WhatsApp field dispatch</small>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('facilityVendors')">📥 Export Vendors CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddVendorModal()">➕ Register Contractor</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Vendor ID</th>
+                    <th>Vendor / Contractor Name</th>
+                    <th>Trade Category</th>
+                    <th>Contact Person</th>
+                    <th>Phone / Direct Chat</th>
+                    <th>GSTIN</th>
+                    <th>Rating</th>
+                    <th>SLA Target</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="cafm-vendors-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 10: STATUTORY & CEIG COMPLIANCE -->
+        <div id="cafm-view-compliance" class="cafm-subview hidden">
+          <!-- Compliance Countdown Alerts -->
+          <div id="cafm-compliance-alerts-container" style="margin-bottom: 20px;">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <div class="card">
+            <div class="flex items-center justify-between" style="margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h3 class="card-title" style="margin: 0;">📜 Statutory &amp; CEIG Inspection Register</h3>
+                <small class="text-muted">CEIG safety certificates, APDCL net-meter reports, Fire safety NOC, and Earth Pit resistance logs</small>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-secondary btn-sm" onclick="app.exportCafmCsv('complianceRecords')">📥 Export Compliance CSV</button>
+                <button class="btn btn-primary btn-sm" onclick="app.openAddComplianceModal()">➕ Register Certificate</button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Compliance Type</th>
+                    <th>Certificate Number</th>
+                    <th>Inspecting Authority</th>
+                    <th>Issue Date</th>
+                    <th>Expiry Date</th>
+                    <th>Countdown Status</th>
+                    <th>Cycle</th>
+                    <th>Remarks</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="cafm-compliance-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- TAB 6: SETTINGS & BACKUP -->
@@ -3909,6 +4115,316 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="app.closeAllModals()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 12: Add / Edit Facility Space -->
+  <div id="modal-cafm-space" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="modal-space-title" class="modal-title">📐 Add Facility Space Zone</h3>
+        <button class="modal-close" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="space-modal-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Client Organization *</label>
+            <select id="space-modal-org" class="form-control" required onchange="app.onSpaceOrgChange(this.value)">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Facility Site / Premises *</label>
+            <select id="space-modal-site" class="form-control" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Building Name *</label>
+            <input type="text" id="space-modal-building" class="form-control" required placeholder="e.g. Main Plant & Admin Block">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Floor / Level *</label>
+            <input type="text" id="space-modal-floor" class="form-control" required placeholder="e.g. Rooftop Level / Ground Floor">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Room / Zone Number &amp; Name *</label>
+            <input type="text" id="space-modal-room" class="form-control" required placeholder="e.g. Rooftop Solar Array Bay A">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Area (Sq Ft) *</label>
+            <input type="number" id="space-modal-area" class="form-control" required placeholder="e.g. 1850">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Occupancy / Zone Function *</label>
+            <select id="space-modal-type" class="form-control" required>
+              <option value="Solar PV Installation">Solar PV Installation</option>
+              <option value="Electrical Switchgear / CEIG">Electrical Switchgear / CEIG</option>
+              <option value="Server Room &amp; IT Hub">Server Room &amp; IT Hub</option>
+              <option value="Clinical Laboratory &amp; Diagnostics">Clinical Laboratory &amp; Diagnostics</option>
+              <option value="HVAC &amp; Mechanical Plant">HVAC &amp; Mechanical Plant</option>
+              <option value="Corporate Executive Offices">Corporate Executive Offices</option>
+              <option value="Industrial Warehouse &amp; Logistics">Industrial Warehouse &amp; Logistics</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Operational Status</label>
+            <select id="space-modal-status" class="form-control">
+              <option value="Operational">Operational</option>
+              <option value="Maintenance Due">Maintenance Due</option>
+              <option value="Under Renovation">Under Renovation</option>
+              <option value="Vacant">Vacant</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes &amp; Access Protocol</label>
+          <textarea id="space-modal-notes" class="form-control" rows="2" placeholder="e.g. Safety harness and CEIG earthing verification mandatory before access..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveSpaceFromModal()">Save Space Zone</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 13: Log Energy & Utility Reading -->
+  <div id="modal-cafm-utility" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="modal-utility-title" class="modal-title">⚡ Log APDCL Electricity &amp; Solar Reading</h3>
+        <button class="modal-close" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="utility-modal-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Client Organization *</label>
+            <select id="utility-modal-org" class="form-control" required onchange="app.onUtilityOrgChange(this.value)">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Facility Site *</label>
+            <select id="utility-modal-site" class="form-control" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">APDCL Consumer No *</label>
+            <input type="text" id="utility-modal-consumer-no" class="form-control" required placeholder="e.g. 012000045678">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Billing Month / Year *</label>
+            <input type="text" id="utility-modal-month" class="form-control" required placeholder="e.g. September 2026">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Grid Units Imported (kWh) *</label>
+            <input type="number" id="utility-modal-import" class="form-control" required placeholder="e.g. 5200" oninput="app.updateUtilityPreview()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Solar Units Exported (kWh) *</label>
+            <input type="number" id="utility-modal-export" class="form-control" required placeholder="e.g. 3850" oninput="app.updateUtilityPreview()">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="form-group">
+            <label class="form-label">Peak Demand (kVA)</label>
+            <input type="number" id="utility-modal-demand" class="form-control" placeholder="e.g. 32.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Power Factor (0.0 - 1.0)</label>
+            <input type="number" step="0.01" id="utility-modal-pf" class="form-control" value="0.98" placeholder="e.g. 0.98">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Bill Amount (₹) *</label>
+            <input type="number" id="utility-modal-bill" class="form-control" required placeholder="e.g. 10125">
+          </div>
+        </div>
+
+        <div id="utility-modal-calc-preview" style="background: #0f172a; padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 11.5px; color: #94a3b8; display: flex; justify-content: space-between;">
+          <span>Net Billed Units: <strong id="utility-preview-net" style="color: #38bdf8;">0 kWh</strong></span>
+          <span>Estimated Solar Offset: <strong id="utility-preview-offset" style="color: #10b981;">0%</strong></span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Notes &amp; APDCL Discom Remarks</label>
+          <input type="text" id="utility-modal-notes" class="form-control" placeholder="e.g. Bi-directional TOD meter reading confirmed by APDCL Sub-division...">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveUtilityFromModal()">Save Utility Log</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 14: Register Specialized Contractor / Vendor -->
+  <div id="modal-cafm-vendor" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="modal-vendor-title" class="modal-title">🤝 Register Contractor / Facility Vendor</h3>
+        <button class="modal-close" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="vendor-modal-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Company / Contractor Name *</label>
+            <input type="text" id="vendor-modal-name" class="form-control" required placeholder="e.g. Assam PowerTech Engineering Works">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Trade Category *</label>
+            <select id="vendor-modal-trade" class="form-control" required>
+              <option value="Solar PV &amp; Inverter Maintenance">Solar PV &amp; Inverter Maintenance</option>
+              <option value="Electrical Switchgear &amp; CEIG">Electrical Switchgear &amp; CEIG</option>
+              <option value="HVAC, VRF &amp; Precision Cooling">HVAC, VRF &amp; Precision Cooling</option>
+              <option value="IT Structured Cabling &amp; Fiber">IT Structured Cabling &amp; Fiber</option>
+              <option value="Fire Alarm &amp; Hydrant Systems">Fire Alarm &amp; Hydrant Systems</option>
+              <option value="Building Automation &amp; Security">Building Automation &amp; Security</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Contact Person *</label>
+            <input type="text" id="vendor-modal-contact" class="form-control" required placeholder="e.g. Pradip Kalita">
+          </div>
+          <div class="form-group">
+            <label class="form-label">WhatsApp / Phone Number *</label>
+            <input type="tel" id="vendor-modal-phone" class="form-control" required placeholder="e.g. +91 94350 22334">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="vendor-modal-email" class="form-control" placeholder="e.g. contact@powertech.in">
+          </div>
+          <div class="form-group">
+            <label class="form-label">GSTIN Identifier</label>
+            <input type="text" id="vendor-modal-gstin" class="form-control" placeholder="e.g. 18AABCP4455E1Z7">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Performance Rating (1 to 5 Stars)</label>
+            <select id="vendor-modal-rating" class="form-control">
+              <option value="5">★★★★★ (5 - Exceptional SLA)</option>
+              <option value="4" selected>★★★★☆ (4 - Reliable)</option>
+              <option value="3">★★★☆☆ (3 - Standard)</option>
+              <option value="2">★★☆☆☆ (2 - Needs Improvement)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Guaranteed SLA Response (Hours) *</label>
+            <input type="number" id="vendor-modal-sla" class="form-control" value="4" required placeholder="e.g. 4">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Trade Qualifications &amp; Statutory Notes</label>
+          <textarea id="vendor-modal-notes" class="form-control" rows="2" placeholder="e.g. Certified Assam Electrical Licensing Board Class-1 Contractor; valid CEIG supervisor license..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveVendorFromModal()">Save Contractor</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 15: Register Statutory & CEIG Compliance Record -->
+  <div id="modal-cafm-compliance" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="modal-compliance-title" class="modal-title">📜 Register Statutory Compliance Record</h3>
+        <button class="modal-close" onclick="app.closeAllModals()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="compliance-modal-id">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Client Organization *</label>
+            <select id="compliance-modal-org" class="form-control" required onchange="app.onComplianceOrgChange(this.value)">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Facility Site *</label>
+            <select id="compliance-modal-site" class="form-control" required>
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Compliance Certificate Type *</label>
+            <select id="compliance-modal-type" class="form-control" required>
+              <option value="CEIG Electrical Safety Certificate">CEIG Electrical Safety Certificate</option>
+              <option value="APDCL Solar Net-Metering Test Report">APDCL Solar Net-Metering Test Report</option>
+              <option value="Fire &amp; Life Safety NOC">Fire &amp; Life Safety NOC</option>
+              <option value="Annual Earth Pit Resistance Test Report">Annual Earth Pit Resistance Test Report</option>
+              <option value="Factory Pollution Control Board Clearance">Factory Pollution Control Board Clearance</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Official Certificate / File Ref No *</label>
+            <input type="text" id="compliance-modal-cert-no" class="form-control" required placeholder="e.g. CEIG/ASM/2025/EL-8942">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Inspecting Authority &amp; Department *</label>
+          <input type="text" id="compliance-modal-authority" class="form-control" required placeholder="e.g. Chief Electrical Inspectorate, Govt. of Assam">
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="form-group">
+            <label class="form-label">Issue Date *</label>
+            <input type="date" id="compliance-modal-issue-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expiry / Renewal Date *</label>
+            <input type="date" id="compliance-modal-expiry-date" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Renewal Cycle (Months)</label>
+            <input type="number" id="compliance-modal-frequency" class="form-control" value="36" placeholder="e.g. 36">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Statutory Remarks &amp; Certification Scope</label>
+          <textarea id="compliance-modal-remarks" class="form-control" rows="2" placeholder="e.g. Mandatory under Rule 63 of Central Electricity Authority Regulations; earthing test report attached..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="app.closeAllModals()">Cancel</button>
+        <button class="btn btn-primary" onclick="app.saveComplianceFromModal()">Save Statutory Record</button>
       </div>
     </div>
   </div>

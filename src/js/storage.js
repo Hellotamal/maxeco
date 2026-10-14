@@ -968,6 +968,155 @@ class StorageController {
     this.saveStore(store);
   }
 
+  // --- CAFM PHASE 3: SPACES & ROOM RECORDS ---
+  getFacilitySpaces() {
+    const store = this.getStore();
+    return store && store.facilitySpaces ? store.facilitySpaces : [];
+  }
+
+  getFacilitySpacesByOrg(orgId) {
+    if (!orgId || orgId === 'all') return this.getFacilitySpaces();
+    return this.getFacilitySpaces().filter(s => s.organizationId === orgId);
+  }
+
+  getFacilitySpacesBySite(siteId) {
+    if (!siteId || siteId === 'all') return this.getFacilitySpaces();
+    return this.getFacilitySpaces().filter(s => s.siteId === siteId);
+  }
+
+  saveFacilitySpace(space) {
+    const store = this.getStore();
+    if (!store.facilitySpaces) store.facilitySpaces = [];
+    if (!space.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilitySpaces.length + 1).toString().padStart(3, '0');
+      space.id = `SPC-${year}-${count}`;
+      store.facilitySpaces.unshift(space);
+    } else {
+      const idx = store.facilitySpaces.findIndex(s => s.id === space.id);
+      if (idx !== -1) {
+        store.facilitySpaces[idx] = { ...store.facilitySpaces[idx], ...space };
+      } else {
+        store.facilitySpaces.unshift(space);
+      }
+    }
+    this.saveStore(store);
+    return space;
+  }
+
+  deleteFacilitySpace(id) {
+    const store = this.getStore();
+    store.facilitySpaces = (store.facilitySpaces || []).filter(s => s.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM PHASE 3: VENDORS & CONTRACTORS ---
+  getFacilityVendors() {
+    const store = this.getStore();
+    return store && store.facilityVendors ? store.facilityVendors : [];
+  }
+
+  saveFacilityVendor(vendor) {
+    const store = this.getStore();
+    if (!store.facilityVendors) store.facilityVendors = [];
+    if (!vendor.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilityVendors.length + 1).toString().padStart(3, '0');
+      vendor.id = `VND-${year}-${count}`;
+      store.facilityVendors.unshift(vendor);
+    } else {
+      const idx = store.facilityVendors.findIndex(v => v.id === vendor.id);
+      if (idx !== -1) {
+        store.facilityVendors[idx] = { ...store.facilityVendors[idx], ...vendor };
+      } else {
+        store.facilityVendors.unshift(vendor);
+      }
+    }
+    this.saveStore(store);
+    return vendor;
+  }
+
+  deleteFacilityVendor(id) {
+    const store = this.getStore();
+    store.facilityVendors = (store.facilityVendors || []).filter(v => v.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM PHASE 3: ENERGY & UTILITY READINGS ---
+  getUtilityReadings() {
+    const store = this.getStore();
+    return store && store.utilityReadings ? store.utilityReadings : [];
+  }
+
+  getUtilityReadingsBySite(siteId) {
+    if (!siteId || siteId === 'all') return this.getUtilityReadings();
+    return this.getUtilityReadings().filter(u => u.siteId === siteId);
+  }
+
+  saveUtilityReading(reading) {
+    const store = this.getStore();
+    if (!store.utilityReadings) store.utilityReadings = [];
+    if (!reading.id) {
+      const year = new Date().getFullYear();
+      const count = (store.utilityReadings.length + 1).toString().padStart(3, '0');
+      reading.id = `UTL-${year}-${count}`;
+      reading.recordedAt = reading.recordedAt || new Date().toISOString().slice(0, 10);
+      store.utilityReadings.unshift(reading);
+    } else {
+      const idx = store.utilityReadings.findIndex(u => u.id === reading.id);
+      if (idx !== -1) {
+        store.utilityReadings[idx] = { ...store.utilityReadings[idx], ...reading };
+      } else {
+        store.utilityReadings.unshift(reading);
+      }
+    }
+    this.saveStore(store);
+    return reading;
+  }
+
+  deleteUtilityReading(id) {
+    const store = this.getStore();
+    store.utilityReadings = (store.utilityReadings || []).filter(u => u.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM PHASE 3: STATUTORY & COMPLIANCE RECORDS ---
+  getComplianceRecords() {
+    const store = this.getStore();
+    return store && store.complianceRecords ? store.complianceRecords : [];
+  }
+
+  getComplianceRecordsBySite(siteId) {
+    if (!siteId || siteId === 'all') return this.getComplianceRecords();
+    return this.getComplianceRecords().filter(c => c.siteId === siteId);
+  }
+
+  saveComplianceRecord(record) {
+    const store = this.getStore();
+    if (!store.complianceRecords) store.complianceRecords = [];
+    if (!record.id) {
+      const year = new Date().getFullYear();
+      const count = (store.complianceRecords.length + 1).toString().padStart(3, '0');
+      record.id = `CMP-${year}-${count}`;
+      store.complianceRecords.unshift(record);
+    } else {
+      const idx = store.complianceRecords.findIndex(c => c.id === record.id);
+      if (idx !== -1) {
+        store.complianceRecords[idx] = { ...store.complianceRecords[idx], ...record };
+      } else {
+        store.complianceRecords.unshift(record);
+      }
+    }
+    this.saveStore(store);
+    return record;
+  }
+
+  deleteComplianceRecord(id) {
+    const store = this.getStore();
+    store.complianceRecords = (store.complianceRecords || []).filter(c => c.id !== id);
+    this.saveStore(store);
+  }
+
   // --- BACKUP & RESTORE ---
   exportJsonBackup() {
     const data = this.getStore();
@@ -1075,6 +1224,26 @@ class StorageController {
       csvContent = "Part ID,Part Name,Category,Part Number,Unit Cost (INR),Stock Qty,Unit,Compatible OEM\n";
       (store.cafmPartsCatalog || []).forEach(p => {
         csvContent += `"${p.id}","${(p.name || '').replace(/"/g, '""')}","${p.category || ''}","${p.partNumber || ''}",${p.unitCost || 0},${p.stockQuantity || 0},"${p.unit || ''}","${(p.compatibleOEM || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'facilitySpaces') {
+      csvContent = "Space ID,Organization ID,Site ID,Building,Floor Level,Room/Zone,Area (Sq Ft),Occupancy Type,Status,Notes\n";
+      (store.facilitySpaces || []).forEach(s => {
+        csvContent += `"${s.id}","${s.organizationId || ''}","${s.siteId || ''}","${(s.buildingName || '').replace(/"/g, '""')}","${s.floorLevel || ''}","${(s.roomNumberOrName || '').replace(/"/g, '""')}",${s.areaSqFt || 0},"${s.occupancyType || ''}","${s.status || ''}","${(s.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'facilityVendors') {
+      csvContent = "Vendor ID,Vendor Name,Trade Category,Contact Person,Phone,Email,GSTIN,Status,Rating,SLA Response (Hours),Notes\n";
+      (store.facilityVendors || []).forEach(v => {
+        csvContent += `"${v.id}","${(v.name || '').replace(/"/g, '""')}","${v.tradeCategory || ''}","${(v.contactPerson || '').replace(/"/g, '""')}","${v.phone || ''}","${v.email || ''}","${v.gstin || ''}","${v.status || ''}",${v.rating || 0},${v.slaResponseHours || 0},"${(v.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'utilityReadings') {
+      csvContent = "Reading ID,Organization ID,Site ID,Billing Month,APDCL Consumer No,Grid Import (kWh),Solar Export (kWh),Net Billed (kWh),Peak Demand (kVA),Power Factor,Total Bill (INR),Recorded Date,Notes\n";
+      (store.utilityReadings || []).forEach(u => {
+        csvContent += `"${u.id}","${u.organizationId || ''}","${u.siteId || ''}","${u.billingMonth || ''}","${u.discomConsumerNo || ''}",${u.gridUnitsImportedKwh || 0},${u.solarUnitsExportedKwh || 0},${u.netUnitsBilledKwh || 0},${u.peakDemandKva || 0},${u.powerFactor || 0},${u.totalBillAmountInr || 0},"${u.recordedAt || ''}","${(u.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'complianceRecords') {
+      csvContent = "Compliance ID,Organization ID,Site ID,Compliance Type,Certificate No,Inspecting Authority,Issue Date,Expiry Date,Status,Frequency (Months),Remarks\n";
+      (store.complianceRecords || []).forEach(c => {
+        csvContent += `"${c.id}","${c.organizationId || ''}","${c.siteId || ''}","${(c.complianceType || '').replace(/"/g, '""')}","${c.certificateNumber || ''}","${(c.inspectingAuthority || '').replace(/"/g, '""')}","${c.issueDate || ''}","${c.expiryDate || ''}","${c.status || ''}",${c.frequencyMonths || 0},"${(c.remarks || '').replace(/"/g, '""')}"\n`;
       });
     } else {
       return false;
