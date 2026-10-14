@@ -4,6 +4,8 @@
 User-agent: *
 Allow: /
 Disallow: /public/index.html
+Disallow: /erp/
+Disallow: /dist/erp/
 Disallow: /src/
 Disallow: /backups/
 

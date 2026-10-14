@@ -1,0 +1,1487 @@
+// MaxEco Local-First Data Storage & Persistence Controller
+// Zero-cost, 100% offline-capable, runs on browser localStorage
+
+const STORAGE_KEY = 'maxeco_os_database_v1';
+
+class StorageController {
+  constructor() {
+    this.init();
+  }
+
+  init() {
+    const existing = localStorage.getItem(STORAGE_KEY);
+    if (!existing) {
+      const seed = (typeof initialSeedData !== 'undefined') ? initialSeedData : 
+                   ((typeof window !== 'undefined' && window.initialSeedData) ? window.initialSeedData : 
+                   ((typeof global !== 'undefined' && global.initialSeedData) ? global.initialSeedData : null));
+      if (seed) {
+        this.saveStore(JSON.parse(JSON.stringify(seed)));
+      } else {
+        this.saveStore({
+          settings: {
+            companyName: "MaxEco Energy & Tech",
+            location: "Maligaon, Guwahati, Assam, Pin - 781011",
+            contactPhone: "+91 99544 93909",
+            contactEmail: "maxecoenergyit@gmail.com",
+            whatsappNumber: "919954493909",
+            adminPin: "maxeco2026",
+            currencySymbol: "₹",
+            taxReserveRate: 18,
+            solarTariffCommercial: 7.85,
+            solarTariffDomestic: 6.20,
+            solarGenPerKwp: 120,
+            bankAccountName: "Tamal Roy",
+            bankName: "Punjab National Bank",
+            bankAccountNo: "4589000100072219",
+            bankIfscCode: "PUNB0458900",
+            bankBranch: "Maligaon, Guwahati",
+            bankAccountType: "Saving Account",
+            paymentQrPath: "assets/payment-qr.png"
+          },
+          leads: [],
+          quotations: [],
+          invoices: [],
+          expenses: [],
+          drawings: [],
+          solarProjects: [],
+          itProjects: [],
+          procurements: [],
+          workOrders: [],
+          payments: [],
+          facilitySites: [],
+          facilityAssets: [],
+          serviceTickets: [],
+          amcContracts: [],
+          cafmOrganizations: [],
+          cafmPartsCatalog: [],
+          cafmAuditLog: []
+        });
+      }
+    } else {
+      // Automatic update if previously cached with placeholder contacts or missing ERP modules
+      try {
+        const seed = (typeof initialSeedData !== 'undefined') ? initialSeedData : 
+                     ((typeof window !== 'undefined' && window.initialSeedData) ? window.initialSeedData : 
+                     ((typeof global !== 'undefined' && global.initialSeedData) ? global.initialSeedData : null));
+        const parsed = JSON.parse(existing);
+        let updated = false;
+
+        if (parsed && parsed.settings && (parsed.settings.contactEmail === 'contact@maxeco.in' || parsed.settings.contactPhone === '+91 98765 43210')) {
+          parsed.settings.location = "Maligaon, Guwahati, Assam, Pin - 781011";
+          parsed.settings.contactPhone = "+91 99544 93909";
+          parsed.settings.contactEmail = "maxecoenergyit@gmail.com";
+          parsed.settings.whatsappNumber = "919954493909";
+          updated = true;
+        }
+
+        if (parsed && parsed.settings && !parsed.settings.bankAccountNo) {
+          parsed.settings.bankAccountName = "Tamal Roy";
+          parsed.settings.bankName = "Punjab National Bank";
+          parsed.settings.bankAccountNo = "4589000100072219";
+          parsed.settings.bankIfscCode = "PUNB0458900";
+          parsed.settings.bankBranch = "Maligaon, Guwahati";
+          parsed.settings.bankAccountType = "Saving Account";
+          parsed.settings.paymentQrPath = "assets/payment-qr.png";
+          updated = true;
+        }
+
+        // Migrate ERP Operations tables if absent
+        if (parsed && (!parsed.procurements || parsed.procurements.length === 0)) {
+          parsed.procurements = (seed && seed.procurements) ? JSON.parse(JSON.stringify(seed.procurements)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.workOrders || parsed.workOrders.length === 0)) {
+          parsed.workOrders = (seed && seed.workOrders) ? JSON.parse(JSON.stringify(seed.workOrders)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.payments || parsed.payments.length === 0)) {
+          parsed.payments = (seed && seed.payments) ? JSON.parse(JSON.stringify(seed.payments)) : [];
+          updated = true;
+        }
+
+        // Migrate CAFM Facilities Management tables if absent
+        if (parsed && (!parsed.cafmOrganizations || parsed.cafmOrganizations.length === 0)) {
+          parsed.cafmOrganizations = (seed && seed.cafmOrganizations) ? JSON.parse(JSON.stringify(seed.cafmOrganizations)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.facilitySites || parsed.facilitySites.length === 0)) {
+          parsed.facilitySites = (seed && seed.facilitySites) ? JSON.parse(JSON.stringify(seed.facilitySites)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.facilityAssets || parsed.facilityAssets.length === 0)) {
+          parsed.facilityAssets = (seed && seed.facilityAssets) ? JSON.parse(JSON.stringify(seed.facilityAssets)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.serviceTickets || parsed.serviceTickets.length === 0)) {
+          parsed.serviceTickets = (seed && seed.serviceTickets) ? JSON.parse(JSON.stringify(seed.serviceTickets)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.amcContracts || parsed.amcContracts.length === 0)) {
+          parsed.amcContracts = (seed && seed.amcContracts) ? JSON.parse(JSON.stringify(seed.amcContracts)) : [];
+          updated = true;
+        }
+        if (parsed && (!parsed.cafmPartsCatalog || parsed.cafmPartsCatalog.length === 0)) {
+          parsed.cafmPartsCatalog = (seed && seed.cafmPartsCatalog) ? JSON.parse(JSON.stringify(seed.cafmPartsCatalog)) : [];
+          updated = true;
+        }
+        if (parsed && !parsed.cafmAuditLog) {
+          parsed.cafmAuditLog = [];
+          updated = true;
+        }
+
+        // Backfill organizationId on cached sites if missing
+        if (parsed && parsed.facilitySites) {
+          parsed.facilitySites.forEach(s => {
+            if (!s.organizationId) {
+              if (s.id === 'SITE-2026-001') s.organizationId = 'ORG-2026-001';
+              else if (s.id === 'SITE-2026-002') s.organizationId = 'ORG-2026-002';
+              else if (s.id === 'SITE-2026-003') s.organizationId = 'ORG-2026-003';
+              else s.organizationId = 'ORG-2026-001';
+              updated = true;
+            }
+          });
+        }
+
+        // Backfill organizationId and QR payload on cached assets if missing
+        if (parsed && parsed.facilityAssets) {
+          parsed.facilityAssets.forEach(a => {
+            if (!a.organizationId) {
+              const matchedSite = (parsed.facilitySites || []).find(s => s.id === a.siteId);
+              a.organizationId = matchedSite ? matchedSite.organizationId : 'ORG-2026-001';
+              updated = true;
+            }
+            if (!a.qrCodePayload) {
+              a.qrCodePayload = `MAXECO-CAFM|${a.organizationId || 'ORG'}|${a.siteId || 'SITE'}|${a.id}|${a.serialNumber || 'SN'}`;
+              updated = true;
+            }
+          });
+        }
+
+        // Backfill checklist, partsUsed, notifications & SLA on cached tickets
+        if (parsed && parsed.serviceTickets) {
+          parsed.serviceTickets.forEach(t => {
+            if (!t.checklist) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.checklist = seedTicket && seedTicket.checklist ? JSON.parse(JSON.stringify(seedTicket.checklist)) : [];
+              updated = true;
+            }
+            if (!t.partsUsed) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.partsUsed = seedTicket && seedTicket.partsUsed ? JSON.parse(JSON.stringify(seedTicket.partsUsed)) : [];
+              updated = true;
+            }
+            if (!t.chargeableWork) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.chargeableWork = seedTicket && seedTicket.chargeableWork ? JSON.parse(JSON.stringify(seedTicket.chargeableWork)) : {
+                isChargeable: false, estimatedAmount: 0, scopeDescription: '', approvalStatus: 'N/A', approvalReference: '', approvedAt: null, approvedBy: null
+              };
+              updated = true;
+            }
+            if (!t.customerNotifications) {
+              const seedTicket = (seed && seed.serviceTickets) ? seed.serviceTickets.find(st => st.id === t.id) : null;
+              t.customerNotifications = seedTicket && seedTicket.customerNotifications ? JSON.parse(JSON.stringify(seedTicket.customerNotifications)) : [];
+              updated = true;
+            }
+            if (!t.slaTargetHours) {
+              t.slaTargetHours = t.priority === 'Critical' ? 4 : (t.priority === 'High' ? 12 : (t.priority === 'Normal' ? 48 : 72));
+              updated = true;
+            }
+            if (!t.slaStatus) {
+              t.slaStatus = 'Within SLA';
+              updated = true;
+            }
+          });
+        }
+
+        // Backfill scheduledVisits on cached AMC contracts
+        if (parsed && parsed.amcContracts) {
+          parsed.amcContracts.forEach(c => {
+            if (!c.scheduledVisits) {
+              const seedAmc = (seed && seed.amcContracts) ? seed.amcContracts.find(sc => sc.id === c.id) : null;
+              c.scheduledVisits = seedAmc && seedAmc.scheduledVisits ? JSON.parse(JSON.stringify(seedAmc.scheduledVisits)) : [];
+              updated = true;
+            }
+          });
+        }
+
+        if (updated) {
+          this.saveStore(parsed);
+        }
+      } catch (e) {
+        console.error('Error parsing existing storage', e);
+      }
+    }
+  }
+
+  getStore() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      console.error('Error reading localStorage', e);
+      return null;
+    }
+  }
+
+  saveStore(data) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return true;
+    } catch (e) {
+      console.error('Error writing to localStorage', e);
+      return false;
+    }
+  }
+
+  // --- SETTINGS ---
+  getSettings() {
+    const store = this.getStore();
+    return store ? store.settings : {};
+  }
+
+  saveSettings(newSettings) {
+    const store = this.getStore();
+    store.settings = { ...store.settings, ...newSettings };
+    this.saveStore(store);
+    return store.settings;
+  }
+
+  // --- LEADS ---
+  getLeads() {
+    const store = this.getStore();
+    return store && store.leads ? store.leads : [];
+  }
+
+  saveLead(lead) {
+    const store = this.getStore();
+    if (!lead.id) {
+      const timestamp = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const count = (store.leads.length + 1).toString().padStart(3, '0');
+      lead.id = `LEAD-${timestamp}-${count}`;
+      lead.createdAt = new Date().toISOString().slice(0, 10);
+      store.leads.unshift(lead);
+    } else {
+      const idx = store.leads.findIndex(l => l.id === lead.id);
+      if (idx !== -1) {
+        store.leads[idx] = { ...store.leads[idx], ...lead, updatedAt: new Date().toISOString().slice(0, 10) };
+      } else {
+        store.leads.unshift(lead);
+      }
+    }
+    this.saveStore(store);
+    return lead;
+  }
+
+  deleteLead(id) {
+    const store = this.getStore();
+    store.leads = store.leads.filter(l => l.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- QUOTATIONS ---
+  getQuotations() {
+    const store = this.getStore();
+    return store && store.quotations ? store.quotations : [];
+  }
+
+  saveQuotation(quote) {
+    const store = this.getStore();
+    if (!quote.id) {
+      const year = new Date().getFullYear();
+      const count = (store.quotations.length + 1).toString().padStart(3, '0');
+      quote.id = `QT-${year}-${count}`;
+      quote.date = quote.date || new Date().toISOString().slice(0, 10);
+      store.quotations.unshift(quote);
+    } else {
+      const idx = store.quotations.findIndex(q => q.id === quote.id);
+      if (idx !== -1) {
+        store.quotations[idx] = { ...store.quotations[idx], ...quote };
+      } else {
+        store.quotations.unshift(quote);
+      }
+    }
+    this.saveStore(store);
+    return quote;
+  }
+
+  deleteQuotation(id) {
+    const store = this.getStore();
+    store.quotations = store.quotations.filter(q => q.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- INVOICES ---
+  getInvoices() {
+    const store = this.getStore();
+    return store && store.invoices ? store.invoices : [];
+  }
+
+  saveInvoice(invoice) {
+    const store = this.getStore();
+    if (!invoice.id) {
+      const year = new Date().getFullYear();
+      const count = (store.invoices.length + 1).toString().padStart(3, '0');
+      invoice.id = `INV-${year}-${count}`;
+      invoice.date = invoice.date || new Date().toISOString().slice(0, 10);
+      invoice.amountCollected = invoice.amountCollected || 0;
+      invoice.status = invoice.amountCollected >= invoice.amountBilled ? 'Paid' : (invoice.amountCollected > 0 ? 'Partially Paid' : 'Sent');
+      store.invoices.unshift(invoice);
+    } else {
+      const idx = store.invoices.findIndex(inv => inv.id === invoice.id);
+      if (idx !== -1) {
+        store.invoices[idx] = { ...store.invoices[idx], ...invoice };
+      } else {
+        store.invoices.unshift(invoice);
+      }
+    }
+    this.saveStore(store);
+    return invoice;
+  }
+
+  recordInvoicePayment(invoiceId, paymentAmount, paymentMethod, referenceNo, paymentDate) {
+    const store = this.getStore();
+    const invoice = store.invoices.find(inv => inv.id === invoiceId);
+    if (!invoice) return null;
+
+    invoice.amountCollected = (Number(invoice.amountCollected) || 0) + Number(paymentAmount);
+    invoice.paymentMethod = paymentMethod || 'UPI / Bank Transfer';
+    invoice.referenceNo = referenceNo || '';
+    invoice.paymentDate = paymentDate || new Date().toISOString().slice(0, 10);
+
+    if (invoice.amountCollected >= invoice.amountBilled) {
+      invoice.status = 'Paid';
+    } else if (invoice.amountCollected > 0) {
+      invoice.status = 'Partially Paid';
+    }
+
+    this.saveStore(store);
+    return invoice;
+  }
+
+  deleteInvoice(id) {
+    const store = this.getStore();
+    store.invoices = (store.invoices || []).filter(inv => inv.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CUSTOMER PAYMENTS & RECEIPTS ---
+  getPayments() {
+    const store = this.getStore();
+    return store && store.payments ? store.payments : [];
+  }
+
+  recordCustomerPayment(invoiceId, paymentAmount, paymentMethod, referenceNo, paymentDate, notes) {
+    const store = this.getStore();
+    if (!store.payments) store.payments = [];
+    const invoice = (store.invoices || []).find(inv => inv.id === invoiceId);
+    if (!invoice) return null;
+
+    const amount = Number(paymentAmount) || 0;
+    invoice.amountCollected = (Number(invoice.amountCollected) || 0) + amount;
+    invoice.paymentMethod = paymentMethod || 'UPI / Bank Transfer';
+    invoice.referenceNo = referenceNo || '';
+    invoice.paymentDate = paymentDate || new Date().toISOString().slice(0, 10);
+
+    if (invoice.amountCollected >= invoice.amountBilled) {
+      invoice.status = 'Paid';
+    } else if (invoice.amountCollected > 0) {
+      invoice.status = 'Partially Paid';
+    }
+
+    const year = new Date().getFullYear();
+    const count = (store.payments.length + 1).toString().padStart(3, '0');
+    const paymentRecord = {
+      id: `REC-${year}-${count}`,
+      invoiceId: invoice.id,
+      clientName: invoice.clientName,
+      service: invoice.service,
+      amount: amount,
+      paymentMethod: invoice.paymentMethod,
+      referenceNo: invoice.referenceNo,
+      date: invoice.paymentDate,
+      balanceRemaining: Math.max(0, invoice.amountBilled - invoice.amountCollected),
+      notes: notes || 'Customer payment received and credited.'
+    };
+    store.payments.unshift(paymentRecord);
+    this.saveStore(store);
+    return { invoice, paymentRecord };
+  }
+
+  deletePayment(id) {
+    const store = this.getStore();
+    store.payments = (store.payments || []).filter(p => p.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- EXPENSES ---
+  getExpenses() {
+    const store = this.getStore();
+    return store && store.expenses ? store.expenses : [];
+  }
+
+  saveExpense(expense) {
+    const store = this.getStore();
+    if (!expense.id) {
+      const year = new Date().getFullYear();
+      const count = (store.expenses.length + 1).toString().padStart(3, '0');
+      expense.id = `EXP-${year}-${count}`;
+      expense.date = expense.date || new Date().toISOString().slice(0, 10);
+      store.expenses.unshift(expense);
+    } else {
+      const idx = store.expenses.findIndex(e => e.id === expense.id);
+      if (idx !== -1) {
+        store.expenses[idx] = { ...store.expenses[idx], ...expense };
+      } else {
+        store.expenses.unshift(expense);
+      }
+    }
+    this.saveStore(store);
+    return expense;
+  }
+
+  deleteExpense(id) {
+    const store = this.getStore();
+    store.expenses = store.expenses.filter(e => e.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- DRAWINGS (FOUNDER LIVING WITHDRAWALS) ---
+  getDrawings() {
+    const store = this.getStore();
+    return store && store.drawings ? store.drawings : [];
+  }
+
+  saveDrawing(drawing) {
+    const store = this.getStore();
+    if (!drawing.id) {
+      const year = new Date().getFullYear();
+      const count = (store.drawings.length + 1).toString().padStart(3, '0');
+      drawing.id = `DRW-${year}-${count}`;
+      drawing.date = drawing.date || new Date().toISOString().slice(0, 10);
+      store.drawings.unshift(drawing);
+    } else {
+      const idx = store.drawings.findIndex(d => d.id === drawing.id);
+      if (idx !== -1) {
+        store.drawings[idx] = { ...store.drawings[idx], ...drawing };
+      } else {
+        store.drawings.unshift(drawing);
+      }
+    }
+    this.saveStore(store);
+    return drawing;
+  }
+
+  deleteDrawing(id) {
+    const store = this.getStore();
+    store.drawings = store.drawings.filter(d => d.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- SOLAR PROJECTS ---
+  getSolarProjects() {
+    const store = this.getStore();
+    return store && store.solarProjects ? store.solarProjects : [];
+  }
+
+  saveSolarProject(project) {
+    const store = this.getStore();
+    if (!project.id) {
+      const year = new Date().getFullYear();
+      const count = (store.solarProjects.length + 1).toString().padStart(3, '0');
+      project.id = `SOL-${year}-${count}`;
+      store.solarProjects.unshift(project);
+    } else {
+      const idx = store.solarProjects.findIndex(p => p.id === project.id);
+      if (idx !== -1) {
+        store.solarProjects[idx] = { ...store.solarProjects[idx], ...project };
+      } else {
+        store.solarProjects.unshift(project);
+      }
+    }
+    this.saveStore(store);
+    return project;
+  }
+
+  updateSolarMilestone(projectId, milestoneIndex, newStatus) {
+    const store = this.getStore();
+    const proj = store.solarProjects.find(p => p.id === projectId);
+    if (proj && proj.milestones && proj.milestones[milestoneIndex]) {
+      proj.milestones[milestoneIndex].status = newStatus;
+      this.saveStore(store);
+      return proj;
+    }
+    return null;
+  }
+
+  deleteSolarProject(id) {
+    const store = this.getStore();
+    store.solarProjects = (store.solarProjects || []).filter(p => p.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- IT & WEB PROJECTS ---
+  getItProjects() {
+    const store = this.getStore();
+    return store && store.itProjects ? store.itProjects : [];
+  }
+
+  saveItProject(project) {
+    const store = this.getStore();
+    if (!project.id) {
+      const year = new Date().getFullYear();
+      const count = (store.itProjects.length + 1).toString().padStart(3, '0');
+      project.id = `IT-${year}-${count}`;
+      store.itProjects.unshift(project);
+    } else {
+      const idx = store.itProjects.findIndex(p => p.id === project.id);
+      if (idx !== -1) {
+        store.itProjects[idx] = { ...store.itProjects[idx], ...project };
+      } else {
+        store.itProjects.unshift(project);
+      }
+    }
+    this.saveStore(store);
+    return project;
+  }
+
+  updateItMilestone(projectId, milestoneIndex, newStatus) {
+    const store = this.getStore();
+    const proj = store.itProjects.find(p => p.id === projectId);
+    if (proj && proj.milestones && proj.milestones[milestoneIndex]) {
+      proj.milestones[milestoneIndex].status = newStatus;
+      this.saveStore(store);
+      return proj;
+    }
+    return null;
+  }
+
+  deleteItProject(id) {
+    const store = this.getStore();
+    store.itProjects = (store.itProjects || []).filter(p => p.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- ERP OPERATIONS: MATERIAL PROCUREMENTS (BOM) ---
+  getProcurements() {
+    const store = this.getStore();
+    return store && store.procurements ? store.procurements : [];
+  }
+
+  saveProcurement(proc) {
+    const store = this.getStore();
+    if (!store.procurements) store.procurements = [];
+    if (!proc.id) {
+      const year = new Date().getFullYear();
+      const count = (store.procurements.length + 1).toString().padStart(3, '0');
+      proc.id = `PO-${year}-${count}`;
+      proc.orderDate = proc.orderDate || new Date().toISOString().slice(0, 10);
+      store.procurements.unshift(proc);
+    } else {
+      const idx = store.procurements.findIndex(p => p.id === proc.id);
+      if (idx !== -1) {
+        store.procurements[idx] = { ...store.procurements[idx], ...proc };
+      } else {
+        store.procurements.unshift(proc);
+      }
+    }
+    this.saveStore(store);
+    return proc;
+  }
+
+  updateProcurementStatus(id, newStatus) {
+    const store = this.getStore();
+    const item = (store.procurements || []).find(p => p.id === id);
+    if (item) {
+      item.status = newStatus;
+      this.saveStore(store);
+      return item;
+    }
+    return null;
+  }
+
+  deleteProcurement(id) {
+    const store = this.getStore();
+    store.procurements = (store.procurements || []).filter(p => p.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- ERP OPERATIONS: FIELD WORK ORDERS & CONTRACTOR DISPATCH ---
+  getWorkOrders() {
+    const store = this.getStore();
+    return store && store.workOrders ? store.workOrders : [];
+  }
+
+  saveWorkOrder(wo) {
+    const store = this.getStore();
+    if (!store.workOrders) store.workOrders = [];
+    if (!wo.id) {
+      const year = new Date().getFullYear();
+      const count = (store.workOrders.length + 1).toString().padStart(3, '0');
+      wo.id = `WO-${year}-${count}`;
+      wo.scheduledDate = wo.scheduledDate || new Date().toISOString().slice(0, 10);
+      store.workOrders.unshift(wo);
+    } else {
+      const idx = store.workOrders.findIndex(w => w.id === wo.id);
+      if (idx !== -1) {
+        store.workOrders[idx] = { ...store.workOrders[idx], ...wo };
+      } else {
+        store.workOrders.unshift(wo);
+      }
+    }
+    this.saveStore(store);
+    return wo;
+  }
+
+  updateWorkOrderStatus(id, newStatus) {
+    const store = this.getStore();
+    const wo = (store.workOrders || []).find(w => w.id === id);
+    if (wo) {
+      wo.status = newStatus;
+      this.saveStore(store);
+      return wo;
+    }
+    return null;
+  }
+
+  deleteWorkOrder(id) {
+    const store = this.getStore();
+    store.workOrders = (store.workOrders || []).filter(w => w.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: CUSTOMER ORGANIZATIONS (MULTI-TENANT REGISTER) ---
+  getOrganizations() {
+    const store = this.getStore();
+    return store && store.cafmOrganizations ? store.cafmOrganizations : [];
+  }
+
+  getOrganizationById(id) {
+    const orgs = this.getOrganizations();
+    return orgs.find(o => o.id === id) || null;
+  }
+
+  saveOrganization(org) {
+    const store = this.getStore();
+    if (!store.cafmOrganizations) store.cafmOrganizations = [];
+    if (!org.id) {
+      const year = new Date().getFullYear();
+      const count = (store.cafmOrganizations.length + 1).toString().padStart(3, '0');
+      org.id = `ORG-${year}-${count}`;
+      org.status = org.status || 'Active';
+      store.cafmOrganizations.unshift(org);
+    } else {
+      const idx = store.cafmOrganizations.findIndex(o => o.id === org.id);
+      if (idx !== -1) {
+        store.cafmOrganizations[idx] = { ...store.cafmOrganizations[idx], ...org };
+      } else {
+        store.cafmOrganizations.unshift(org);
+      }
+    }
+    this.saveStore(store);
+    this.logAuditAction({
+      action: org.id ? 'UPDATE_ORGANIZATION' : 'CREATE_ORGANIZATION',
+      entityType: 'cafmOrganization',
+      entityId: org.id,
+      details: `Saved customer organization: ${org.name} (${org.id})`
+    });
+    return org;
+  }
+
+  deleteOrganization(id) {
+    const store = this.getStore();
+    store.cafmOrganizations = (store.cafmOrganizations || []).filter(o => o.id !== id);
+    this.saveStore(store);
+    this.logAuditAction({
+      action: 'DELETE_ORGANIZATION',
+      entityType: 'cafmOrganization',
+      entityId: id,
+      details: `Deleted customer organization: ${id}`
+    });
+  }
+
+  // --- CAFM: TENANT-SCOPED QUERIES ---
+  getSitesByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getFacilitySites();
+    return this.getFacilitySites().filter(s => s.organizationId === orgId);
+  }
+
+  getAssetsByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getFacilityAssets();
+    return this.getFacilityAssets().filter(a => a.organizationId === orgId);
+  }
+
+  getTicketsByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getServiceTickets();
+    return this.getServiceTickets().filter(t => t.organizationId === orgId);
+  }
+
+  getAmcsByOrganization(orgId) {
+    if (!orgId || orgId === 'all') return this.getAmcContracts();
+    return this.getAmcContracts().filter(c => c.organizationId === orgId);
+  }
+
+  // --- CAFM: AUDIT LOG JOURNAL ---
+  logAuditAction(entry) {
+    try {
+      const store = this.getStore();
+      if (!store) return;
+      if (!store.cafmAuditLog) store.cafmAuditLog = [];
+      const id = `AUD-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
+      const logItem = {
+        id,
+        timestamp: new Date().toISOString(),
+        user: entry.user || 'Tamal Roy (Admin)',
+        role: entry.role || 'Administrator',
+        action: entry.action || 'GENERAL_ACTION',
+        entityType: entry.entityType || 'system',
+        entityId: entry.entityId || '',
+        details: entry.details || ''
+      };
+      store.cafmAuditLog.unshift(logItem);
+      // Keep latest 250 log entries to bound storage size
+      if (store.cafmAuditLog.length > 250) {
+        store.cafmAuditLog = store.cafmAuditLog.slice(0, 250);
+      }
+      this.saveStore(store);
+      return logItem;
+    } catch (e) {
+      console.warn('Could not record audit log entry:', e);
+      return null;
+    }
+  }
+
+  getAuditLogs() {
+    const store = this.getStore();
+    return store && store.cafmAuditLog ? store.cafmAuditLog : [];
+  }
+
+  // --- CAFM: FACILITY SITES & PREMISES ---
+  getFacilitySites() {
+    const store = this.getStore();
+    return store && store.facilitySites ? store.facilitySites : [];
+  }
+
+  saveFacilitySite(site) {
+    const store = this.getStore();
+    if (!store.facilitySites) store.facilitySites = [];
+    if (!site.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilitySites.length + 1).toString().padStart(3, '0');
+      site.id = `SITE-${year}-${count}`;
+      site.createdAt = site.createdAt || new Date().toISOString().slice(0, 10);
+      store.facilitySites.unshift(site);
+    } else {
+      const idx = store.facilitySites.findIndex(s => s.id === site.id);
+      if (idx !== -1) {
+        store.facilitySites[idx] = { ...store.facilitySites[idx], ...site };
+      } else {
+        store.facilitySites.unshift(site);
+      }
+    }
+    this.saveStore(store);
+    return site;
+  }
+
+  deleteFacilitySite(id) {
+    const store = this.getStore();
+    store.facilitySites = (store.facilitySites || []).filter(s => s.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: FACILITY ASSETS & HARDWARE ---
+  getFacilityAssets() {
+    const store = this.getStore();
+    return store && store.facilityAssets ? store.facilityAssets : [];
+  }
+
+  saveFacilityAsset(asset) {
+    const store = this.getStore();
+    if (!store.facilityAssets) store.facilityAssets = [];
+    if (!asset.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilityAssets.length + 1).toString().padStart(3, '0');
+      asset.id = `AST-${year}-${count}`;
+      asset.installDate = asset.installDate || new Date().toISOString().slice(0, 10);
+      store.facilityAssets.unshift(asset);
+    } else {
+      const idx = store.facilityAssets.findIndex(a => a.id === asset.id);
+      if (idx !== -1) {
+        store.facilityAssets[idx] = { ...store.facilityAssets[idx], ...asset };
+      } else {
+        store.facilityAssets.unshift(asset);
+      }
+    }
+    this.saveStore(store);
+    return asset;
+  }
+
+  updateAssetStatus(id, newStatus) {
+    const store = this.getStore();
+    const asset = (store.facilityAssets || []).find(a => a.id === id);
+    if (asset) {
+      asset.status = newStatus;
+      this.saveStore(store);
+      return asset;
+    }
+    return null;
+  }
+
+  deleteFacilityAsset(id) {
+    const store = this.getStore();
+    store.facilityAssets = (store.facilityAssets || []).filter(a => a.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: SERVICE TICKETS & MAINTENANCE HELPDESK ---
+  getServiceTickets() {
+    const store = this.getStore();
+    return store && store.serviceTickets ? store.serviceTickets : [];
+  }
+
+  saveServiceTicket(ticket) {
+    const store = this.getStore();
+    if (!store.serviceTickets) store.serviceTickets = [];
+    if (!ticket.id) {
+      const year = new Date().getFullYear();
+      const count = (store.serviceTickets.length + 1).toString().padStart(3, '0');
+      ticket.id = `TCK-${year}-${count}`;
+      ticket.reportedDate = ticket.reportedDate || new Date().toISOString().slice(0, 10);
+      ticket.status = ticket.status || 'Open';
+      ticket.checklist = ticket.checklist || [];
+      ticket.partsUsed = ticket.partsUsed || [];
+      ticket.customerNotifications = ticket.customerNotifications || [];
+      ticket.chargeableWork = ticket.chargeableWork || {
+        isChargeable: false, estimatedAmount: 0, scopeDescription: '', approvalStatus: 'N/A', approvalReference: '', approvedAt: null, approvedBy: null
+      };
+      ticket.slaTargetHours = ticket.slaTargetHours || (ticket.priority === 'Critical' ? 4 : (ticket.priority === 'High' ? 12 : 48));
+      ticket.slaStatus = ticket.slaStatus || 'Within SLA';
+      store.serviceTickets.unshift(ticket);
+    } else {
+      const idx = store.serviceTickets.findIndex(t => t.id === ticket.id);
+      if (idx !== -1) {
+        store.serviceTickets[idx] = { ...store.serviceTickets[idx], ...ticket };
+      } else {
+        store.serviceTickets.unshift(ticket);
+      }
+    }
+    this.saveStore(store);
+    return ticket;
+  }
+
+  updateServiceTicketStatus(id, newStatus, resolutionNotes = null) {
+    const store = this.getStore();
+    const ticket = (store.serviceTickets || []).find(t => t.id === id);
+    if (ticket) {
+      ticket.status = newStatus;
+      if (resolutionNotes) ticket.resolutionNotes = resolutionNotes;
+      if (newStatus === 'Resolved' || newStatus === 'Closed') {
+        ticket.resolvedDate = new Date().toISOString().slice(0, 10);
+      }
+      this.saveStore(store);
+      return ticket;
+    }
+    return null;
+  }
+
+  deleteServiceTicket(id) {
+    const store = this.getStore();
+    store.serviceTickets = (store.serviceTickets || []).filter(t => t.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: SPARE PARTS & CONSUMABLES CATALOG ---
+  getPartsCatalog() {
+    const store = this.getStore();
+    return store && store.cafmPartsCatalog ? store.cafmPartsCatalog : [];
+  }
+
+  getPartById(id) {
+    return this.getPartsCatalog().find(p => p.id === id) || null;
+  }
+
+  savePart(part) {
+    const store = this.getStore();
+    if (!store.cafmPartsCatalog) store.cafmPartsCatalog = [];
+    if (!part.id) {
+      const count = (store.cafmPartsCatalog.length + 1).toString().padStart(3, '0');
+      part.id = `PRT-${count}`;
+      store.cafmPartsCatalog.push(part);
+    } else {
+      const idx = store.cafmPartsCatalog.findIndex(p => p.id === part.id);
+      if (idx !== -1) {
+        store.cafmPartsCatalog[idx] = { ...store.cafmPartsCatalog[idx], ...part };
+      } else {
+        store.cafmPartsCatalog.push(part);
+      }
+    }
+    this.saveStore(store);
+    return part;
+  }
+
+  deletePart(id) {
+    const store = this.getStore();
+    store.cafmPartsCatalog = (store.cafmPartsCatalog || []).filter(p => p.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM: ANNUAL MAINTENANCE CONTRACTS (AMC) ---
+  getAmcContracts() {
+    const store = this.getStore();
+    return store && store.amcContracts ? store.amcContracts : [];
+  }
+
+  saveAmcContract(amc) {
+    const store = this.getStore();
+    if (!store.amcContracts) store.amcContracts = [];
+    if (!amc.id) {
+      const year = new Date().getFullYear();
+      const count = (store.amcContracts.length + 1).toString().padStart(3, '0');
+      amc.id = `AMC-${year}-${count}`;
+      amc.status = amc.status || 'Active';
+      store.amcContracts.unshift(amc);
+    } else {
+      const idx = store.amcContracts.findIndex(a => a.id === amc.id);
+      if (idx !== -1) {
+        store.amcContracts[idx] = { ...store.amcContracts[idx], ...amc };
+      } else {
+        store.amcContracts.unshift(amc);
+      }
+    }
+    this.saveStore(store);
+    return amc;
+  }
+
+  updateAmcStatus(id, newStatus) {
+    const store = this.getStore();
+    const amc = (store.amcContracts || []).find(a => a.id === id);
+    if (amc) {
+      amc.status = newStatus;
+      this.saveStore(store);
+      return amc;
+    }
+    return null;
+  }
+
+  deleteAmcContract(id) {
+    const store = this.getStore();
+    store.amcContracts = (store.amcContracts || []).filter(a => a.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM PHASE 3: SPACES & ROOM RECORDS ---
+  getFacilitySpaces() {
+    const store = this.getStore();
+    return store && store.facilitySpaces ? store.facilitySpaces : [];
+  }
+
+  getFacilitySpacesByOrg(orgId) {
+    if (!orgId || orgId === 'all') return this.getFacilitySpaces();
+    return this.getFacilitySpaces().filter(s => s.organizationId === orgId);
+  }
+
+  getFacilitySpacesBySite(siteId) {
+    if (!siteId || siteId === 'all') return this.getFacilitySpaces();
+    return this.getFacilitySpaces().filter(s => s.siteId === siteId);
+  }
+
+  saveFacilitySpace(space) {
+    const store = this.getStore();
+    if (!store.facilitySpaces) store.facilitySpaces = [];
+    if (!space.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilitySpaces.length + 1).toString().padStart(3, '0');
+      space.id = `SPC-${year}-${count}`;
+      store.facilitySpaces.unshift(space);
+    } else {
+      const idx = store.facilitySpaces.findIndex(s => s.id === space.id);
+      if (idx !== -1) {
+        store.facilitySpaces[idx] = { ...store.facilitySpaces[idx], ...space };
+      } else {
+        store.facilitySpaces.unshift(space);
+      }
+    }
+    this.saveStore(store);
+    return space;
+  }
+
+  deleteFacilitySpace(id) {
+    const store = this.getStore();
+    store.facilitySpaces = (store.facilitySpaces || []).filter(s => s.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM PHASE 3: VENDORS & CONTRACTORS ---
+  getFacilityVendors() {
+    const store = this.getStore();
+    return store && store.facilityVendors ? store.facilityVendors : [];
+  }
+
+  saveFacilityVendor(vendor) {
+    const store = this.getStore();
+    if (!store.facilityVendors) store.facilityVendors = [];
+    if (!vendor.id) {
+      const year = new Date().getFullYear();
+      const count = (store.facilityVendors.length + 1).toString().padStart(3, '0');
+      vendor.id = `VND-${year}-${count}`;
+      store.facilityVendors.unshift(vendor);
+    } else {
+      const idx = store.facilityVendors.findIndex(v => v.id === vendor.id);
+      if (idx !== -1) {
+        store.facilityVendors[idx] = { ...store.facilityVendors[idx], ...vendor };
+      } else {
+        store.facilityVendors.unshift(vendor);
+      }
+    }
+    this.saveStore(store);
+    return vendor;
+  }
+
+  deleteFacilityVendor(id) {
+    const store = this.getStore();
+    store.facilityVendors = (store.facilityVendors || []).filter(v => v.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM PHASE 3: ENERGY & UTILITY READINGS ---
+  getUtilityReadings() {
+    const store = this.getStore();
+    return store && store.utilityReadings ? store.utilityReadings : [];
+  }
+
+  getUtilityReadingsBySite(siteId) {
+    if (!siteId || siteId === 'all') return this.getUtilityReadings();
+    return this.getUtilityReadings().filter(u => u.siteId === siteId);
+  }
+
+  saveUtilityReading(reading) {
+    const store = this.getStore();
+    if (!store.utilityReadings) store.utilityReadings = [];
+    if (!reading.id) {
+      const year = new Date().getFullYear();
+      const count = (store.utilityReadings.length + 1).toString().padStart(3, '0');
+      reading.id = `UTL-${year}-${count}`;
+      reading.recordedAt = reading.recordedAt || new Date().toISOString().slice(0, 10);
+      store.utilityReadings.unshift(reading);
+    } else {
+      const idx = store.utilityReadings.findIndex(u => u.id === reading.id);
+      if (idx !== -1) {
+        store.utilityReadings[idx] = { ...store.utilityReadings[idx], ...reading };
+      } else {
+        store.utilityReadings.unshift(reading);
+      }
+    }
+    this.saveStore(store);
+    return reading;
+  }
+
+  deleteUtilityReading(id) {
+    const store = this.getStore();
+    store.utilityReadings = (store.utilityReadings || []).filter(u => u.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- CAFM PHASE 3: STATUTORY & COMPLIANCE RECORDS ---
+  getComplianceRecords() {
+    const store = this.getStore();
+    return store && store.complianceRecords ? store.complianceRecords : [];
+  }
+
+  getComplianceRecordsBySite(siteId) {
+    if (!siteId || siteId === 'all') return this.getComplianceRecords();
+    return this.getComplianceRecords().filter(c => c.siteId === siteId);
+  }
+
+  saveComplianceRecord(record) {
+    const store = this.getStore();
+    if (!store.complianceRecords) store.complianceRecords = [];
+    if (!record.id) {
+      const year = new Date().getFullYear();
+      const count = (store.complianceRecords.length + 1).toString().padStart(3, '0');
+      record.id = `CMP-${year}-${count}`;
+      store.complianceRecords.unshift(record);
+    } else {
+      const idx = store.complianceRecords.findIndex(c => c.id === record.id);
+      if (idx !== -1) {
+        store.complianceRecords[idx] = { ...store.complianceRecords[idx], ...record };
+      } else {
+        store.complianceRecords.unshift(record);
+      }
+    }
+    this.saveStore(store);
+    return record;
+  }
+
+  deleteComplianceRecord(id) {
+    const store = this.getStore();
+    store.complianceRecords = (store.complianceRecords || []).filter(c => c.id !== id);
+    this.saveStore(store);
+  }
+
+  // --- BACKUP, RESTORE & DATA PERSISTENCE ---
+  exportFullDatabase() {
+    const store = this.getStore();
+    if (!store) return null;
+    return {
+      meta: {
+        app: "MaxEco Energy & Tech Business Operating System",
+        version: "2.0.0",
+        schemaVersion: "2026-10-15",
+        exportedAt: new Date().toISOString(),
+        format: "application/json",
+        recordsSummary: this.getDatabaseStats(store)
+      },
+      data: store
+    };
+  }
+
+  exportJsonBackup() {
+    const payload = this.exportFullDatabase();
+    if (!payload) {
+      if (typeof showToast === 'function') showToast('Failed to export: database is empty.', 'error');
+      return false;
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `maxeco-erp-backup-${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    if (typeof showToast === 'function') {
+      showToast(`Database backup downloaded: maxeco-erp-backup-${dateStr}.json`, 'success');
+    }
+    return true;
+  }
+
+  importJsonBackup(jsonStringOrObject) {
+    try {
+      let parsed = jsonStringOrObject;
+      if (typeof jsonStringOrObject === 'string') {
+        parsed = JSON.parse(jsonStringOrObject);
+      }
+
+      // Support either { meta, data: store } or direct store
+      const store = (parsed && parsed.data && typeof parsed.data === 'object') ? parsed.data : parsed;
+
+      if (!store || typeof store !== 'object') {
+        throw new Error('Invalid backup file: root must be a JSON object.');
+      }
+
+      if (!store.settings && !store.leads) {
+        throw new Error('Invalid backup schema: missing settings and leads.');
+      }
+
+      // Ensure all expected collections exist
+      const collections = [
+        'leads', 'quotations', 'invoices', 'expenses', 'drawings',
+        'solarProjects', 'itProjects', 'procurements', 'workOrders', 'payments',
+        'facilitySites', 'facilityAssets', 'serviceTickets', 'amcContracts',
+        'cafmOrganizations', 'cafmPartsCatalog', 'cafmAuditLog',
+        'facilitySpaces', 'facilityVendors', 'utilityReadings', 'complianceRecords'
+      ];
+      collections.forEach(col => {
+        if (!Array.isArray(store[col])) {
+          store[col] = [];
+        }
+      });
+
+      this.saveStore(store);
+      return true;
+    } catch (e) {
+      console.error('Import failed', e);
+      return false;
+    }
+  }
+
+  importFullDatabase(jsonStringOrObject) {
+    const success = this.importJsonBackup(jsonStringOrObject);
+    if (success) {
+      const stats = this.getDatabaseStats();
+      if (typeof showToast === 'function') {
+        showToast(`Database restored successfully! (${stats.invoices} invoices, ${stats.leads} leads, ${stats.serviceTickets} tickets)`, 'success');
+      }
+      return { success: true, stats };
+    }
+    if (typeof showToast === 'function') {
+      showToast('Database restore failed: invalid backup file.', 'error');
+    }
+    return { success: false, error: 'Invalid backup format' };
+  }
+
+  getDatabaseStats(customStore = null) {
+    const s = customStore || this.getStore() || {};
+    return {
+      leads: (s.leads || []).length,
+      quotations: (s.quotations || []).length,
+      invoices: (s.invoices || []).length,
+      expenses: (s.expenses || []).length,
+      drawings: (s.drawings || []).length,
+      solarProjects: (s.solarProjects || []).length,
+      itProjects: (s.itProjects || []).length,
+      procurements: (s.procurements || []).length,
+      workOrders: (s.workOrders || []).length,
+      payments: (s.payments || []).length,
+      facilitySites: (s.facilitySites || []).length,
+      facilityAssets: (s.facilityAssets || []).length,
+      serviceTickets: (s.serviceTickets || []).length,
+      amcContracts: (s.amcContracts || []).length,
+      cafmOrganizations: (s.cafmOrganizations || []).length,
+      cafmPartsCatalog: (s.cafmPartsCatalog || []).length,
+      cafmAuditLog: (s.cafmAuditLog || []).length,
+      facilitySpaces: (s.facilitySpaces || []).length,
+      facilityVendors: (s.facilityVendors || []).length,
+      utilityReadings: (s.utilityReadings || []).length,
+      complianceRecords: (s.complianceRecords || []).length
+    };
+  }
+
+  triggerRestoreFilePicker() {
+    let input = document.getElementById('global-restore-file-input');
+    if (!input) {
+      input = document.createElement('input');
+      input.type = 'file';
+      input.id = 'global-restore-file-input';
+      input.accept = '.json';
+      input.style.display = 'none';
+      input.onchange = (e) => this.handleRestoreFile(e);
+      document.body.appendChild(input);
+    }
+    input.value = '';
+    input.click();
+  }
+
+  handleRestoreFile(event) {
+    const file = event.target && event.target.files ? event.target.files[0] : null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      const res = this.importFullDatabase(content);
+      if (res.success && typeof window !== 'undefined' && window.app) {
+        window.app.handleRoute();
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // --- CLOUD DATABASE CONNECTOR CONFIGURATION ---
+  saveCloudSyncConfig(config) {
+    try {
+      localStorage.setItem('maxeco_cloud_sync_config', JSON.stringify(config));
+      return true;
+    } catch (e) {
+      console.error('Failed to save cloud sync config', e);
+      return false;
+    }
+  }
+
+  getCloudSyncConfig() {
+    try {
+      const raw = localStorage.getItem('maxeco_cloud_sync_config');
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async syncToCloud() {
+    const config = this.getCloudSyncConfig();
+    if (!config || !config.endpointUrl) {
+      if (typeof showToast === 'function') showToast('Cloud sync not configured. Please add API URL in Settings.', 'warning');
+      return { success: false, message: 'Cloud sync not configured' };
+    }
+    try {
+      const payload = this.exportFullDatabase();
+      const headers = { 'Content-Type': 'application/json' };
+      if (config.apiKey) {
+        headers['apikey'] = config.apiKey;
+        headers['Authorization'] = `Bearer ${config.apiKey}`;
+      }
+      const response = await fetch(config.endpointUrl, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        throw new Error(`Cloud sync responded with status ${response.status}`);
+      }
+      if (typeof showToast === 'function') showToast('Data synchronized to cloud successfully!', 'success');
+      return { success: true };
+    } catch (e) {
+      console.error('Cloud sync error:', e);
+      if (typeof showToast === 'function') showToast(`Cloud sync failed: ${e.message}`, 'error');
+      return { success: false, error: e.message };
+    }
+  }
+
+  async syncFromCloud() {
+    const config = this.getCloudSyncConfig();
+    if (!config || !config.endpointUrl) {
+      if (typeof showToast === 'function') showToast('Cloud sync not configured. Please add API URL in Settings.', 'warning');
+      return { success: false, message: 'Cloud sync not configured' };
+    }
+    try {
+      const headers = {};
+      if (config.apiKey) {
+        headers['apikey'] = config.apiKey;
+        headers['Authorization'] = `Bearer ${config.apiKey}`;
+      }
+      const response = await fetch(config.endpointUrl, { headers });
+      if (!response.ok) {
+        throw new Error(`Cloud responded with status ${response.status}`);
+      }
+      const data = await response.json();
+      const res = this.importFullDatabase(data);
+      if (res.success && typeof window !== 'undefined' && window.app) {
+        window.app.handleRoute();
+      }
+      return res;
+    } catch (e) {
+      console.error('Cloud pull error:', e);
+      if (typeof showToast === 'function') showToast(`Cloud pull failed: ${e.message}`, 'error');
+      return { success: false, error: e.message };
+    }
+  }
+
+  resetToInitialData() {
+    if (typeof initialSeedData !== 'undefined') {
+      this.saveStore(initialSeedData);
+      return true;
+    }
+    return false;
+  }
+
+  // --- CSV EXPORT FOR CA / ACCOUNTS / OPERATIONS ---
+  exportCsv(entityType) {
+    const store = this.getStore();
+    let csvContent = "";
+    let filename = `maxeco-${entityType}-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    if (entityType === 'invoices') {
+      csvContent = "Invoice ID,Client Name,Service,Date,Due Date,Amount Billed (INR),Amount Collected (INR),Status,Payment Date,Payment Method,Reference No\n";
+      (store.invoices || []).forEach(inv => {
+        csvContent += `"${inv.id}","${inv.clientName}","${inv.service}","${inv.date}","${inv.dueDate}",${inv.amountBilled},${inv.amountCollected},"${inv.status}","${inv.paymentDate || ''}","${inv.paymentMethod || ''}","${inv.referenceNo || ''}"\n`;
+      });
+    } else if (entityType === 'expenses') {
+      csvContent = "Expense ID,Date,Category,Description,Amount (INR),Paid To,Linked Project,Payment Method\n";
+      (store.expenses || []).forEach(exp => {
+        csvContent += `"${exp.id}","${exp.date}","${exp.category}","${exp.description.replace(/"/g, '""')}",${exp.amount},"${exp.paidTo}","${exp.linkedProject || ''}","${exp.paymentMethod || ''}"\n`;
+      });
+    } else if (entityType === 'leads') {
+      csvContent = "Lead ID,Name,Contact Person,Phone,Email,Location,Customer Type,Service,Source,Estimated Value (INR),Stage,Last Contact,Next Follow Up,Next Action\n";
+      (store.leads || []).forEach(l => {
+        csvContent += `"${l.id}","${l.name}","${l.contactPerson || ''}","${l.phone}","${l.email || ''}","${l.location || ''}","${l.customerType || ''}","${l.service}","${l.source || ''}",${l.estimatedValue || 0},"${l.stage}","${l.lastContactDate || ''}","${l.nextFollowUpDate || ''}","${(l.nextAction || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'procurements') {
+      csvContent = "PO ID,Project ID,Category,Item Name,Supplier,Quantity,Estimated Cost (INR),Actual Cost (INR),Order Date,Target Delivery,Status,Invoice Ref,Notes\n";
+      (store.procurements || []).forEach(p => {
+        csvContent += `"${p.id}","${p.projectId || ''}","${p.itemCategory}","${(p.itemName || '').replace(/"/g, '""')}","${(p.supplierName || '').replace(/"/g, '""')}","${p.quantity || ''}",${p.estimatedCost || 0},${p.actualCost || 0},"${p.orderDate || ''}","${p.targetDeliveryDate || ''}","${p.status}","${p.invoiceRef || ''}","${(p.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'workOrders') {
+      csvContent = "WO ID,Project ID,Work Title,Work Type,Assigned Contractor,Phone,Scheduled Date,Target Completion,Contractor Fee (INR),Safety Compliance,Status,Notes\n";
+      (store.workOrders || []).forEach(w => {
+        csvContent += `"${w.id}","${w.projectId || ''}","${(w.title || '').replace(/"/g, '""')}","${w.workType || ''}","${(w.assignedTo || '').replace(/"/g, '""')}","${w.contactPhone || ''}","${w.scheduledDate || ''}","${w.targetCompletionDate || ''}",${w.contractorFee || 0},"${(w.safetyCompliance || '').replace(/"/g, '""')}","${w.status}","${(w.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'payments') {
+      csvContent = "Receipt ID,Invoice ID,Client Name,Service,Amount Received (INR),Payment Method,Reference No,Date,Balance Remaining (INR),Notes\n";
+      (store.payments || []).forEach(p => {
+        csvContent += `"${p.id}","${p.invoiceId || ''}","${p.clientName}","${(p.service || '').replace(/"/g, '""')}",${p.amount || 0},"${p.paymentMethod || ''}","${p.referenceNo || ''}","${p.date || ''}",${p.balanceRemaining || 0},"${(p.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'cafmOrganizations') {
+      csvContent = "Organization ID,Organization Name,Type,Industry,Contact Person,Phone,Email,Billing Address,GSTIN,Status,Notes\n";
+      (store.cafmOrganizations || []).forEach(o => {
+        csvContent += `"${o.id}","${(o.name || '').replace(/"/g, '""')}","${o.type || ''}","${o.industry || ''}","${(o.contactPerson || '').replace(/"/g, '""')}","${o.phone || ''}","${o.email || ''}","${(o.billingAddress || '').replace(/"/g, '""')}","${o.gstin || ''}","${o.status || ''}","${(o.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'facilitySites') {
+      csvContent = "Site ID,Organization ID,Facility Name,Client Name,Site Type,Location,Contact Person,Phone,APDCL Consumer No,Sanctioned Load (kW),Solar Capacity (kWp),IT Scope,Status\n";
+      (store.facilitySites || []).forEach(s => {
+        csvContent += `"${s.id}","${s.organizationId || ''}","${(s.name || '').replace(/"/g, '""')}","${(s.clientName || '').replace(/"/g, '""')}","${s.siteType || ''}","${(s.location || '').replace(/"/g, '""')}","${s.contactPerson || ''}","${s.contactPhone || ''}","${s.apdclConsumerNo || ''}",${s.sanctionedLoadKw || 0},${s.solarCapacityKwp || 0},"${(s.itScope || '').replace(/"/g, '""')}","${s.status || ''}"\n`;
+      });
+    } else if (entityType === 'facilityAssets') {
+      csvContent = "Asset ID,Organization ID,Site ID,Category,Asset Name,Model Number,Serial Number,Install Date,Warranty Expiry,Criticality,Maintenance Cycle (Days),Last Serviced,Next Service Due,Status,Notes\n";
+      (store.facilityAssets || []).forEach(a => {
+        csvContent += `"${a.id}","${a.organizationId || ''}","${a.siteId || ''}","${a.category || ''}","${(a.name || '').replace(/"/g, '""')}","${a.modelNumber || ''}","${a.serialNumber || ''}","${a.installDate || ''}","${a.warrantyExpiry || ''}","${a.criticality || ''}",${a.maintenanceCycleDays || 0},"${a.lastServicedDate || ''}","${a.nextServiceDate || ''}","${a.status || ''}","${(a.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'serviceTickets') {
+      csvContent = "Ticket ID,Organization ID,Site ID,Asset ID,Title,Priority,Reported Date,Target Response Date,Assigned Tech,Status,Linked Work Order,Resolved Date,Description,Resolution Notes\n";
+      (store.serviceTickets || []).forEach(t => {
+        csvContent += `"${t.id}","${t.organizationId || ''}","${t.siteId || ''}","${t.assetId || ''}","${(t.title || '').replace(/"/g, '""')}","${t.priority || ''}","${t.reportedDate || ''}","${t.targetResponseDate || ''}","${(t.assignedTech || '').replace(/"/g, '""')}","${t.status || ''}","${t.workOrderId || ''}","${t.resolvedDate || ''}","${(t.issueDescription || '').replace(/"/g, '""')}","${(t.resolutionNotes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'amcContracts') {
+      csvContent = "AMC ID,Organization ID,Site ID,Title,Contract Type,Tier,Annual Fee (INR),Billing Frequency,SAC Code,Start Date,End Date,Next Billing Date,Renewal Reminder Days,Status,Terms\n";
+      (store.amcContracts || []).forEach(c => {
+        csvContent += `"${c.id}","${c.organizationId || ''}","${c.siteId || ''}","${(c.title || '').replace(/"/g, '""')}","${c.contractType || ''}","${c.tier || ''}",${c.annualFee || 0},"${c.billingFrequency || ''}","${c.sacCode || ''}","${c.startDate || ''}","${c.endDate || ''}","${c.nextBillingDate || ''}",${c.renewalReminderDays || 45},"${c.status || ''}","${(c.terms || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'cafmAuditLog') {
+      csvContent = "Log ID,Timestamp,User,Role,Action,Entity Type,Entity ID,Details\n";
+      (store.cafmAuditLog || []).forEach(l => {
+        csvContent += `"${l.id}","${l.timestamp}","${l.user}","${l.role}","${l.action}","${l.entityType}","${l.entityId}","${(l.details || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'cafmPartsCatalog') {
+      csvContent = "Part ID,Part Name,Category,Part Number,Unit Cost (INR),Stock Qty,Unit,Compatible OEM\n";
+      (store.cafmPartsCatalog || []).forEach(p => {
+        csvContent += `"${p.id}","${(p.name || '').replace(/"/g, '""')}","${p.category || ''}","${p.partNumber || ''}",${p.unitCost || 0},${p.stockQuantity || 0},"${p.unit || ''}","${(p.compatibleOEM || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'facilitySpaces') {
+      csvContent = "Space ID,Organization ID,Site ID,Building,Floor Level,Room/Zone,Area (Sq Ft),Occupancy Type,Status,Notes\n";
+      (store.facilitySpaces || []).forEach(s => {
+        csvContent += `"${s.id}","${s.organizationId || ''}","${s.siteId || ''}","${(s.buildingName || '').replace(/"/g, '""')}","${s.floorLevel || ''}","${(s.roomNumberOrName || '').replace(/"/g, '""')}",${s.areaSqFt || 0},"${s.occupancyType || ''}","${s.status || ''}","${(s.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'facilityVendors') {
+      csvContent = "Vendor ID,Vendor Name,Trade Category,Contact Person,Phone,Email,GSTIN,Status,Rating,SLA Response (Hours),Notes\n";
+      (store.facilityVendors || []).forEach(v => {
+        csvContent += `"${v.id}","${(v.name || '').replace(/"/g, '""')}","${v.tradeCategory || ''}","${(v.contactPerson || '').replace(/"/g, '""')}","${v.phone || ''}","${v.email || ''}","${v.gstin || ''}","${v.status || ''}",${v.rating || 0},${v.slaResponseHours || 0},"${(v.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'utilityReadings') {
+      csvContent = "Reading ID,Organization ID,Site ID,Billing Month,APDCL Consumer No,Grid Import (kWh),Solar Export (kWh),Net Billed (kWh),Peak Demand (kVA),Power Factor,Total Bill (INR),Recorded Date,Notes\n";
+      (store.utilityReadings || []).forEach(u => {
+        csvContent += `"${u.id}","${u.organizationId || ''}","${u.siteId || ''}","${u.billingMonth || ''}","${u.discomConsumerNo || ''}",${u.gridUnitsImportedKwh || 0},${u.solarUnitsExportedKwh || 0},${u.netUnitsBilledKwh || 0},${u.peakDemandKva || 0},${u.powerFactor || 0},${u.totalBillAmountInr || 0},"${u.recordedAt || ''}","${(u.notes || '').replace(/"/g, '""')}"\n`;
+      });
+    } else if (entityType === 'complianceRecords') {
+      csvContent = "Compliance ID,Organization ID,Site ID,Compliance Type,Certificate No,Inspecting Authority,Issue Date,Expiry Date,Status,Frequency (Months),Remarks\n";
+      (store.complianceRecords || []).forEach(c => {
+        csvContent += `"${c.id}","${c.organizationId || ''}","${c.siteId || ''}","${(c.complianceType || '').replace(/"/g, '""')}","${c.certificateNumber || ''}","${(c.inspectingAuthority || '').replace(/"/g, '""')}","${c.issueDate || ''}","${c.expiryDate || ''}","${c.status || ''}",${c.frequencyMonths || 0},"${(c.remarks || '').replace(/"/g, '""')}"\n`;
+      });
+    } else {
+      return false;
+    }
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    return true;
+  }
+}
+
+// Utility formatting helpers
+const formatINR = (val) => {
+  const num = Number(val) || 0;
+  return '₹' + num.toLocaleString('en-IN');
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '—';
+  try {
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
+  } catch (e) {
+    return dateStr;
+  }
+};
+
+window.StorageController = StorageController;
+window.storage = new StorageController();
+window.formatINR = formatINR;
+window.formatDate = formatDate;

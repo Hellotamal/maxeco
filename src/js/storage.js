@@ -1117,32 +1117,232 @@ class StorageController {
     this.saveStore(store);
   }
 
-  // --- BACKUP & RESTORE ---
+  // --- BACKUP, RESTORE & DATA PERSISTENCE ---
+  exportFullDatabase() {
+    const store = this.getStore();
+    if (!store) return null;
+    return {
+      meta: {
+        app: "MaxEco Energy & Tech Business Operating System",
+        version: "2.0.0",
+        schemaVersion: "2026-10-15",
+        exportedAt: new Date().toISOString(),
+        format: "application/json",
+        recordsSummary: this.getDatabaseStats(store)
+      },
+      data: store
+    };
+  }
+
   exportJsonBackup() {
-    const data = this.getStore();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const payload = this.exportFullDatabase();
+    if (!payload) {
+      if (typeof showToast === 'function') showToast('Failed to export: database is empty.', 'error');
+      return false;
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const dateStr = new Date().toISOString().slice(0, 10);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `maxeco-os-backup-${dateStr}.json`;
+    a.download = `maxeco-erp-backup-${dateStr}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    if (typeof showToast === 'function') {
+      showToast(`Database backup downloaded: maxeco-erp-backup-${dateStr}.json`, 'success');
+    }
+    return true;
   }
 
-  importJsonBackup(jsonString) {
+  importJsonBackup(jsonStringOrObject) {
     try {
-      const parsed = JSON.parse(jsonString);
-      if (!parsed.settings || !parsed.leads) {
-        throw new Error('Invalid MaxEco OS backup format');
+      let parsed = jsonStringOrObject;
+      if (typeof jsonStringOrObject === 'string') {
+        parsed = JSON.parse(jsonStringOrObject);
       }
-      this.saveStore(parsed);
+
+      // Support either { meta, data: store } or direct store
+      const store = (parsed && parsed.data && typeof parsed.data === 'object') ? parsed.data : parsed;
+
+      if (!store || typeof store !== 'object') {
+        throw new Error('Invalid backup file: root must be a JSON object.');
+      }
+
+      if (!store.settings && !store.leads) {
+        throw new Error('Invalid backup schema: missing settings and leads.');
+      }
+
+      // Ensure all expected collections exist
+      const collections = [
+        'leads', 'quotations', 'invoices', 'expenses', 'drawings',
+        'solarProjects', 'itProjects', 'procurements', 'workOrders', 'payments',
+        'facilitySites', 'facilityAssets', 'serviceTickets', 'amcContracts',
+        'cafmOrganizations', 'cafmPartsCatalog', 'cafmAuditLog',
+        'facilitySpaces', 'facilityVendors', 'utilityReadings', 'complianceRecords'
+      ];
+      collections.forEach(col => {
+        if (!Array.isArray(store[col])) {
+          store[col] = [];
+        }
+      });
+
+      this.saveStore(store);
       return true;
     } catch (e) {
       console.error('Import failed', e);
       return false;
+    }
+  }
+
+  importFullDatabase(jsonStringOrObject) {
+    const success = this.importJsonBackup(jsonStringOrObject);
+    if (success) {
+      const stats = this.getDatabaseStats();
+      if (typeof showToast === 'function') {
+        showToast(`Database restored successfully! (${stats.invoices} invoices, ${stats.leads} leads, ${stats.serviceTickets} tickets)`, 'success');
+      }
+      return { success: true, stats };
+    }
+    if (typeof showToast === 'function') {
+      showToast('Database restore failed: invalid backup file.', 'error');
+    }
+    return { success: false, error: 'Invalid backup format' };
+  }
+
+  getDatabaseStats(customStore = null) {
+    const s = customStore || this.getStore() || {};
+    return {
+      leads: (s.leads || []).length,
+      quotations: (s.quotations || []).length,
+      invoices: (s.invoices || []).length,
+      expenses: (s.expenses || []).length,
+      drawings: (s.drawings || []).length,
+      solarProjects: (s.solarProjects || []).length,
+      itProjects: (s.itProjects || []).length,
+      procurements: (s.procurements || []).length,
+      workOrders: (s.workOrders || []).length,
+      payments: (s.payments || []).length,
+      facilitySites: (s.facilitySites || []).length,
+      facilityAssets: (s.facilityAssets || []).length,
+      serviceTickets: (s.serviceTickets || []).length,
+      amcContracts: (s.amcContracts || []).length,
+      cafmOrganizations: (s.cafmOrganizations || []).length,
+      cafmPartsCatalog: (s.cafmPartsCatalog || []).length,
+      cafmAuditLog: (s.cafmAuditLog || []).length,
+      facilitySpaces: (s.facilitySpaces || []).length,
+      facilityVendors: (s.facilityVendors || []).length,
+      utilityReadings: (s.utilityReadings || []).length,
+      complianceRecords: (s.complianceRecords || []).length
+    };
+  }
+
+  triggerRestoreFilePicker() {
+    let input = document.getElementById('global-restore-file-input');
+    if (!input) {
+      input = document.createElement('input');
+      input.type = 'file';
+      input.id = 'global-restore-file-input';
+      input.accept = '.json';
+      input.style.display = 'none';
+      input.onchange = (e) => this.handleRestoreFile(e);
+      document.body.appendChild(input);
+    }
+    input.value = '';
+    input.click();
+  }
+
+  handleRestoreFile(event) {
+    const file = event.target && event.target.files ? event.target.files[0] : null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      const res = this.importFullDatabase(content);
+      if (res.success && typeof window !== 'undefined' && window.app) {
+        window.app.handleRoute();
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  // --- CLOUD DATABASE CONNECTOR CONFIGURATION ---
+  saveCloudSyncConfig(config) {
+    try {
+      localStorage.setItem('maxeco_cloud_sync_config', JSON.stringify(config));
+      return true;
+    } catch (e) {
+      console.error('Failed to save cloud sync config', e);
+      return false;
+    }
+  }
+
+  getCloudSyncConfig() {
+    try {
+      const raw = localStorage.getItem('maxeco_cloud_sync_config');
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async syncToCloud() {
+    const config = this.getCloudSyncConfig();
+    if (!config || !config.endpointUrl) {
+      if (typeof showToast === 'function') showToast('Cloud sync not configured. Please add API URL in Settings.', 'warning');
+      return { success: false, message: 'Cloud sync not configured' };
+    }
+    try {
+      const payload = this.exportFullDatabase();
+      const headers = { 'Content-Type': 'application/json' };
+      if (config.apiKey) {
+        headers['apikey'] = config.apiKey;
+        headers['Authorization'] = `Bearer ${config.apiKey}`;
+      }
+      const response = await fetch(config.endpointUrl, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        throw new Error(`Cloud sync responded with status ${response.status}`);
+      }
+      if (typeof showToast === 'function') showToast('Data synchronized to cloud successfully!', 'success');
+      return { success: true };
+    } catch (e) {
+      console.error('Cloud sync error:', e);
+      if (typeof showToast === 'function') showToast(`Cloud sync failed: ${e.message}`, 'error');
+      return { success: false, error: e.message };
+    }
+  }
+
+  async syncFromCloud() {
+    const config = this.getCloudSyncConfig();
+    if (!config || !config.endpointUrl) {
+      if (typeof showToast === 'function') showToast('Cloud sync not configured. Please add API URL in Settings.', 'warning');
+      return { success: false, message: 'Cloud sync not configured' };
+    }
+    try {
+      const headers = {};
+      if (config.apiKey) {
+        headers['apikey'] = config.apiKey;
+        headers['Authorization'] = `Bearer ${config.apiKey}`;
+      }
+      const response = await fetch(config.endpointUrl, { headers });
+      if (!response.ok) {
+        throw new Error(`Cloud responded with status ${response.status}`);
+      }
+      const data = await response.json();
+      const res = this.importFullDatabase(data);
+      if (res.success && typeof window !== 'undefined' && window.app) {
+        window.app.handleRoute();
+      }
+      return res;
+    } catch (e) {
+      console.error('Cloud pull error:', e);
+      if (typeof showToast === 'function') showToast(`Cloud pull failed: ${e.message}`, 'error');
+      return { success: false, error: e.message };
     }
   }
 

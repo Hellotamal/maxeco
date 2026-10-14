@@ -64,17 +64,34 @@ class AppController {
   }
 
   handleRoute() {
-    const hash = window.location.hash.replace('#', '') || 'home';
+    const isErpApp = (typeof window !== 'undefined' && (window.location.pathname.includes('/erp') || !!document.getElementById('erp-login-gateway')));
+    let hash = window.location.hash.replace('#', '');
+    if (!hash) {
+      hash = isErpApp ? 'dashboard' : 'home';
+    }
+
     const privateViews = ['dashboard', 'leads', 'quotes-invoices', 'finance', 'projects', 'settings', 'solar-feasibility', 'cafm'];
 
     if (privateViews.includes(hash)) {
       if (!this.isAuthenticated) {
-        this.openPinModal(hash);
+        if (isErpApp) {
+          this.showErpLoginGateway(hash);
+        } else {
+          this.openPinModal(hash);
+        }
         return;
       }
       this.showView(hash, true);
     } else {
-      this.showView(hash, false);
+      if (isErpApp) {
+        if (!this.isAuthenticated) {
+          this.showErpLoginGateway('dashboard');
+        } else {
+          this.showView('dashboard', true);
+        }
+      } else {
+        this.showView(hash, false);
+      }
     }
   }
 
@@ -85,6 +102,8 @@ class AppController {
     // Toggle public vs private containers
     const publicContainer = document.getElementById('public-portal');
     const privateContainer = document.getElementById('private-dashboard');
+    const erpAuthView = document.getElementById('erp-authenticated-view');
+    const erpGateway = document.getElementById('erp-login-gateway');
     const navLinks = document.querySelectorAll('.nav-link');
 
     navLinks.forEach(link => {
@@ -93,6 +112,8 @@ class AppController {
     });
 
     if (isPrivate) {
+      if (erpGateway) erpGateway.classList.add('hidden');
+      if (erpAuthView) erpAuthView.classList.remove('hidden');
       if (publicContainer) publicContainer.classList.add('hidden');
       if (privateContainer) privateContainer.classList.remove('hidden');
 
@@ -122,22 +143,68 @@ class AppController {
     const authBtn = document.getElementById('btn-auth-toggle');
     if (!authBtn) return;
 
+    const isErpApp = (typeof window !== 'undefined' && (window.location.pathname.includes('/erp') || !!document.getElementById('erp-login-gateway')));
+
     if (this.isAuthenticated) {
-      authBtn.innerHTML = '🔒 Lock Founder OS';
+      authBtn.innerHTML = isErpApp ? '🔒 Lock ERP' : '🔒 Lock Founder OS';
       authBtn.className = 'btn btn-secondary btn-sm';
       authBtn.onclick = () => this.lockSession();
       document.getElementById('private-nav-links')?.classList.remove('hidden');
       document.getElementById('public-nav-links')?.classList.add('hidden');
     } else {
-      authBtn.innerHTML = '🔑 Founder Login';
+      authBtn.innerHTML = isErpApp ? '🔑 ERP Login' : '🔑 Founder Login';
       authBtn.className = 'btn btn-secondary btn-sm';
-      authBtn.onclick = () => this.openPinModal('dashboard');
+      authBtn.onclick = () => isErpApp ? this.showErpLoginGateway('dashboard') : this.openPinModal('dashboard');
       document.getElementById('private-nav-links')?.classList.add('hidden');
       document.getElementById('public-nav-links')?.classList.remove('hidden');
     }
   }
 
-  // --- PIN GATE ---
+  // --- ERP LOGIN GATEWAY & PIN GATE ---
+  showErpLoginGateway(destination = 'dashboard') {
+    this.pendingDestination = destination;
+    const gateway = document.getElementById('erp-login-gateway');
+    const authView = document.getElementById('erp-authenticated-view');
+    const privateContainer = document.getElementById('private-dashboard');
+    const publicContainer = document.getElementById('public-portal');
+
+    if (gateway) gateway.classList.remove('hidden');
+    if (authView) authView.classList.add('hidden');
+    if (privateContainer) privateContainer.classList.add('hidden');
+    if (publicContainer) publicContainer.classList.add('hidden');
+
+    const pinInput = document.getElementById('erp-gateway-pin');
+    if (pinInput) {
+      pinInput.value = '';
+      pinInput.focus();
+    }
+    this.renderHeaderNav();
+  }
+
+  verifyPinFromGateway() {
+    const pinInput = document.getElementById('erp-gateway-pin');
+    const settings = window.storage.getSettings();
+    const targetPin = settings.adminPin || 'maxeco2026';
+
+    if (pinInput && pinInput.value === targetPin) {
+      this.isAuthenticated = true;
+      sessionStorage.setItem('maxeco_auth', 'true');
+      const gateway = document.getElementById('erp-login-gateway');
+      const authView = document.getElementById('erp-authenticated-view');
+      if (gateway) gateway.classList.add('hidden');
+      if (authView) authView.classList.remove('hidden');
+
+      showToast('Authenticated successfully. Welcome to MaxEco ERP.', 'success');
+      this.showView(this.pendingDestination || 'dashboard', true);
+    } else {
+      showToast('Incorrect security PIN. Access denied.', 'error');
+      if (pinInput) {
+        pinInput.value = '';
+        pinInput.focus();
+      }
+    }
+  }
+
   openPinModal(destination = 'dashboard') {
     this.pendingDestination = destination;
     const modal = document.getElementById('modal-pin');
@@ -174,8 +241,13 @@ class AppController {
   lockSession() {
     this.isAuthenticated = false;
     sessionStorage.removeItem('maxeco_auth');
-    showToast('Founder session locked. Business records protected.', 'info');
-    this.showView('home', false);
+    showToast('Session locked. Business records protected.', 'info');
+    const isErpApp = (typeof window !== 'undefined' && (window.location.pathname.includes('/erp') || !!document.getElementById('erp-login-gateway')));
+    if (isErpApp) {
+      this.showErpLoginGateway('dashboard');
+    } else {
+      this.showView('home', false);
+    }
   }
 
   closeAllModals() {
@@ -1447,6 +1519,15 @@ class AppController {
     if (document.getElementById('setting-bank-ifsc')) document.getElementById('setting-bank-ifsc').value = settings.bankIfscCode || 'PUNB0458900';
     if (document.getElementById('setting-bank-branch')) document.getElementById('setting-bank-branch').value = settings.bankBranch || 'Maligaon, Guwahati';
     if (document.getElementById('setting-bank-acc-type')) document.getElementById('setting-bank-acc-type').value = settings.bankAccountType || 'Saving Account';
+
+    // Hydrate Cloud Sync Config
+    if (window.storage && typeof window.storage.getCloudSyncConfig === 'function') {
+      const cloudConfig = window.storage.getCloudSyncConfig();
+      if (cloudConfig) {
+        if (document.getElementById('setting-cloud-url')) document.getElementById('setting-cloud-url').value = cloudConfig.endpointUrl || '';
+        if (document.getElementById('setting-cloud-key')) document.getElementById('setting-cloud-key').value = cloudConfig.apiKey || '';
+      }
+    }
   }
 
   // --- ACTIONS & MODAL HANDLERS ---

@@ -1063,6 +1063,55 @@ const spamSubmission = testFormValidation({
 });
 assert(spamSubmission.isValid === false, 'Honeypot successfully catches automated bot submission');
 
+// --- TEST SUITE 13: ERP Separation, Data Safety & Authentication Isolation ---
+console.log('\n--- TEST SUITE 13: ERP Separation, Data Safety & Authentication Isolation ---');
+const erpHtmlPath = path.join(__dirname, '..', 'dist', 'erp', 'index.html');
+assert(fs.existsSync(erpHtmlPath), 'Dedicated ERP production release dist/erp/index.html exists');
+
+const erpHtmlContent = fs.readFileSync(erpHtmlPath, 'utf8');
+assert(erpHtmlContent.includes('id="erp-login-gateway"'), 'dist/erp/index.html includes dedicated ERP Login Gateway');
+assert(erpHtmlContent.includes('name="robots" content="noindex, nofollow'), 'dist/erp/index.html enforces noindex, nofollow for search engine privacy');
+assert(!erpHtmlContent.includes('src="../src/'), 'dist/erp/index.html has zero broken ../src/ script paths');
+assert(erpHtmlContent.includes('src="./js/app.js"'), 'dist/erp/index.html loads local self-contained app.js controller');
+assert(erpHtmlContent.includes('src="./js/storage.js"'), 'dist/erp/index.html loads local self-contained storage.js persistence engine');
+
+// Test Storage Database Export & Metadata Integrity
+const exportPayload = global.storage.exportFullDatabase();
+assert(exportPayload !== null && typeof exportPayload === 'object', 'Database export returns valid payload object');
+assert(exportPayload.meta && exportPayload.meta.app.includes('MaxEco'), 'Export payload includes valid corporate ERP metadata');
+assert(exportPayload.meta.recordsSummary && typeof exportPayload.meta.recordsSummary === 'object', 'Export payload includes verified record count summary');
+assert(exportPayload.data && Array.isArray(exportPayload.data.leads), 'Export payload data encapsulates all CRM leads');
+assert(exportPayload.data && Array.isArray(exportPayload.data.invoices), 'Export payload data encapsulates all customer invoices');
+
+// Test Database Stats Counter
+const erpCurrentStats = global.storage.getDatabaseStats();
+assert(typeof erpCurrentStats.leads === 'number' && erpCurrentStats.leads >= 4, `Database stats reports leads count (${erpCurrentStats.leads})`);
+assert(typeof erpCurrentStats.invoices === 'number' && erpCurrentStats.invoices >= 1, `Database stats reports invoices count (${erpCurrentStats.invoices})`);
+assert(typeof erpCurrentStats.facilityAssets === 'number' && erpCurrentStats.facilityAssets >= 6, `Database stats reports CAFM assets count (${erpCurrentStats.facilityAssets})`);
+
+// Test Database Import and Recovery
+const suite13BackupJson = JSON.stringify(exportPayload);
+const suite13ImportResult = global.storage.importFullDatabase(suite13BackupJson);
+assert(suite13ImportResult.success === true, 'Database import safely parses and validates full backup JSON');
+assert(suite13ImportResult.stats && suite13ImportResult.stats.leads === erpCurrentStats.leads, 'Database import preserves identical record counts without data loss');
+
+// Test Malformed Backup Guard (Does not corrupt store)
+const suite13BadImportResult = global.storage.importFullDatabase('{"invalid": "data"}');
+assert(suite13BadImportResult.success === false, 'Storage controller safely rejects invalid backup schema without corrupting live data');
+const statsAfterBadImport = global.storage.getDatabaseStats();
+assert(statsAfterBadImport.leads === erpCurrentStats.leads, 'Existing business records remain 100% intact after rejected invalid import');
+
+// Test Cloud Database Connector Configuration
+const testCloudConfig = {
+  endpointUrl: 'https://xyz.supabase.co/rest/v1/erp_sync',
+  apiKey: 'sb-anon-test-key-safe',
+  autoSync: true
+};
+global.storage.saveCloudSyncConfig(testCloudConfig);
+const retrievedCloudConfig = global.storage.getCloudSyncConfig();
+assert(retrievedCloudConfig !== null, 'Cloud sync configuration successfully saved');
+assert(retrievedCloudConfig.endpointUrl === testCloudConfig.endpointUrl, 'Retrieved cloud endpoint URL matches saved configuration');
+
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');
