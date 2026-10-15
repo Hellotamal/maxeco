@@ -1,0 +1,8 @@
+# Cloudflare Pages Routing Rules
+
+# Ensure /erp routes to the private ERP application
+/erp    /erp/index.html   200
+/erp/*  /erp/index.html   200
+
+# Client-side SPA routing fallback for corporate website
+/*      /index.html       200

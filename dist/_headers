@@ -1,0 +1,18 @@
+# Cloudflare Pages Security & Cache Headers
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Cache immutable assets for 1 year
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Ensure private ERP is not cached by public proxies and never indexed
+/erp/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/erp/data/database.json
+  Cache-Control: no-cache, no-store, must-revalidate

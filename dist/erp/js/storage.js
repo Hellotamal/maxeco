@@ -1346,6 +1346,232 @@ class StorageController {
     }
   }
 
+  // --- GITHUB REPOSITORY DATA PERSISTENCE ENGINE ---
+  saveGitHubRepoConfig(config) {
+    try {
+      localStorage.setItem('maxeco_github_repo_config', JSON.stringify(config));
+      return true;
+    } catch (e) {
+      console.error('Failed to save GitHub repo config', e);
+      return false;
+    }
+  }
+
+  getGitHubRepoConfig() {
+    try {
+      const raw = localStorage.getItem('maxeco_github_repo_config');
+      const defaults = {
+        repoOwner: 'Hellotamal',
+        repoName: 'maxeco',
+        filePath: 'data/database.json',
+        branch: 'main',
+        token: ''
+      };
+      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+    } catch (e) {
+      return { repoOwner: 'Hellotamal', repoName: 'maxeco', filePath: 'data/database.json', branch: 'main', token: '' };
+    }
+  }
+
+  async pushToGitHubRepo(commitMsg = null) {
+    const config = this.getGitHubRepoConfig();
+    const token = config.token ? config.token.trim() : '';
+
+    if (typeof showToast === 'function') showToast('Connecting to GitHub repository...', 'info');
+
+    // 1. Try Cloudflare Pages edge function (/api/github-sync) first
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['x-github-token'] = token;
+      const cfResponse = await fetch('/api/github-sync', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          data: this.getStore(),
+          commitMessage: commitMsg || `chore(data): sync ERP database records [${new Date().toISOString()}]`
+        })
+      });
+
+      if (cfResponse.ok) {
+        const cfResult = await cfResponse.json();
+        if (cfResult.success) {
+          if (typeof showToast === 'function') showToast('✅ Business records saved & committed to GitHub repository!', 'success');
+          return { success: true, commitSha: cfResult.commitSha };
+        }
+      }
+    } catch (e) {
+      // Cloudflare function not available, proceed to direct GitHub API fallback
+    }
+
+    // 2. Direct GitHub REST API fallback (client-side commit)
+    if (!token) {
+      if (typeof showToast === 'function') {
+        showToast('GitHub token required to commit data. Please add in Settings > GitHub Repository Sync.', 'warning');
+      }
+      return { success: false, message: 'Missing GitHub Token' };
+    }
+
+    try {
+      const owner = config.repoOwner || 'Hellotamal';
+      const repo = config.repoName || 'maxeco';
+      const path = config.filePath || 'data/database.json';
+      const branch = config.branch || 'main';
+
+      // Get current file SHA
+      const getUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+      let sha = null;
+      try {
+        const getRes = await fetch(getUrl, {
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            'Authorization': `token ${token}`
+          }
+        });
+        if (getRes.ok) {
+          const fileInfo = await getRes.json();
+          sha = fileInfo.sha;
+        }
+      } catch (err) {
+        console.warn('Could not read existing file SHA', err);
+      }
+
+      // Encode store payload
+      const storeData = this.getStore();
+      const jsonContent = JSON.stringify(storeData, null, 2);
+      const base64Content = btoa(unescape(encodeURIComponent(jsonContent)));
+
+      const putUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+      const putRes = await fetch(putUrl, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'Authorization': `token ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: commitMsg || `chore(data): sync ERP database records [${new Date().toISOString()}]`,
+          content: base64Content,
+          branch: branch,
+          sha: sha || undefined
+        })
+      });
+
+      if (!putRes.ok) {
+        const errText = await putRes.text();
+        throw new Error(`GitHub API error ${putRes.status}: ${errText}`);
+      }
+
+      const putResult = await putRes.json();
+      if (typeof showToast === 'function') {
+        showToast('✅ Business records successfully committed to GitHub repository!', 'success');
+      }
+      return { success: true, commitSha: putResult.commit?.sha };
+    } catch (e) {
+      console.error('GitHub Push failed:', e);
+      if (typeof showToast === 'function') {
+        showToast(`GitHub commit failed: ${e.message}`, 'error');
+      }
+      return { success: false, error: e.message };
+    }
+  }
+
+  async pullFromGitHubRepo() {
+    const config = this.getGitHubRepoConfig();
+    const token = config.token ? config.token.trim() : '';
+
+    if (typeof showToast === 'function') showToast('Fetching latest records from GitHub repository...', 'info');
+
+    // 1. Try Cloudflare Pages edge function first
+    try {
+      const headers = {};
+      if (token) headers['x-github-token'] = token;
+      const cfResponse = await fetch('/api/github-sync', { headers });
+      if (cfResponse.ok) {
+        const cfResult = await cfResponse.json();
+        if (cfResult.success && cfResult.data) {
+          const res = this.importFullDatabase(cfResult.data);
+          if (res.success) {
+            if (typeof showToast === 'function') showToast('✅ Latest business data loaded from GitHub repository!', 'success');
+            if (typeof window !== 'undefined' && window.app) window.app.handleRoute();
+            return { success: true, source: 'cloudflare-api' };
+          }
+        }
+      }
+    } catch (e) {
+      // Proceed to fallbacks
+    }
+
+    // 2. Direct GitHub REST API fallback (if token provided)
+    if (token) {
+      try {
+        const owner = config.repoOwner || 'Hellotamal';
+        const repo = config.repoName || 'maxeco';
+        const path = config.filePath || 'data/database.json';
+        const branch = config.branch || 'main';
+        const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+
+        const res = await fetch(url, {
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            'Authorization': `token ${token}`
+          }
+        });
+        if (res.ok) {
+          const fileData = await res.json();
+          const content = decodeURIComponent(escape(atob(fileData.content.replace(/\s/g, ''))));
+          const parsed = JSON.parse(content);
+          const importRes = this.importFullDatabase(parsed);
+          if (importRes.success) {
+            if (typeof showToast === 'function') showToast('✅ Latest business data loaded from GitHub repository!', 'success');
+            if (typeof window !== 'undefined' && window.app) window.app.handleRoute();
+            return { success: true, source: 'github-api' };
+          }
+        }
+      } catch (err) {
+        console.warn('Direct GitHub API pull error:', err);
+      }
+    }
+
+    // 3. Fallback: Raw public GitHub file URL
+    try {
+      const owner = config.repoOwner || 'Hellotamal';
+      const repo = config.repoName || 'maxeco';
+      const branch = config.branch || 'main';
+      const path = config.filePath || 'data/database.json';
+      const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/${branch}/${path}?t=${Date.now()}`;
+
+      const rawRes = await fetch(rawUrl);
+      if (rawRes.ok) {
+        const rawData = await rawRes.json();
+        const importRes = this.importFullDatabase(rawData);
+        if (importRes.success) {
+          if (typeof showToast === 'function') showToast('✅ Latest records fetched from GitHub repository!', 'success');
+          if (typeof window !== 'undefined' && window.app) window.app.handleRoute();
+          return { success: true, source: 'raw-github' };
+        }
+      }
+    } catch (err) {
+      console.warn('Raw GitHub pull failed:', err);
+    }
+
+    // 4. Local packaged database.json fallback
+    try {
+      const localRes = await fetch('./data/database.json');
+      if (localRes.ok) {
+        const localData = await localRes.json();
+        const importRes = this.importFullDatabase(localData);
+        if (importRes.success) {
+          if (typeof showToast === 'function') showToast('✅ Local baseline database loaded.', 'info');
+          if (typeof window !== 'undefined' && window.app) window.app.handleRoute();
+          return { success: true, source: 'local-file' };
+        }
+      }
+    } catch (e) {}
+
+    if (typeof showToast === 'function') showToast('Could not fetch data from GitHub. Please check connection and token.', 'error');
+    return { success: false, message: 'All fetch sources failed' };
+  }
+
   resetToInitialData() {
     if (typeof initialSeedData !== 'undefined') {
       this.saveStore(initialSeedData);

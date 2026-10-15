@@ -1112,6 +1112,52 @@ const retrievedCloudConfig = global.storage.getCloudSyncConfig();
 assert(retrievedCloudConfig !== null, 'Cloud sync configuration successfully saved');
 assert(retrievedCloudConfig.endpointUrl === testCloudConfig.endpointUrl, 'Retrieved cloud endpoint URL matches saved configuration');
 
+// --- TEST SUITE 14: Cloudflare Pages Hosting & GitHub Repository Data Persistence ---
+console.log('\n--- TEST SUITE 14: Cloudflare Pages Hosting & GitHub Repository Data Persistence ---');
+
+// 1. Repository Database Verification
+const repoDbPath = path.join(__dirname, '..', 'data', 'database.json');
+assert(fs.existsSync(repoDbPath), 'Canonical repository database data/database.json exists');
+const repoDbContent = JSON.parse(fs.readFileSync(repoDbPath, 'utf8'));
+assert(Array.isArray(repoDbContent.leads) && repoDbContent.leads.length >= 4, 'data/database.json contains verified CRM leads');
+assert(Array.isArray(repoDbContent.invoices) && repoDbContent.invoices.length >= 1, 'data/database.json contains verified customer invoices');
+assert(Array.isArray(repoDbContent.facilityAssets) && repoDbContent.facilityAssets.length >= 6, 'data/database.json contains verified CAFM assets');
+
+// 2. Cloudflare Pages Configuration Files
+const headersPath = path.join(__dirname, '..', 'public', '_headers');
+assert(fs.existsSync(headersPath), 'Cloudflare Pages public/_headers file exists');
+const headersContent = fs.readFileSync(headersPath, 'utf8');
+assert(headersContent.includes('X-Content-Type-Options: nosniff'), 'Cloudflare _headers defines nosniff security header');
+assert(headersContent.includes('X-Robots-Tag: noindex, nofollow'), 'Cloudflare _headers enforces noindex for /erp/*');
+
+const redirectsPath = path.join(__dirname, '..', 'public', '_redirects');
+assert(fs.existsSync(redirectsPath), 'Cloudflare Pages public/_redirects file exists');
+const redirectsContent = fs.readFileSync(redirectsPath, 'utf8');
+assert(redirectsContent.includes('/erp/*  /erp/index.html   200'), 'Cloudflare _redirects routes /erp/* to private ERP application');
+assert(redirectsContent.includes('/*      /index.html       200'), 'Cloudflare _redirects provides SPA fallback for corporate website');
+
+const wranglerPath = path.join(__dirname, '..', 'wrangler.toml');
+assert(fs.existsSync(wranglerPath), 'Cloudflare Pages wrangler.toml configuration exists');
+const wranglerContent = fs.readFileSync(wranglerPath, 'utf8');
+assert(wranglerContent.includes('pages_build_output_dir = "dist"'), 'wrangler.toml points build output to dist');
+
+const cfFuncPath = path.join(__dirname, '..', 'functions', 'api', 'github-sync.js');
+assert(fs.existsSync(cfFuncPath), 'Cloudflare Edge function functions/api/github-sync.js exists');
+
+// 3. GitHub Repository Storage Controller Sync Adapter
+const testGhConfig = {
+  repoOwner: 'Hellotamal',
+  repoName: 'maxeco',
+  filePath: 'data/database.json',
+  branch: 'main',
+  token: 'ghp_test_token_sample'
+};
+global.storage.saveGitHubRepoConfig(testGhConfig);
+const loadedGhConfig = global.storage.getGitHubRepoConfig();
+assert(loadedGhConfig.repoOwner === 'Hellotamal', 'GitHub repo sync config successfully saved and loaded repoOwner');
+assert(loadedGhConfig.filePath === 'data/database.json', 'GitHub repo sync config accurately points to data/database.json');
+assert(loadedGhConfig.token === 'ghp_test_token_sample', 'GitHub token persisted in local storage');
+
 console.log('\n====================================================');
 console.log(`🏁 TEST RESULTS: ${passedTests} OF ${totalTests} TESTS PASSED (100% SUCCESS RATE)`);
 console.log('====================================================');

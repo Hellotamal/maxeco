@@ -1909,6 +1909,66 @@
               <button type="button" class="btn btn-secondary btn-sm" onclick="storage.exportJsonBackup()">📥 Download JSON File</button>
             </div>
           </div>
+
+          <!-- GitHub Repository Data Sync Card (Keep Data at GitHub Repository) -->
+          <div class="card" style="grid-column: span 2; margin-top: 16px; border: 1px solid rgba(56, 189, 248, 0.4); background: rgba(15, 23, 42, 0.85);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <h3 class="card-title" style="margin: 0; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                <span>🐙</span> GitHub Repository Data Persistence (Cloudflare ↔ GitHub)
+              </h3>
+              <span class="data-safety-pill" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">
+                Target File: data/database.json
+              </span>
+            </div>
+            <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5;">
+              Keep your ERP database directly inside your GitHub repository (<code style="color: #f59e0b;">Hellotamal/maxeco</code>). When hosted on Cloudflare Pages or any custom domain, you can commit updated business records straight to GitHub with 1 click, or fetch the latest repository records into your browser.
+            </p>
+            <div class="grid grid-cols-4 gap-3">
+              <div class="form-group">
+                <label class="form-label">Repository Owner</label>
+                <input type="text" id="setting-github-owner" class="form-control" value="Hellotamal">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Repository Name</label>
+                <input type="text" id="setting-github-repo" class="form-control" value="maxeco">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Branch</label>
+                <input type="text" id="setting-github-branch" class="form-control" value="main">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Database File Path</label>
+                <input type="text" id="setting-github-path" class="form-control" value="data/database.json">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 10px;">
+              <label class="form-label" style="display: flex; justify-content: space-between;">
+                <span>GitHub Personal Access Token (PAT with repo or contents:write scope)</span>
+                <span style="font-size: 10px; color: #94a3b8;">Optional if GITHUB_TOKEN is set in Cloudflare</span>
+              </label>
+              <input type="password" id="setting-github-token" class="form-control" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx or github_pat_xxxxxxxx">
+              <small style="color: #64748b; font-size: 10px; margin-top: 4px; display: block;">
+                Tokens are stored securely in your browser's local storage and never exposed publicly.
+              </small>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="
+                const owner = document.getElementById('setting-github-owner').value.trim();
+                const repo = document.getElementById('setting-github-repo').value.trim();
+                const branch = document.getElementById('setting-github-branch').value.trim();
+                const path = document.getElementById('setting-github-path').value.trim();
+                const token = document.getElementById('setting-github-token').value.trim();
+                storage.saveGitHubRepoConfig({ repoOwner: owner, repoName: repo, branch, filePath: path, token });
+                showToast('GitHub repository settings saved successfully.', 'success');
+              ">💾 Save GitHub Settings</button>
+              <button type="button" class="btn btn-secondary btn-sm" style="border-color: #38bdf8; color: #38bdf8;" onclick="storage.pushToGitHubRepo()">
+                ⬆️ Commit &amp; Push Data to GitHub
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" style="border-color: #10b981; color: #10b981;" onclick="storage.pullFromGitHubRepo()">
+                ⬇️ Pull Latest Data from GitHub
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 

@@ -10,7 +10,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:cloudflare": "vite build",
     "preview": "vite preview",
+    "data:sync": "node scripts/sync-data-files.cjs",
     "test": "node tests/self-test.js"
   },
   "repository": {

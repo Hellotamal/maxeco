@@ -1,11 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
+// Cloudflare Pages serves from domain root ('/').
+// GitHub Pages repository subpath defaults to '/maxeco/'.
+const isCloudflarePages = process.env.CF_PAGES === '1' || process.env.CLOUDFLARE_PAGES === '1';
+const baseUrl = process.env.VITE_BASE_URL || (isCloudflarePages ? '/' : '/maxeco/');
+
 export default defineConfig({
   plugins: [react()],
-  // GitHub Pages repository subpath is '/maxeco/'.
-  base: process.env.VITE_BASE_URL || '/maxeco/',
+  base: baseUrl,
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

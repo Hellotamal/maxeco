@@ -1528,6 +1528,18 @@ class AppController {
         if (document.getElementById('setting-cloud-key')) document.getElementById('setting-cloud-key').value = cloudConfig.apiKey || '';
       }
     }
+
+    // Hydrate GitHub Repository Sync Config
+    if (window.storage && typeof window.storage.getGitHubRepoConfig === 'function') {
+      const ghConfig = window.storage.getGitHubRepoConfig();
+      if (ghConfig) {
+        if (document.getElementById('setting-github-owner')) document.getElementById('setting-github-owner').value = ghConfig.repoOwner || 'Hellotamal';
+        if (document.getElementById('setting-github-repo')) document.getElementById('setting-github-repo').value = ghConfig.repoName || 'maxeco';
+        if (document.getElementById('setting-github-branch')) document.getElementById('setting-github-branch').value = ghConfig.branch || 'main';
+        if (document.getElementById('setting-github-path')) document.getElementById('setting-github-path').value = ghConfig.filePath || 'data/database.json';
+        if (document.getElementById('setting-github-token')) document.getElementById('setting-github-token').value = ghConfig.token || '';
+      }
+    }
   }
 
   // --- ACTIONS & MODAL HANDLERS ---
